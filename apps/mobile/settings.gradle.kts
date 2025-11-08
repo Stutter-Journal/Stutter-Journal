@@ -1,5 +1,6 @@
+@file:Suppress("UnstableApiUsage")
+
 rootProject.name = "KMP-App-Template"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
@@ -27,5 +28,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":composeApp")

@@ -19,6 +19,11 @@ coil = "3.3.0"
 
 #region Dependency Injection
 koin = "4.1.1"
+
+#region Typography
+compose-ui-text-google-fonts = "1.9.4"
+
+#region Testing
 kotlinStdlib = "2.2.21"
 kotlinTest = "2.2.21"
 runner = "1.5.2"
@@ -50,6 +55,11 @@ coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", v
 #region Dependency Injection (Koin)
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+
+#region Typography (Google Fonts)
+compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "compose-ui-text-google-fonts" }
+
+#region Testing
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }

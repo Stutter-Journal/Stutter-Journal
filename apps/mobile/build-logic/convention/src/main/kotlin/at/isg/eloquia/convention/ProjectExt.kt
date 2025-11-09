@@ -12,14 +12,10 @@ import org.gradle.plugin.use.PluginDependency
 val Project.libs: VersionCatalog
     get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-fun VersionCatalog.plugin(alias: String): Provider<PluginDependency> =
-    findPlugin(alias).get()
+fun VersionCatalog.plugin(alias: String): Provider<PluginDependency> = findPlugin(alias).get()
 
-fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> =
-    findLibrary(alias).get()
+fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> = findLibrary(alias).get()
 
-fun VersionCatalog.bundle(alias: String): Provider<ExternalModuleDependencyBundle> =
-    findBundle(alias).get()
+fun VersionCatalog.bundle(alias: String): Provider<ExternalModuleDependencyBundle> = findBundle(alias).get()
 
-fun VersionCatalog.version(alias: String): String =
-    findVersion(alias).get().toString()
+fun VersionCatalog.version(alias: String): String = findVersion(alias).get().toString()

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.eloquia.kmp.application)
+    alias(libs.plugins.eloquia.kmp.library)
 }
 
 dependencies {

@@ -1,4 +1,4 @@
-package at.isg.eloquia
+package at.isg.eloquia.kmpapp
 
 import androidx.compose.ui.window.ComposeUIViewController
 

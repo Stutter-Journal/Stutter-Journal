@@ -1,4 +1,4 @@
-package at.isg.eloquia
+package at.isg.eloquia.kmpapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,4 +1,4 @@
-package at.isg.eloquia.data
+package at.isg.eloquia.kmpapp.data
 
 import kotlinx.serialization.Serializable
 

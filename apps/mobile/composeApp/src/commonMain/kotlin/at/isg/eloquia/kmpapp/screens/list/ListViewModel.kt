@@ -1,9 +1,9 @@
-package at.isg.eloquia.screens.list
+package at.isg.eloquia.kmpapp.screens.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.isg.eloquia.data.MuseumObject
-import at.isg.eloquia.data.MuseumRepository
+import at.isg.eloquia.kmpapp.data.MuseumObject
+import at.isg.eloquia.kmpapp.data.MuseumRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

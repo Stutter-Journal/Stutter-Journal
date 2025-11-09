@@ -16,13 +16,27 @@ plugins {
     alias(libs.plugins.androidLint) apply false
 }
 
+// Shared configuration object
+object ProjectConfig {
+    const val compileSdk = 35
+    const val targetSdk = 35
+    const val minSdk = 24
+
+    const val versionCode = 1
+    const val versionName = "1.0"
+
+    val javaVersion = JavaVersion.VERSION_23
+    val jvmTarget = JvmTarget.JVM_23
+
+    const val namespace = "at.isg.eloquia"
+}
+
 fun BaseExtension.defaultConfig() {
-    compileSdkVersion(35)
+    compileSdkVersion(ProjectConfig.compileSdk)
 
     defaultConfig {
-        //noinspection OldTargetApi
-        targetSdk = 35
-        minSdk = 24
+        targetSdk = ProjectConfig.targetSdk
+        minSdk = ProjectConfig.minSdk
     }
 
     packagingOptions {
@@ -38,8 +52,8 @@ fun BaseExtension.defaultConfig() {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_23
-        targetCompatibility = JavaVersion.VERSION_23
+        sourceCompatibility = ProjectConfig.javaVersion
+        targetCompatibility = ProjectConfig.javaVersion
     }
 }
 
@@ -60,8 +74,8 @@ fun PluginContainer.applyDefaultConfig(project: Project) {
 
             is JavaPlugin -> {
                 project.extensions.getByType<JavaPluginExtension>().apply {
-                    sourceCompatibility = JavaVersion.VERSION_23
-                    targetCompatibility = JavaVersion.VERSION_23
+                    sourceCompatibility = ProjectConfig.javaVersion
+                    targetCompatibility = ProjectConfig.javaVersion
                 }
             }
         }
@@ -71,9 +85,9 @@ fun PluginContainer.applyDefaultConfig(project: Project) {
 subprojects {
     project.plugins.applyDefaultConfig(project)
 
-    tasks.withType<KotlinCompile>() {
+    tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_23)
+            jvmTarget.set(ProjectConfig.jvmTarget)
             freeCompilerArgs.addAll(
                 listOf(
                     "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",

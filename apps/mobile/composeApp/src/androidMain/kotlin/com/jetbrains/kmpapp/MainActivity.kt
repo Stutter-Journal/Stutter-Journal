@@ -1,4 +1,4 @@
-package com.jetbrains.kmpapp
+package at.isg.eloquia
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

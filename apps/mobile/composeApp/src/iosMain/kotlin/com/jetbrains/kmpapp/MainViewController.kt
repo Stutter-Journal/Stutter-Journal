@@ -1,4 +1,4 @@
-package com.jetbrains.kmpapp
+package at.isg.eloquia
 
 import androidx.compose.ui.window.ComposeUIViewController
 

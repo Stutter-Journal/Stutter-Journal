@@ -1,3 +1,5 @@
+package at.isg.eloquia.convention
+
 import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -13,6 +15,5 @@ object ProjectConfig {
     val JVM_TARGET = JvmTarget.JVM_23
 
     const val NAMESPACE = "at.isg.eloquia"
-
     const val IOS_FRAMEWORK_BUNDLE_ID = "at.isg.eloquia"
 }

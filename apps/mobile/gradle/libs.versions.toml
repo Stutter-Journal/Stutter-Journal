@@ -1,32 +1,87 @@
 [versions]
-agp = "8.12.3"
+#region Build & Kotlin
+agp = "8.13.0"
+kotlin = "2.2.21"
+compose-multiplatform = "1.9.3"
+
+#region AndroidX & Compose
 androidx-activityCompose = "1.11.0"
 androidx-ui-tooling = "1.9.4"
-coil = "3.3.0"
-compose-multiplatform = "1.9.3"
-koin = "4.1.1"
-kotlin = "2.2.21"
-ktor = "3.3.2"
 materialIconsCore = "1.7.3"
+
+#region Navigation & Lifecycle
 navigationCompose = "2.9.1"
 lifecycleCompose = "2.9.6"
 
+#region Networking & Image Loading
+ktor = "3.3.2"
+coil = "3.3.0"
+
+#region Dependency Injection
+koin = "4.1.1"
+kotlinStdlib = "2.2.21"
+kotlinTest = "2.2.21"
+runner = "1.5.2"
+core = "1.5.0"
+junit = "1.1.5"
+
 [libraries]
+#region AndroidX & Compose UI
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx-ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidx-ui-tooling" }
+material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
+
+#region Navigation & Lifecycle
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
+
+#region Networking (Ktor)
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+
+#region Image Loading (Coil)
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+
+#region Dependency Injection (Koin)
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+
+[bundles]
+compose-ui = [
+    "androidx-compose-ui-tooling",
+    "androidx-compose-ui-tooling-preview"
+]
+
+ktor-common = [
+    "ktor-client-core",
+    "ktor-client-content-negotiation",
+    "ktor-serialization-kotlinx-json"
+]
+
+coil = [
+    "coil-compose",
+    "coil-network-ktor"
+]
+
+koin = [
+    "koin-core",
+    "koin-compose-viewmodel"
+]
+
+navigation-lifecycle = [
+    "navigation-compose",
+    "lifecycle-runtime-compose"
+]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -34,3 +89,5 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+androidLint = { id = "com.android.lint", version.ref = "agp" }

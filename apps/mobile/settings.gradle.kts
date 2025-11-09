@@ -3,6 +3,8 @@
 rootProject.name = "KMP-App-Template"
 
 pluginManagement {
+    includeBuild("build-logic")
+
     repositories {
         google {
             mavenContent {

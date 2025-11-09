@@ -12,19 +12,18 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("org.jetbrains.kotlin.multiplatform")
-                apply("com.android.application")
-                apply("org.jetbrains.compose")
-                apply("org.jetbrains.kotlin.plugin.compose")
-                apply("org.jetbrains.kotlin.plugin.serialization")
+                apply(libs.kotlinMultiplatform.get().pluginId)
+                apply(libs.androidApplication.get().pluginId)
+                apply(libs.composeMultiplatform.get().pluginId)
+                apply(libs.composeCompiler.get().pluginId)
+                apply(libs.kotlinxSerialization.get().pluginId)
             }
 
             val composeExt = extensions.getByType<ComposeExtension>()
 
             extensions.configure<KotlinMultiplatformExtension> {
                 androidTarget {
-                    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-                    compilerOptions {
+                    @OptIn(ExperimentalKotlinGradlePluginApi::class) compilerOptions {
                         jvmTarget.set(ProjectConfig.JVM_TARGET)
                         freeCompilerArgs.addAll(
                             "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
@@ -33,9 +32,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                 }
 
                 listOf(
-                    iosX64(),
-                    iosArm64(),
-                    iosSimulatorArm64()
+                    iosX64(), iosArm64(), iosSimulatorArm64()
                 ).forEach { iosTarget ->
                     iosTarget.binaries.framework {
                         baseName = "ComposeApp"
@@ -46,13 +43,13 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
 
                 sourceSets.apply {
                     androidMain.dependencies {
-                        implementation(libs.findLibrary("androidx.compose.ui.tooling.preview").get())
-                        implementation(libs.findLibrary("androidx.activity.compose").get())
-                        implementation(libs.findLibrary("ktor.client.okhttp").get())
+                        implementation(libs.androidxComposeUiToolingPreview)
+                        implementation(libs.androidxActivityCompose)
+                        implementation(libs.ktorClientOkhttp)
                     }
 
                     iosMain.dependencies {
-                        implementation(libs.findLibrary("ktor.client.darwin").get())
+                        implementation(libs.ktorClientDarwin)
                     }
 
                     commonMain.dependencies {
@@ -63,11 +60,11 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(composeExt.dependencies.components.resources)
                         implementation(composeExt.dependencies.components.uiToolingPreview)
 
-                        implementation(libs.findBundle("navigation.lifecycle").get())
-                        implementation(libs.findLibrary("material.icons.core").get())
-                        implementation(libs.findBundle("ktor.common").get())
-                        implementation(libs.findBundle("coil").get())
-                        implementation(libs.findBundle("koin").get())
+                        implementation(libs.navigationLifecycle)
+                        implementation(libs.materialIconsCore)
+                        implementation(libs.ktorCommon)
+                        implementation(libs.coilBundle)
+                        implementation(libs.koinBundle)
                     }
                 }
             }
@@ -104,7 +101,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                add("debugImplementation", libs.findLibrary("androidx.compose.ui.tooling").get())
+                add("debugImplementation", libs.androidxComposeUiTooling)
             }
         }
     }

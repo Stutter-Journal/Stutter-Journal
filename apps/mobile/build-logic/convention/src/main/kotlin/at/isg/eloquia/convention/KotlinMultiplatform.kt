@@ -1,36 +1,35 @@
 package at.isg.eloquia.convention
 
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import com.android.build.api.dsl.LibraryExtension
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-internal fun configureKotlinMultiplatform(
-    extension: KotlinMultiplatformExtension
-) {
-    extension.apply {
-        androidTarget {
-            @OptIn(ExperimentalKotlinGradlePluginApi::class)
-            compilerOptions {
-                jvmTarget.set(ProjectConfig.JVM_TARGET)
-                freeCompilerArgs.addAll(
-                    "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                )
+internal fun Project.configureKotlinMultiplatform() {
+    extensions.configure<LibraryExtension> {
+        namespace = this@configureKotlinMultiplatform.pathToPackageName()
+    }
+
+    configureAndroidTarget()
+    configureDesktopTarget()
+
+    extensions.configure<KotlinMultiplatformExtension> {
+        listOf(
+            iosX64(),
+            iosArm64(),
+            iosSimulatorArm64()
+        ).forEach { iosTarget ->
+            iosTarget.binaries.framework {
+                baseName = this@configureKotlinMultiplatform.pathToFrameworkName()
             }
         }
-    }
-}
 
-internal fun KotlinMultiplatformExtension.configureIosTargets(
-    frameworkBaseName: String = "ComposeApp"
-) {
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = frameworkBaseName
-            isStatic = true
-            binaryOption("bundleId", ProjectConfig.IOS_FRAMEWORK_BUNDLE_ID)
+        applyHierarchyTemplate()
+
+        compilerOptions {
+            freeCompilerArgs.add("-Xexpect-actual-classes")
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+            freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
         }
     }
 }

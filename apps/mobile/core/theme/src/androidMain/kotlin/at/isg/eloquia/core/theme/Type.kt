@@ -4,12 +4,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
-import at.isg.eloquia.R.array.com_google_android_gms_fonts_certs as font_certs
 
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
-    certificates = font_certs
+    certificates = R.array.com_google_android_gms_fonts_certs
 )
 
 val bodyFontFamily = FontFamily(
@@ -46,4 +45,3 @@ val AppTypography = Typography(
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
-

@@ -1,8 +1,11 @@
 plugins {
-    alias(libs.plugins.eloquia.kmp.application)
-    alias(libs.plugins.eloquia.kmp.library)
+    alias(libs.plugins.eloquia.cmp.library)
 }
 
-dependencies {
-    implementation(libs.compose.ui.text.google.fonts)
+kotlin {
+    sourceSets {
+        androidMain.dependencies {
+            implementation(libs.compose.ui.text.google.fonts)
+        }
+    }
 }

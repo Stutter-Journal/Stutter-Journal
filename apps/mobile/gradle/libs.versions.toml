@@ -4,10 +4,20 @@ agp = "8.12.0"
 kotlin = "2.2.21"
 compose-multiplatform = "1.9.3"
 
+#region Project Configuration
+projectCompileSdkVersion = "36"
+projectMinSdkVersion = "24"
+projectTargetSdkVersion = "35"
+projectApplicationId = "at.isg.eloquia"
+projectVersionCode = "1"
+projectVersionName = "1.0"
+
 #region AndroidX & Compose
 androidx-activityCompose = "1.11.0"
 androidx-ui-tooling = "1.9.4"
 materialIconsCore = "1.7.3"
+androidx-compose-bom = "2025.01.00"
+android-desugarJdkLibs = "2.0.4"
 
 #region Navigation & Lifecycle
 navigationCompose = "2.9.1"
@@ -35,7 +45,23 @@ junit = "1.1.5"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx-ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidx-ui-tooling" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx-compose-bom" }
 material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
+android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "android-desugarJdkLibs" }
+
+#region Jetbrains Compose
+jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui" }
+jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation" }
+jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3" }
+jetbrains-compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core" }
+jetbrains-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime" }
+jetbrains-compose-viewmodel = { module = "org.jetbrains.lifecycle:lifecycle-viewmodel-compose" }
+jetbrains-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel" }
+jetbrains-lifecycle-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
+jetbrains-lifecycle-viewmodel-savedstate = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate" }
+jetbrains-savedstate = { module = "org.jetbrains.androidx.savedstate:savedstate" }
+jetbrains-bundle = { module = "org.jetbrains.androidx.core:core-bundle" }
+jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 #region Navigation & Lifecycle
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -55,6 +81,15 @@ coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", v
 #region Dependency Injection (Koin)
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
+koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.ref = "koin" }
+
+#region Kotlinx Serialization
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
 
 #region Typography (Google Fonts)
 compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "compose-ui-text-google-fonts" }
@@ -108,6 +143,15 @@ androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.lib
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 
 # Convention Plugins
+eloquia-android-application = { id = "eloquia.android.application" }
+eloquia-android-application-compose = { id = "eloquia.android.application.compose" }
+eloquia-cmp-application = { id = "eloquia.cmp.application" }
+eloquia-cmp-library = { id = "eloquia.cmp.library" }
+eloquia-cmp-feature = { id = "eloquia.cmp.feature" }
+eloquia-kmp-library = { id = "eloquia.kmp.library" }
 eloquia-kmp-application = { id = "eloquia.kmp.application" }
-eloquia-kmp-library = { id = "eloquia.kmp.library", version = "unspecified" }
-eloquia-android-compose = { id = "eloquia.android.compose", version = "unspecified" }
+eloquia-kmp-compose = { id = "eloquia.kmp.compose" }
+eloquia-android-compose = { id = "eloquia.android.compose" }
+eloquia-ios-framework = { id = "eloquia.ios.framework" }
+eloquia-kmp-networking = { id = "eloquia.kmp.networking" }
+eloquia-kmp-di = { id = "eloquia.kmp.di" }

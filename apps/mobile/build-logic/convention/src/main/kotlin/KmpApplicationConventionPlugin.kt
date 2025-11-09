@@ -1,75 +1,92 @@
-import at.isg.eloquia.convention.ProjectConfig
-import at.isg.eloquia.convention.addComposeCommonDependencies
-import at.isg.eloquia.convention.addComposeUiTooling
-import at.isg.eloquia.convention.bundle
-import at.isg.eloquia.convention.configureAndroidCommon
+import at.isg.eloquia.convention.applyHierarchyTemplate
+import at.isg.eloquia.convention.configureAndroidTarget
+import at.isg.eloquia.convention.configureDesktopTarget
 import at.isg.eloquia.convention.configureIosTargets
-import at.isg.eloquia.convention.configureKotlinMultiplatform
-import at.isg.eloquia.convention.library
+import at.isg.eloquia.convention.configureKotlinAndroid
 import at.isg.eloquia.convention.libs
-import at.isg.eloquia.convention.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class KmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.plugin("kotlinMultiplatform").get().pluginId)
-                apply(libs.plugin("androidApplication").get().pluginId)
-                apply(libs.plugin("composeMultiplatform").get().pluginId)
-                apply(libs.plugin("composeCompiler").get().pluginId)
-                apply(libs.plugin("kotlinxSerialization").get().pluginId)
+                apply("com.android.application")
+                apply("org.jetbrains.kotlin.multiplatform")
+                apply("org.jetbrains.compose")
+                apply("org.jetbrains.kotlin.plugin.compose")
+                apply("org.jetbrains.kotlin.plugin.serialization")
             }
 
+            configureAndroidTarget()
+            configureIosTargets()
+            configureDesktopTarget()
+
+            val compose = extensions.getByType<ComposeExtension>()
+
             extensions.configure<KotlinMultiplatformExtension> {
-                configureKotlinMultiplatform(this)
-                configureIosTargets()
+                applyHierarchyTemplate()
 
                 sourceSets.apply {
                     androidMain.dependencies {
-                        implementation(libs.library("androidx-compose-ui-tooling-preview"))
-                        implementation(libs.library("androidx-activity-compose"))
-                        implementation(libs.library("ktor-client-okhttp"))
+                        implementation(libs.findLibrary("androidx-compose-ui-tooling-preview").get())
+                        implementation(libs.findLibrary("androidx-activity-compose").get())
+                        implementation(libs.findLibrary("ktor-client-okhttp").get())
                     }
 
                     iosMain.dependencies {
-                        implementation(libs.library("ktor-client-darwin"))
+                        implementation(libs.findLibrary("ktor-client-darwin").get())
                     }
 
                     commonMain.dependencies {
-                        implementation(libs.bundle("navigation-lifecycle"))
-                        implementation(libs.library("material-icons-core"))
-                        implementation(libs.bundle("ktor-common"))
-                        implementation(libs.bundle("coil"))
-                        implementation(libs.bundle("koin"))
+                        implementation(compose.dependencies.runtime)
+                        implementation(compose.dependencies.foundation)
+                        implementation(compose.dependencies.material3)
+                        implementation(compose.dependencies.ui)
+                        implementation(compose.dependencies.components.resources)
+
+                        implementation(libs.findBundle("navigation-lifecycle").get())
+                        implementation(libs.findLibrary("material-icons-core").get())
+                        implementation(libs.findBundle("ktor-common").get())
+                        implementation(libs.findBundle("coil").get())
+                        implementation(libs.findBundle("koin").get())
                     }
                 }
             }
 
-            addComposeCommonDependencies()
-            addComposeUiTooling()
-
             extensions.configure<ApplicationExtension> {
-                configureAndroidCommon(this)
-
-                namespace = ProjectConfig.NAMESPACE
+                namespace = "at.isg.eloquia"
 
                 defaultConfig {
-                    applicationId = ProjectConfig.NAMESPACE
-                    targetSdk = ProjectConfig.TARGET_SDK
-                    versionCode = ProjectConfig.VERSION_CODE
-                    versionName = ProjectConfig.VERSION_NAME
+                    applicationId = libs.findVersion("projectApplicationId").get().toString()
+                    targetSdk = libs.findVersion("projectTargetSdkVersion").get().toString().toInt()
+                    versionCode = libs.findVersion("projectVersionCode").get().toString().toInt()
+                    versionName = libs.findVersion("projectVersionName").get().toString()
+                }
+
+                packaging {
+                    resources {
+                        excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                    }
                 }
 
                 buildTypes {
                     getByName("release") {
-                        isMinifyEnabled = false
+                        // Minification can be configured here if needed
                     }
                 }
+
+                configureKotlinAndroid(this)
+            }
+
+            dependencies {
+                "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
             }
         }
     }

@@ -19,14 +19,40 @@ tasks {
 
 gradlePlugin {
     plugins {
-        register("kmpApplication") {
-            id = "eloquia.kmp.application"
-            implementationClass = "KmpApplicationConventionPlugin"
+        register("androidApplication") {
+            id = "eloquia.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+
+        register("androidApplicationCompose") {
+            id = "eloquia.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+
+        register("cmpApplication") {
+            id = "eloquia.cmp.application"
+            implementationClass = "CmpApplicationConventionPlugin"
+        }
+
+        register("cmpLibrary") {
+            id = "eloquia.cmp.library"
+            implementationClass = "CmpLibraryConventionPlugin"
+        }
+
+        register("cmpFeature") {
+            id = "eloquia.cmp.feature"
+            implementationClass = "CmpFeatureConventionPlugin"
         }
 
         register("kmpLibrary") {
             id = "eloquia.kmp.library"
             implementationClass = "KmpLibraryConventionPlugin"
+        }
+
+        // Keep old plugins for backward compatibility if needed
+        register("kmpApplication") {
+            id = "eloquia.kmp.application"
+            implementationClass = "KmpApplicationConventionPlugin"
         }
 
         register("kmpCompose") {

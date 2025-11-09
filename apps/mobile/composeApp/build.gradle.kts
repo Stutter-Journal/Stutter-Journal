@@ -25,6 +25,9 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+
+            // Explicitly set bundle ID to avoid compiler warnings
+            binaryOption("bundleId", "at.isg.eloquia")
         }
     }
 

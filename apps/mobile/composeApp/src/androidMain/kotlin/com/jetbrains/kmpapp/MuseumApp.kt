@@ -1,7 +1,7 @@
-package com.jetbrains.kmpapp
+package at.isg.eloquia
 
 import android.app.Application
-import com.jetbrains.kmpapp.di.initKoin
+import at.isg.eloquia.di.initKoin
 
 class MuseumApp : Application() {
     override fun onCreate() {

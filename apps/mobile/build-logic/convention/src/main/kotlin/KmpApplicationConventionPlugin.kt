@@ -1,91 +1,68 @@
+import at.isg.eloquia.convention.ProjectConfig
+import at.isg.eloquia.convention.addComposeCommonDependencies
+import at.isg.eloquia.convention.addComposeUiTooling
+import at.isg.eloquia.convention.bundle
+import at.isg.eloquia.convention.configureAndroidCommon
+import at.isg.eloquia.convention.configureIosTargets
+import at.isg.eloquia.convention.configureKotlinMultiplatform
+import at.isg.eloquia.convention.library
+import at.isg.eloquia.convention.libs
+import at.isg.eloquia.convention.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.compose.ComposeExtension
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class KmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.kotlinMultiplatform.get().pluginId)
-                apply(libs.androidApplication.get().pluginId)
-                apply(libs.composeMultiplatform.get().pluginId)
-                apply(libs.composeCompiler.get().pluginId)
-                apply(libs.kotlinxSerialization.get().pluginId)
+                apply(libs.plugin("kotlinMultiplatform").get().pluginId)
+                apply(libs.plugin("androidApplication").get().pluginId)
+                apply(libs.plugin("composeMultiplatform").get().pluginId)
+                apply(libs.plugin("composeCompiler").get().pluginId)
+                apply(libs.plugin("kotlinxSerialization").get().pluginId)
             }
 
-            val composeExt = extensions.getByType<ComposeExtension>()
-
             extensions.configure<KotlinMultiplatformExtension> {
-                androidTarget {
-                    @OptIn(ExperimentalKotlinGradlePluginApi::class) compilerOptions {
-                        jvmTarget.set(ProjectConfig.JVM_TARGET)
-                        freeCompilerArgs.addAll(
-                            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                        )
-                    }
-                }
-
-                listOf(
-                    iosX64(), iosArm64(), iosSimulatorArm64()
-                ).forEach { iosTarget ->
-                    iosTarget.binaries.framework {
-                        baseName = "ComposeApp"
-                        isStatic = true
-                        binaryOption("bundleId", ProjectConfig.IOS_FRAMEWORK_BUNDLE_ID)
-                    }
-                }
+                configureKotlinMultiplatform(this)
+                configureIosTargets()
 
                 sourceSets.apply {
                     androidMain.dependencies {
-                        implementation(libs.androidxComposeUiToolingPreview)
-                        implementation(libs.androidxActivityCompose)
-                        implementation(libs.ktorClientOkhttp)
+                        implementation(libs.library("androidx-compose-ui-tooling-preview"))
+                        implementation(libs.library("androidx-activity-compose"))
+                        implementation(libs.library("ktor-client-okhttp"))
                     }
 
                     iosMain.dependencies {
-                        implementation(libs.ktorClientDarwin)
+                        implementation(libs.library("ktor-client-darwin"))
                     }
 
                     commonMain.dependencies {
-                        implementation(composeExt.dependencies.runtime)
-                        implementation(composeExt.dependencies.foundation)
-                        implementation(composeExt.dependencies.material3)
-                        implementation(composeExt.dependencies.ui)
-                        implementation(composeExt.dependencies.components.resources)
-                        implementation(composeExt.dependencies.components.uiToolingPreview)
-
-                        implementation(libs.navigationLifecycle)
-                        implementation(libs.materialIconsCore)
-                        implementation(libs.ktorCommon)
-                        implementation(libs.coilBundle)
-                        implementation(libs.koinBundle)
+                        implementation(libs.bundle("navigation-lifecycle"))
+                        implementation(libs.library("material-icons-core"))
+                        implementation(libs.bundle("ktor-common"))
+                        implementation(libs.bundle("coil"))
+                        implementation(libs.bundle("koin"))
                     }
                 }
             }
 
+            addComposeCommonDependencies()
+            addComposeUiTooling()
+
             extensions.configure<ApplicationExtension> {
+                configureAndroidCommon(this)
+
                 namespace = ProjectConfig.NAMESPACE
-                compileSdk = ProjectConfig.COMPILE_SDK
 
                 defaultConfig {
                     applicationId = ProjectConfig.NAMESPACE
                     targetSdk = ProjectConfig.TARGET_SDK
-                    minSdk = ProjectConfig.MIN_SDK
-
                     versionCode = ProjectConfig.VERSION_CODE
                     versionName = ProjectConfig.VERSION_NAME
-                }
-
-                packaging {
-                    resources {
-                        excludes += "/META-INF/{AL2.0,LGPL2.1}"
-                    }
                 }
 
                 buildTypes {
@@ -93,15 +70,6 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         isMinifyEnabled = false
                     }
                 }
-
-                compileOptions {
-                    sourceCompatibility = ProjectConfig.JAVA_VERSION
-                    targetCompatibility = ProjectConfig.JAVA_VERSION
-                }
-            }
-
-            dependencies {
-                add("debugImplementation", libs.androidxComposeUiTooling)
             }
         }
     }

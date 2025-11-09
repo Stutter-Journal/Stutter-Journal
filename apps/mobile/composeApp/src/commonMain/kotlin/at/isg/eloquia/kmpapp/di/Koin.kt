@@ -1,12 +1,12 @@
-package at.isg.eloquia.di
+package at.isg.eloquia.kmpapp.di
 
-import at.isg.eloquia.data.InMemoryMuseumStorage
-import at.isg.eloquia.data.KtorMuseumApi
-import at.isg.eloquia.data.MuseumApi
-import at.isg.eloquia.data.MuseumRepository
-import at.isg.eloquia.data.MuseumStorage
-import at.isg.eloquia.screens.detail.DetailViewModel
-import at.isg.eloquia.screens.list.ListViewModel
+import at.isg.eloquia.kmpapp.data.InMemoryMuseumStorage
+import at.isg.eloquia.kmpapp.data.KtorMuseumApi
+import at.isg.eloquia.kmpapp.data.MuseumApi
+import at.isg.eloquia.kmpapp.data.MuseumRepository
+import at.isg.eloquia.kmpapp.data.MuseumStorage
+import at.isg.eloquia.kmpapp.screens.detail.DetailViewModel
+import at.isg.eloquia.kmpapp.screens.list.ListViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType

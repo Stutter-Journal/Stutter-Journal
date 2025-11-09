@@ -1,8 +1,8 @@
-package at.isg.eloquia.screens.detail
+package at.isg.eloquia.kmpapp.screens.detail
 
 import androidx.lifecycle.ViewModel
-import at.isg.eloquia.data.MuseumObject
-import at.isg.eloquia.data.MuseumRepository
+import at.isg.eloquia.kmpapp.data.MuseumObject
+import at.isg.eloquia.kmpapp.data.MuseumRepository
 import kotlinx.coroutines.flow.Flow
 
 class DetailViewModel(private val museumRepository: MuseumRepository) : ViewModel() {

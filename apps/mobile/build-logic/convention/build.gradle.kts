@@ -10,6 +10,13 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
 }
 
+tasks {
+    validatePlugins {
+        enableStricterValidation = true
+        failOnWarning = true
+    }
+}
+
 gradlePlugin {
     plugins {
         register("kmpApplication") {

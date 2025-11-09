@@ -1,34 +1,39 @@
-import at.isg.eloquia.convention.addComposeCommonDependencies
-import at.isg.eloquia.convention.configureAndroidCommon
-import at.isg.eloquia.convention.configureIosTargets
+@file:Suppress("UnstableApiUsage")
+
+import at.isg.eloquia.convention.configureKotlinAndroid
 import at.isg.eloquia.convention.configureKotlinMultiplatform
 import at.isg.eloquia.convention.libs
-import at.isg.eloquia.convention.plugin
+import at.isg.eloquia.convention.pathToResourcePrefix
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.kotlin.dsl.dependencies
 
 class KmpLibraryConventionPlugin : Plugin<Project> {
+
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.plugin("kotlinMultiplatform").get().pluginId)
-                apply(libs.plugin("androidKotlinMultiplatformLibrary").get().pluginId)
-                apply(libs.plugin("composeMultiplatform").get().pluginId)
-                apply(libs.plugin("composeCompiler").get().pluginId)
+                apply("com.android.library")
+                apply("org.jetbrains.kotlin.multiplatform")
+                apply("org.jetbrains.kotlin.plugin.serialization")
             }
 
-            extensions.configure<KotlinMultiplatformExtension> {
-                configureKotlinMultiplatform(this)
-                configureIosTargets()
-            }
-
-            addComposeCommonDependencies()
+            configureKotlinMultiplatform()
 
             extensions.configure<LibraryExtension> {
-                configureAndroidCommon(this)
+                configureKotlinAndroid(this)
+
+                resourcePrefix = this@with.pathToResourcePrefix()
+
+                // Required to make debug build of app run in iOS simulator
+                experimentalProperties["android.experimental.kmp.enableAndroidResources"] = "true"
+            }
+
+            dependencies {
+                "commonMainImplementation"(libs.findLibrary("kotlinx-serialization-json").get())
+                "commonTestImplementation"(libs.findLibrary("kotlin-test").get())
             }
         }
     }

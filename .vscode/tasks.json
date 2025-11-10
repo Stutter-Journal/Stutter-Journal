@@ -1,0 +1,460 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ==========================================
+    // Backend Tasks (Python)
+    // ==========================================
+    {
+      "label": "Backend: Setup Virtual Environment",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && uv venv",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Install Dependencies",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv pip install -U setuptools setuptools_scm wheel && uv pip install -e . && uv sync",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none",
+      "dependsOn": [
+        "Backend: Setup Virtual Environment"
+      ]
+    },
+    {
+      "label": "Backend: Install Testing Dependencies",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv pip install -e '.[testing]'",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Build",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Backend: Run Skeleton Example",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run -m eloquia.backend.skeleton 42",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Run Tests",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run pytest",
+      "problemMatcher": [
+        {
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):(\\d+):\\s+(.*)",
+              "file": 1,
+              "line": 2,
+              "message": 3
+            }
+          ]
+        }
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Backend: Run Tests with Coverage",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run pytest --cov=eloquia.backend --cov-report=html --cov-report=term-missing",
+      "problemMatcher": [
+        {
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):(\\d+):\\s+(.*)",
+              "file": 1,
+              "line": 2,
+              "message": 3
+            }
+          ]
+        }
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "test"
+    },
+    {
+      "label": "Backend: Lint (Ruff Check)",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && uvx ruff check",
+      "problemMatcher": [
+        {
+          "owner": "ruff",
+          "fileLocation": "relative",
+          "pattern": [
+            {
+              "regexp": "^(.+):(\\d+):(\\d+):\\s+([A-Z]\\d+)\\s+(.+)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "code": 4,
+              "message": 5
+            }
+          ]
+        }
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Format (Ruff Format)",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && uvx ruff format",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Lint and Format",
+      "dependsOn": [
+        "Backend: Lint (Ruff Check)",
+        "Backend: Format (Ruff Format)"
+      ],
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "Backend: Install Pre-commit Hooks",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && pre-commit install",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Update Pre-commit Hooks",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && pre-commit autoupdate",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Backend: Run Pre-commit on All Files",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/backend && pre-commit run --all-files",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    // ==========================================
+    // Mobile Tasks (Kotlin Multiplatform)
+    // ==========================================
+    {
+      "label": "Mobile: Clean Build",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew clean",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Mobile: Build All",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew build",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Mobile: Build Android Debug APK",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew assembleDebug",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "build"
+    },
+    {
+      "label": "Mobile: Build Android Release APK",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew assembleRelease",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "build"
+    },
+    {
+      "label": "Mobile: Install Android Debug",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew installDebug",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Mobile: Run Android Tests",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew testDebugUnitTest",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "test"
+    },
+    {
+      "label": "Mobile: Run iOS Simulator",
+      "type": "shell",
+      "command": "open -a Simulator",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "group": "none",
+      "osx": {
+        "command": "open -a Simulator"
+      }
+    },
+    {
+      "label": "Mobile: Build iOS Framework",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew linkDebugFrameworkIosSimulatorArm64",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "build",
+      "osx": {}
+    },
+    {
+      "label": "Mobile: Gradle Sync",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew --refresh-dependencies",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Mobile: List All Tasks",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew tasks --all",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    {
+      "label": "Mobile: Check Dependencies",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew dependencies",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": "none"
+    },
+    // ==========================================
+    // Composite Tasks
+    // ==========================================
+    {
+      "label": "Full Setup: Backend and Mobile",
+      "dependsOn": [
+        "Backend: Install Dependencies",
+        "Backend: Install Testing Dependencies",
+        "Backend: Install Pre-commit Hooks",
+        "Mobile: Gradle Sync"
+      ],
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "Build: All Projects",
+      "dependsOn": [
+        "Backend: Build",
+        "Mobile: Build All"
+      ],
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Test: All Projects",
+      "dependsOn": [
+        "Backend: Run Tests",
+        "Mobile: Run Android Tests"
+      ],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Clean: All Projects",
+      "dependsOn": [
+        "Mobile: Clean Build"
+      ],
+      "problemMatcher": [],
+      "group": "none"
+    }
+  ]
+}

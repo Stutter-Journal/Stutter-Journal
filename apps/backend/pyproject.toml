@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "backend"
+description = "Backend for the Eloquia Project."
+readme = "README.rst"
+requires-python = ">=3.13.2"
+license = {text = "MIT"}
+authors = [
+    {name = "Milan Kosic", email = "mimija.delfin@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+]
+dependencies = [
+    "importlib-metadata; python_version<'3.8'",
+    "pytest>=9.0.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://pyscaffold.org/"
+Homepage = "https://github.com/pyscaffold/pyscaffold/"
+
+[project.optional-dependencies]
+testing = [
+    "setuptools",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests"]
+
+[tool.setuptools_scm]
+root = "../.."
+version_scheme = "no-guess-dev"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=eloquia.backend",
+    "--cov-report=term-missing",
+    "--verbose",
+]
+norecursedirs = ["dist", "build", ".tox"]
+testpaths = ["tests"]

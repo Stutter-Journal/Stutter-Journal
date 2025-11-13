@@ -2,7 +2,7 @@ package at.isg.eloquia.core.theme
 
 import androidx.compose.ui.graphics.Color
 
-val primaryLight = Color(0xFF2D6A45)
+val primaryLight = Color(0xFF2D6A45) //41A76E a bit lighter
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFB0F1C2)
 val onPrimaryContainerLight = Color(0xFF0F512F)

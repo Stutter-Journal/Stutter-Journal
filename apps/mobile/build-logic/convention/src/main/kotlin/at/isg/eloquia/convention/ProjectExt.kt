@@ -9,13 +9,19 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.plugin.use.PluginDependency
 
+/**
+ * Legacy accessor for version catalog - kept for backward compatibility.
+ * New code should use the type-safe `libs` accessor provided by typesafe-conventions plugin.
+ */
 val Project.libs: VersionCatalog
     get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 fun VersionCatalog.plugin(alias: String): Provider<PluginDependency> = findPlugin(alias).get()
 
-fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> = findLibrary(alias).get()
+fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> =
+    findLibrary(alias).get()
 
-fun VersionCatalog.bundle(alias: String): Provider<ExternalModuleDependencyBundle> = findBundle(alias).get()
+fun VersionCatalog.bundle(alias: String): Provider<ExternalModuleDependencyBundle> =
+    findBundle(alias).get()
 
 fun VersionCatalog.version(alias: String): String = findVersion(alias).get().toString()

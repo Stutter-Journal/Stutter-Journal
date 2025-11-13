@@ -1,6 +1,4 @@
 import at.isg.eloquia.convention.configureIosTargets
-import at.isg.eloquia.convention.libs
-import at.isg.eloquia.convention.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -14,7 +12,7 @@ class IosFrameworkConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.plugin("kotlinMultiplatform").get().pluginId)
+                apply(libs.plugins.kotlinMultiplatform.get().pluginId)
             }
 
             extensions.configure<KotlinMultiplatformExtension> {

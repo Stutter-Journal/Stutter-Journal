@@ -1,23 +1,15 @@
 [versions]
 #region Build & Kotlin
-agp = "8.12.0"
+agp = "8.13.1"
 kotlin = "2.2.21"
 compose-multiplatform = "1.9.3"
-
-#region Project Configuration
-projectCompileSdkVersion = "36"
-projectMinSdkVersion = "24"
-projectTargetSdkVersion = "35"
-projectApplicationId = "at.isg.eloquia"
-projectVersionCode = "1"
-projectVersionName = "1.0"
 
 #region AndroidX & Compose
 androidx-activityCompose = "1.11.0"
 androidx-ui-tooling = "1.9.4"
 materialIconsCore = "1.7.3"
-androidx-compose-bom = "2025.01.00"
-android-desugarJdkLibs = "2.0.4"
+androidx-compose-bom = "2025.11.00"
+android-desugarJdkLibs = "2.1.5"
 
 #region Navigation & Lifecycle
 navigationCompose = "2.9.1"
@@ -36,9 +28,9 @@ compose-ui-text-google-fonts = "1.9.4"
 #region Testing
 kotlinStdlib = "2.2.21"
 kotlinTest = "2.2.21"
-runner = "1.5.2"
-core = "1.5.0"
-junit = "1.1.5"
+runner = "1.7.0"
+core = "1.7.0"
+junit = "1.3.0"
 
 [libraries]
 #region AndroidX & Compose UI
@@ -89,7 +81,7 @@ koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation",
 koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.ref = "koin" }
 
 #region Kotlinx Serialization
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 
 #region Typography (Google Fonts)
 compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "compose-ui-text-google-fonts" }

@@ -1,6 +1,7 @@
 package at.isg.eloquia.convention
 
 import com.android.build.api.dsl.CommonExtension
+import libs
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
@@ -13,11 +14,11 @@ internal fun Project.configureAndroidCompose(
         }
 
         dependencies {
-            val bom = libs.findLibrary("androidx-compose-bom").get()
+            val bom = libs.androidx.compose.bom
             "implementation"(platform(bom))
             "testImplementation"(platform(bom))
-            "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-            "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+            "debugImplementation"(libs.androidx.compose.ui.tooling.preview)
+            "debugImplementation"(libs.androidx.compose.ui.tooling)
         }
     }
 }

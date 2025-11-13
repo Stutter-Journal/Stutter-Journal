@@ -1,9 +1,9 @@
+import at.isg.eloquia.convention.ProjectConfig
 import at.isg.eloquia.convention.applyHierarchyTemplate
 import at.isg.eloquia.convention.configureAndroidTarget
 import at.isg.eloquia.convention.configureDesktopTarget
 import at.isg.eloquia.convention.configureIosTargets
 import at.isg.eloquia.convention.configureKotlinAndroid
-import at.isg.eloquia.convention.libs
 import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -17,11 +17,11 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("com.android.application")
-                apply("org.jetbrains.kotlin.multiplatform")
-                apply("org.jetbrains.compose")
-                apply("org.jetbrains.kotlin.plugin.compose")
-                apply("org.jetbrains.kotlin.plugin.serialization")
+                apply(libs.plugins.androidApplication.get().pluginId)
+                apply(libs.plugins.kotlinMultiplatform.get().pluginId)
+                apply(libs.plugins.composeMultiplatform.get().pluginId)
+                apply(libs.plugins.composeCompiler.get().pluginId)
+                apply(libs.plugins.kotlinxSerialization.get().pluginId)
             }
 
             configureAndroidTarget()
@@ -35,13 +35,13 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
 
                 sourceSets.apply {
                     androidMain.dependencies {
-                        implementation(libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-                        implementation(libs.findLibrary("androidx-activity-compose").get())
-                        implementation(libs.findLibrary("ktor-client-okhttp").get())
+                        implementation(libs.androidx.compose.ui.tooling.preview)
+                        implementation(libs.androidx.activity.compose)
+                        implementation(libs.ktor.client.okhttp)
                     }
 
                     iosMain.dependencies {
-                        implementation(libs.findLibrary("ktor-client-darwin").get())
+                        implementation(libs.ktor.client.darwin)
                     }
 
                     commonMain.dependencies {
@@ -51,23 +51,23 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.ui)
                         implementation(compose.dependencies.components.resources)
 
-                        implementation(libs.findBundle("navigation-lifecycle").get())
-                        implementation(libs.findLibrary("material-icons-core").get())
-                        implementation(libs.findBundle("ktor-common").get())
-                        implementation(libs.findBundle("coil").get())
-                        implementation(libs.findBundle("koin").get())
+                        implementation(libs.bundles.navigation.lifecycle)
+                        implementation(libs.material.icons.core)
+                        implementation(libs.bundles.ktor.common)
+                        implementation(libs.bundles.coil)
+                        implementation(libs.bundles.koin)
                     }
                 }
             }
 
             extensions.configure<ApplicationExtension> {
-                namespace = "at.isg.eloquia"
+                namespace = ProjectConfig.NAMESPACE
 
                 defaultConfig {
-                    applicationId = libs.findVersion("projectApplicationId").get().toString()
-                    targetSdk = libs.findVersion("projectTargetSdkVersion").get().toString().toInt()
-                    versionCode = libs.findVersion("projectVersionCode").get().toString().toInt()
-                    versionName = libs.findVersion("projectVersionName").get().toString()
+                    applicationId = ProjectConfig.NAMESPACE
+                    targetSdk = ProjectConfig.TARGET_SDK
+                    versionCode = ProjectConfig.VERSION_CODE
+                    versionName = ProjectConfig.VERSION_NAME
                 }
 
                 packaging {
@@ -86,7 +86,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+                "debugImplementation"(libs.androidx.compose.ui.tooling)
             }
         }
     }

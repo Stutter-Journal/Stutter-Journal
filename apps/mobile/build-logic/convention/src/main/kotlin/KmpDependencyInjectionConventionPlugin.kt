@@ -1,5 +1,3 @@
-import at.isg.eloquia.convention.bundle
-import at.isg.eloquia.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -14,7 +12,7 @@ class KmpDependencyInjectionConventionPlugin : Plugin<Project> {
             extensions.configure<KotlinMultiplatformExtension> {
                 sourceSets.apply {
                     commonMain.dependencies {
-                        implementation(libs.bundle("koin"))
+                        implementation(libs.bundles.koin)
                     }
                 }
             }

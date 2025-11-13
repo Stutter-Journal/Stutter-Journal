@@ -2,7 +2,6 @@
 
 import at.isg.eloquia.convention.configureKotlinAndroid
 import at.isg.eloquia.convention.configureKotlinMultiplatform
-import at.isg.eloquia.convention.libs
 import at.isg.eloquia.convention.pathToResourcePrefix
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
@@ -16,8 +15,8 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("com.android.library")
-                apply("org.jetbrains.kotlin.multiplatform")
-                apply("org.jetbrains.kotlin.plugin.serialization")
+                apply(libs.plugins.kotlinMultiplatform.get().pluginId)
+                apply(libs.plugins.kotlinxSerialization.get().pluginId)
             }
 
             configureKotlinMultiplatform()
@@ -32,8 +31,8 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "commonMainImplementation"(libs.findLibrary("kotlinx-serialization-json").get())
-                "commonTestImplementation"(libs.findLibrary("kotlin-test").get())
+                "commonMainImplementation"(libs.kotlinx.serialization.json)
+                "commonTestImplementation"(libs.kotlin.test)
             }
         }
     }

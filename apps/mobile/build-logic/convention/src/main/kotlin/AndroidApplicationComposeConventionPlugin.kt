@@ -10,7 +10,7 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("eloquia.android.application")
-                apply("org.jetbrains.kotlin.plugin.compose")
+                apply(libs.plugins.composeCompiler.get().pluginId)
             }
 
             val extension = extensions.getByType<ApplicationExtension>()

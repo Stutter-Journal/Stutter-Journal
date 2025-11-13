@@ -1,4 +1,3 @@
-import at.isg.eloquia.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -13,8 +12,8 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("eloquia.kmp.library")
-                apply("org.jetbrains.kotlin.plugin.compose")
-                apply("org.jetbrains.compose")
+                apply(libs.plugins.composeCompiler.get().pluginId)
+                apply(libs.plugins.composeMultiplatform.get().pluginId)
             }
 
             val compose = extensions.getByType<ComposeExtension>()
@@ -32,7 +31,7 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+                "debugImplementation"(libs.androidx.compose.ui.tooling)
             }
         }
     }

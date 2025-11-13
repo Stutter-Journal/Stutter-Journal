@@ -5,8 +5,8 @@ class AndroidComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("org.jetbrains.compose")
-                apply("org.jetbrains.kotlin.plugin.compose")
+                apply(libs.plugins.composeMultiplatform.get().pluginId)
+                apply(libs.plugins.composeCompiler.get().pluginId)
             }
         }
     }

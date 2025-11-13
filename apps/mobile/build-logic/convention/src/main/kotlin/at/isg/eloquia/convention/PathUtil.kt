@@ -1,7 +1,7 @@
 package at.isg.eloquia.convention
 
 import org.gradle.api.Project
-import java.util.*
+import java.util.Locale
 
 fun Project.pathToPackageName(): String {
     val relativePackageName = path

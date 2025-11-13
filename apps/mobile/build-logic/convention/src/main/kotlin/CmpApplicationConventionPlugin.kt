@@ -2,7 +2,6 @@ import at.isg.eloquia.convention.applyHierarchyTemplate
 import at.isg.eloquia.convention.configureAndroidTarget
 import at.isg.eloquia.convention.configureDesktopTarget
 import at.isg.eloquia.convention.configureIosTargets
-import at.isg.eloquia.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -15,10 +14,10 @@ class CmpApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("eloquia.android.application.compose")
-                apply("org.jetbrains.kotlin.multiplatform")
-                apply("org.jetbrains.compose")
-                apply("org.jetbrains.kotlin.plugin.compose")
-                apply("org.jetbrains.kotlin.plugin.serialization")
+                apply(libs.plugins.kotlinMultiplatform.get().pluginId)
+                apply(libs.plugins.composeMultiplatform.get().pluginId)
+                apply(libs.plugins.composeCompiler.get().pluginId)
+                apply(libs.plugins.kotlinxSerialization.get().pluginId)
             }
 
             configureAndroidTarget()
@@ -30,7 +29,7 @@ class CmpApplicationConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+                "debugImplementation"(libs.androidx.compose.ui.tooling)
             }
         }
     }

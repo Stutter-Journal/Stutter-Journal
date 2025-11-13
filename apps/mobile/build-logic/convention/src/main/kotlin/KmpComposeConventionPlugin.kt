@@ -1,5 +1,3 @@
-import at.isg.eloquia.convention.libs
-import at.isg.eloquia.convention.plugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -11,8 +9,8 @@ class KmpComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.plugin("composeMultiplatform").get().pluginId)
-                apply(libs.plugin("composeCompiler").get().pluginId)
+                apply(libs.plugins.composeMultiplatform.get().pluginId)
+                apply(libs.plugins.composeCompiler.get().pluginId)
             }
         }
     }

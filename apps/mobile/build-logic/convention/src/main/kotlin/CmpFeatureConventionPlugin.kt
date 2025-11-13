@@ -1,4 +1,3 @@
-import at.isg.eloquia.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
@@ -12,26 +11,26 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "commonMainImplementation"(platform(libs.findLibrary("koin-bom").get()))
-                "androidMainImplementation"(platform(libs.findLibrary("koin-bom").get()))
+                "commonMainImplementation"(platform(libs.koin.bom))
+                "androidMainImplementation"(platform(libs.koin.bom))
 
-                "commonMainImplementation"(libs.findLibrary("koin-compose").get())
-                "commonMainImplementation"(libs.findLibrary("koin-compose-viewmodel").get())
+                "commonMainImplementation"(libs.koin.compose)
+                "commonMainImplementation"(libs.koin.compose.viewmodel)
 
-                "commonMainImplementation"(libs.findLibrary("jetbrains-compose-runtime").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-compose-viewmodel").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-lifecycle-viewmodel").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-lifecycle-compose").get())
+                "commonMainImplementation"(libs.jetbrains.compose.runtime)
+                "commonMainImplementation"(libs.jetbrains.compose.viewmodel)
+                "commonMainImplementation"(libs.jetbrains.lifecycle.viewmodel)
+                "commonMainImplementation"(libs.jetbrains.lifecycle.compose)
 
-                "commonMainImplementation"(libs.findLibrary("jetbrains-lifecycle-viewmodel-savedstate").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-savedstate").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-bundle").get())
-                "commonMainImplementation"(libs.findLibrary("jetbrains-compose-navigation").get())
+                "commonMainImplementation"(libs.jetbrains.lifecycle.viewmodel.savedstate)
+                "commonMainImplementation"(libs.jetbrains.savedstate)
+                "commonMainImplementation"(libs.jetbrains.bundle)
+                "commonMainImplementation"(libs.jetbrains.compose.navigation)
 
-                "androidMainImplementation"(libs.findLibrary("koin-android").get())
-                "androidMainImplementation"(libs.findLibrary("koin-androidx-compose").get())
-                "androidMainImplementation"(libs.findLibrary("koin-androidx-navigation").get())
-                "androidMainImplementation"(libs.findLibrary("koin-core-viewmodel").get())
+                "androidMainImplementation"(libs.koin.android)
+                "androidMainImplementation"(libs.koin.androidx.compose)
+                "androidMainImplementation"(libs.koin.androidx.navigation)
+                "androidMainImplementation"(libs.koin.core.viewmodel)
             }
         }
     }

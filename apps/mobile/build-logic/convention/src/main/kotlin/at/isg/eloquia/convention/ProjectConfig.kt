@@ -11,8 +11,8 @@ object ProjectConfig {
     const val VERSION_CODE = 1
     const val VERSION_NAME = "1.0"
 
-    val JAVA_VERSION = JavaVersion.VERSION_23
-    val JVM_TARGET = JvmTarget.JVM_23
+    val JAVA_VERSION = JavaVersion.VERSION_17
+    val JVM_TARGET = JvmTarget.JVM_17
 
     const val NAMESPACE = "at.isg.eloquia"
     const val IOS_FRAMEWORK_BUNDLE_ID = "at.isg.eloquia"

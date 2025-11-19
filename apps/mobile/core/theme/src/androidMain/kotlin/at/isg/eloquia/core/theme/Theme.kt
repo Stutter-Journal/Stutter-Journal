@@ -253,10 +253,10 @@ val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-fun EloquiaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+actual fun EloquiaTheme(
+    darkTheme: Boolean,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true, content: @Composable() () -> Unit
+    dynamicColor: Boolean, content: @Composable() () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -272,4 +272,3 @@ fun EloquiaTheme(
         colorScheme = colorScheme, typography = AppTypography, content = content
     )
 }
-

@@ -35,3 +35,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":composeApp")
 include(":core:theme")
+include(":features:entries")
+include(":features:home")
+

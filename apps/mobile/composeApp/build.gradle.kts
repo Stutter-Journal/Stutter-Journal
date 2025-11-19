@@ -2,7 +2,10 @@ plugins {
     alias(libs.plugins.eloquia.kmp.application)
 }
 
-dependencies {
-    // Project Implementations
-    implementation(projects.core.theme)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.core.theme)
+        }
+    }
 }

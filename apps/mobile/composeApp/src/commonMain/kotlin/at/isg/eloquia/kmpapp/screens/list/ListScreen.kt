@@ -30,6 +30,9 @@ import at.isg.eloquia.kmpapp.data.MuseumObject
 import at.isg.eloquia.kmpapp.screens.EmptyScreenContent
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Stateful ListScreen that integrates with ViewModel
+ */
 @Composable
 fun ListScreen(
     navigateToDetails: (objectId: Int) -> Unit
@@ -37,11 +40,26 @@ fun ListScreen(
     val viewModel = koinViewModel<ListViewModel>()
     val objects by viewModel.objects.collectAsStateWithLifecycle()
 
+    ListScreenContent(
+        objects = objects,
+        onObjectClick = navigateToDetails
+    )
+}
+
+/**
+ * Stateless ListScreen UI for previews and testing
+ */
+@Composable
+fun ListScreenContent(
+    objects: List<MuseumObject>,
+    onObjectClick: (objectId: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     AnimatedContent(objects.isNotEmpty()) { objectsAvailable ->
         if (objectsAvailable) {
             ObjectGrid(
                 objects = objects,
-                onObjectClick = navigateToDetails,
+                onObjectClick = onObjectClick,
             )
         } else {
             EmptyScreenContent(Modifier.fillMaxSize())

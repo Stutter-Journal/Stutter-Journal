@@ -50,6 +50,9 @@ import kmp_app_template.composeapp.generated.resources.label_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Stateful DetailScreen that integrates with ViewModel
+ */
 @Composable
 fun DetailScreen(
     objectId: Int,
@@ -58,9 +61,24 @@ fun DetailScreen(
     val viewModel = koinViewModel<DetailViewModel>()
 
     val obj by viewModel.getObject(objectId).collectAsStateWithLifecycle(initialValue = null)
-    AnimatedContent(obj != null) { objectAvailable ->
+    DetailScreenContent(
+        museumObject = obj,
+        onBackClick = navigateBack
+    )
+}
+
+/**
+ * Stateless DetailScreen UI for previews and testing
+ */
+@Composable
+fun DetailScreenContent(
+    museumObject: MuseumObject?,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedContent(museumObject != null) { objectAvailable ->
         if (objectAvailable) {
-            ObjectDetails(obj!!, onBackClick = navigateBack)
+            ObjectDetails(museumObject!!, onBackClick = onBackClick)
         } else {
             EmptyScreenContent(Modifier.fillMaxSize())
         }

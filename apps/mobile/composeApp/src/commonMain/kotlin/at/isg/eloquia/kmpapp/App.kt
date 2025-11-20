@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import at.isg.eloquia.core.theme.EloquiaTheme
 import at.isg.eloquia.kmpapp.screens.detail.DetailScreen
 import at.isg.eloquia.kmpapp.screens.list.ListScreen
 import kotlinx.serialization.Serializable

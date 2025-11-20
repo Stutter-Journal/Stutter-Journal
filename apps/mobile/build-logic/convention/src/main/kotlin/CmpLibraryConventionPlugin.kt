@@ -26,6 +26,20 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.material3)
                         implementation(compose.dependencies.ui)
                         implementation(compose.dependencies.components.resources)
+                        implementation(libs.kotlinx.datetime)
+                    }
+
+                    androidMain.dependencies {
+                        implementation(libs.jetbrains.compose.material.icons.extended)
+                    }
+
+                    iosMain.dependencies {
+                        implementation(libs.jetbrains.compose.material.icons.extended)
+                    }
+
+                    // Add for desktop if it exists
+                    findByName("desktopMain")?.dependencies {
+                        implementation(libs.jetbrains.compose.material.icons.extended)
                     }
                 }
             }

@@ -20,12 +20,12 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
                 "commonMainImplementation"(libs.jetbrains.compose.runtime)
                 "commonMainImplementation"(libs.jetbrains.compose.viewmodel)
                 "commonMainImplementation"(libs.jetbrains.lifecycle.viewmodel)
-                "commonMainImplementation"(libs.jetbrains.lifecycle.compose)
+                "commonMainImplementation"(libs.jetbrains.lifecycle.runtime.compose)
 
                 "commonMainImplementation"(libs.jetbrains.lifecycle.viewmodel.savedstate)
                 "commonMainImplementation"(libs.jetbrains.savedstate)
                 "commonMainImplementation"(libs.jetbrains.bundle)
-                "commonMainImplementation"(libs.jetbrains.compose.navigation)
+                "commonMainImplementation"(libs.jetbrains.navigation.compose)
 
                 "androidMainImplementation"(libs.koin.android)
                 "androidMainImplementation"(libs.koin.androidx.compose)

@@ -5,11 +5,12 @@ kotlin = "2.2.21"
 compose-multiplatform = "1.9.3"
 
 #region AndroidX & Compose
-androidx-activityCompose = "1.11.0"
-androidx-ui-tooling = "1.9.4"
+androidx-activityCompose = "1.12.0"
+androidx-ui-tooling = "1.9.5"
 materialIconsCore = "1.7.3"
-androidx-compose-bom = "2025.11.00"
+androidx-compose-bom = "2025.11.01"
 android-desugarJdkLibs = "2.1.5"
+androidx-core-bundle = "1.1.0-alpha03"
 
 #region Navigation & Lifecycle
 navigationCompose = "2.9.1"
@@ -23,7 +24,7 @@ coil = "3.3.0"
 koin = "4.1.1"
 
 #region Typography
-compose-ui-text-google-fonts = "1.9.4"
+compose-ui-text-google-fonts = "1.9.5"
 
 #region Testing
 kotlinStdlib = "2.2.21"
@@ -43,21 +44,21 @@ android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs
 
 #region Jetbrains Compose
 jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui" }
+jetbrains-compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
 jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation" }
 jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3" }
 jetbrains-compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core" }
+jetbrains-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsCore" }
 jetbrains-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime" }
-jetbrains-compose-viewmodel = { module = "org.jetbrains.lifecycle:lifecycle-viewmodel-compose" }
+jetbrains-compose-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleCompose" }
 jetbrains-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel" }
-jetbrains-lifecycle-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
 jetbrains-lifecycle-viewmodel-savedstate = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate" }
 jetbrains-savedstate = { module = "org.jetbrains.androidx.savedstate:savedstate" }
-jetbrains-bundle = { module = "org.jetbrains.androidx.core:core-bundle" }
-jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+jetbrains-bundle = { module = "org.jetbrains.androidx.core:core-bundle", version.ref = "androidx-core-bundle" }
 
 #region Navigation & Lifecycle
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
+jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
 
 #region Networking (Ktor)
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -82,6 +83,7 @@ koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.r
 
 #region Kotlinx Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.7.1" }
 
 #region Typography (Google Fonts)
 compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "compose-ui-text-google-fonts" }
@@ -121,8 +123,8 @@ koin = [
 ]
 
 navigation-lifecycle = [
-    "navigation-compose",
-    "lifecycle-runtime-compose"
+    "jetbrains-navigation-compose",
+    "jetbrains-lifecycle-runtime-compose"
 ]
 
 [plugins]

@@ -9,7 +9,11 @@ actual fun EloquiaTheme(
     dynamicColor: Boolean,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) darkScheme else lightScheme
+    val colorScheme = if (darkTheme) {
+        darkScheme
+    } else {
+        lightScheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

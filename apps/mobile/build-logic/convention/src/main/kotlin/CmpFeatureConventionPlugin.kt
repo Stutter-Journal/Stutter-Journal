@@ -31,6 +31,8 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
                 "androidMainImplementation"(libs.koin.androidx.compose)
                 "androidMainImplementation"(libs.koin.androidx.navigation)
                 "androidMainImplementation"(libs.koin.core.viewmodel)
+
+                "commonMainImplementation"(project(":core:theme"))
             }
         }
     }

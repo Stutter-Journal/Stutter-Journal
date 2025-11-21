@@ -17,7 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import at.isg.eloquia.core.theme.EloquiaTheme
+import at.isg.eloquia.core.theme.components.EloquiaPreview
 import at.isg.eloquia.features.entries.domain.model.JournalEntry
+import kotlinx.datetime.LocalDateTime
 
 /**
  * Stateless entries list screen content
@@ -78,6 +81,18 @@ private fun EmptyEntriesState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@EloquiaPreview
+@Composable
+fun EmptyListScreenPreview() {
+    EloquiaTheme {
+        EntriesListScreenContent(
+            state = EntriesListState(),
+            onEntryClick = {},
+            onCreateEntry = {}
         )
     }
 }

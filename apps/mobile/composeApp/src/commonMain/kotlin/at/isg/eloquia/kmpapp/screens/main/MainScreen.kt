@@ -2,19 +2,14 @@ package at.isg.eloquia.kmpapp.screens.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Timeline
@@ -25,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -77,44 +70,44 @@ fun MainScreen() {
     var currentTab by remember { mutableStateOf(MainTab.Entries) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Stutter Journal", style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "Track your progress",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }, navigationIcon = {
-                Box(
-                    modifier = Modifier.padding(start = 16.dp).size(40.dp).clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Logo",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }, actions = {
-                IconButton(onClick = { /* TODO: Menu */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Menu, contentDescription = "Menu"
-                    )
-                }
-            }, colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Stutter Journal", style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Track your progress",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }, navigationIcon = {
+                    Box(
+                        modifier = Modifier.padding(start = 16.dp).size(40.dp).clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Logo",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }, actions = {
+                    IconButton(onClick = { /* TODO: Menu */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu, contentDescription = "Menu"
+                        )
+                    }
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         },
         bottomBar = {
@@ -135,34 +128,6 @@ fun MainScreen() {
                         MainTab.Entries.icon, contentDescription = MainTab.Entries.label
                     )
                 }, label = { Text(MainTab.Entries.label) })
-
-                NavigationBarItem(
-                    selected = false, onClick = { TODO("New Entry Action") }, icon = {
-                    Box(
-                        modifier = Modifier.width(96.dp).height(64.dp).clip(CircleShape)
-                            .background(Color(0xFF4CAF50)), contentAlignment = Alignment.Center
-                    ) {
-                        androidx.compose.foundation.layout.Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "New",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Text(
-                                text = "New",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White
-                            )
-                        }
-                    }
-                }, colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent
-                )
-                )
 
                 NavigationBarItem(selected = currentTab == MainTab.Progress, onClick = {
                     currentTab = MainTab.Progress

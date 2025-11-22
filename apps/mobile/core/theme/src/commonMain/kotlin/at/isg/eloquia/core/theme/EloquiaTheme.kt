@@ -6,6 +6,6 @@ import androidx.compose.runtime.Composable
 @Composable
 expect fun EloquiaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 )

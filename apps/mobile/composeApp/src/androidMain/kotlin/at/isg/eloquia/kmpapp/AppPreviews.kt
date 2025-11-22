@@ -1,8 +1,8 @@
 package at.isg.eloquia.kmpapp
 
 import androidx.compose.runtime.Composable
-import at.isg.eloquia.core.theme.components.EloquiaPreview
 import at.isg.eloquia.core.theme.EloquiaTheme
+import at.isg.eloquia.core.theme.components.EloquiaPreview
 import at.isg.eloquia.kmpapp.data.MuseumObject
 import at.isg.eloquia.kmpapp.screens.detail.DetailScreenContent
 import at.isg.eloquia.kmpapp.screens.list.ListScreenContent

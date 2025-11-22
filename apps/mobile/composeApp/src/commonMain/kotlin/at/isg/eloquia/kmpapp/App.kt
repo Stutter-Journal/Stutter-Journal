@@ -12,11 +12,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import at.isg.eloquia.kmpapp.screens.detail.DetailScreen
-import at.isg.eloquia.kmpapp.screens.list.ListScreen
+import at.isg.eloquia.kmpapp.screens.main.MainScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
-object ListDestination
+object MainDestination
 
 @Serializable
 data class DetailDestination(val objectId: Int)
@@ -28,12 +28,11 @@ fun App() {
     ) {
         Surface {
             val navController: NavHostController = rememberNavController()
-            NavHost(navController = navController, startDestination = ListDestination) {
-                composable<ListDestination> {
-                    ListScreen(navigateToDetails = { objectId ->
-                        navController.navigate(DetailDestination(objectId))
-                    })
+            NavHost(navController = navController, startDestination = MainDestination) {
+                composable<MainDestination> {
+                    MainScreen()
                 }
+
                 composable<DetailDestination> { backStackEntry ->
                     DetailScreen(
                         objectId = backStackEntry.toRoute<DetailDestination>().objectId,

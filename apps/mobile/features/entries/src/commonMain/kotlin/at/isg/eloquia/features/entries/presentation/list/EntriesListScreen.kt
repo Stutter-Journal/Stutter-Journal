@@ -35,7 +35,6 @@ fun EntriesListScreenContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
     ) {
         when {
             state.entries.isEmpty() && !state.isLoading -> {

@@ -26,6 +26,7 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
                 "commonMainImplementation"(libs.jetbrains.savedstate)
                 "commonMainImplementation"(libs.jetbrains.bundle)
                 "commonMainImplementation"(libs.jetbrains.navigation.compose)
+                "commonMainImplementation"(libs.material.icons.core)
 
                 "androidMainImplementation"(libs.koin.android)
                 "androidMainImplementation"(libs.koin.androidx.compose)

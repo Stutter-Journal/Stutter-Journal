@@ -1,6 +1,5 @@
 package at.isg.eloquia.features.entries.presentation.list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import at.isg.eloquia.core.theme.EloquiaTheme
 import at.isg.eloquia.core.theme.components.EloquiaPreview
 import at.isg.eloquia.features.entries.domain.model.JournalEntry
-import kotlinx.datetime.LocalDateTime
 
 /**
  * Stateless entries list screen content
@@ -40,6 +38,7 @@ fun EntriesListScreenContent(
             state.entries.isEmpty() && !state.isLoading -> {
                 EmptyEntriesState(modifier = Modifier.fillMaxSize())
             }
+
             state.entries.isNotEmpty() -> {
                 // TODO: Show list of entries
                 EmptyEntriesState(modifier = Modifier.fillMaxSize())

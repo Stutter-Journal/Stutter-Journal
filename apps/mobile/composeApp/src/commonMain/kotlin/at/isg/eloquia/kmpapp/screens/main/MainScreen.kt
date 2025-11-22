@@ -2,11 +2,16 @@ package at.isg.eloquia.kmpapp.screens.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -18,7 +23,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,11 +63,10 @@ object SupportDestination
 enum class MainTab(
     val destination: Any, val icon: ImageVector, val label: String
 ) {
-    Entries(EntriesDestination, Icons.AutoMirrored.Filled.List, "Entries"), Progress(
-        ProgressDestination,
-        Icons.Default.Timeline,
-        "Progress"
-    ),
+    Entries(EntriesDestination, Icons.AutoMirrored.Filled.List, "Entries"),
+
+    Progress(ProgressDestination, Icons.Default.Timeline, "Progress"),
+
     Support(SupportDestination, Icons.Default.Favorite, "Support")
 }
 
@@ -75,7 +81,7 @@ fun MainScreen() {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                androidx.compose.foundation.layout.Column(
+                Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -112,13 +118,12 @@ fun MainScreen() {
             )
         },
         bottomBar = {
-            androidx.compose.material3.NavigationBar(
+            NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface, modifier = Modifier.border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                 )
             ) {
-                // Entries
                 NavigationBarItem(selected = currentTab == MainTab.Entries, onClick = {
                     currentTab = MainTab.Entries
                     navController.navigate(EntriesDestination) {
@@ -131,15 +136,15 @@ fun MainScreen() {
                     )
                 }, label = { Text(MainTab.Entries.label) })
 
-                // New Entry (Custom Item)
                 NavigationBarItem(
-                    selected = false,
-                    onClick = { /* TODO: New Entry Action */ },
-                    icon = {
-                        Box(
-                            modifier = Modifier.size(48.dp).clip(CircleShape)
-                                .background(Color(0xFF4CAF50)), // Green
-                            contentAlignment = Alignment.Center
+                    selected = false, onClick = { TODO("New Entry Action") }, icon = {
+                    Box(
+                        modifier = Modifier.width(96.dp).height(64.dp).clip(CircleShape)
+                            .background(Color(0xFF4CAF50)), contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.foundation.layout.Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -147,15 +152,18 @@ fun MainScreen() {
                                 tint = Color.White,
                                 modifier = Modifier.size(24.dp)
                             )
+                            Text(
+                                text = "New",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White
+                            )
                         }
-                    },
-                    label = { Text("New") },
-                    colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                        indicatorColor = Color.Transparent // Remove selection indicator for this item
-                    )
+                    }
+                }, colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                )
                 )
 
-                // Progress
                 NavigationBarItem(selected = currentTab == MainTab.Progress, onClick = {
                     currentTab = MainTab.Progress
                     navController.navigate(ProgressDestination) {
@@ -168,7 +176,6 @@ fun MainScreen() {
                     )
                 }, label = { Text(MainTab.Progress.label) })
 
-                // Support
                 NavigationBarItem(selected = currentTab == MainTab.Support, onClick = {
                     currentTab = MainTab.Support
                     navController.navigate(SupportDestination) {
@@ -189,8 +196,9 @@ fun MainScreen() {
         ) {
             composable<EntriesDestination> {
                 EntriesListScreenContent(
-                    state = EntriesListState(), // Empty state for now
-                    onEntryClick = {}, onCreateEntry = {})
+                    state = EntriesListState(),
+                    onEntryClick = {},
+                    onCreateEntry = {})
             }
             composable<ProgressDestination> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

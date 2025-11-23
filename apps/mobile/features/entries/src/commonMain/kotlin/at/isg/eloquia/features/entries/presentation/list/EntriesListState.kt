@@ -5,8 +5,8 @@ import at.isg.eloquia.features.entries.domain.model.JournalEntry
 /**
  * UI state for the entries list screen
  */
-data class EntriesListState(
-    val entries: List<JournalEntry> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
+sealed interface EntriesListState {
+    data object Loading : EntriesListState
+    data class Content(val entries: List<JournalEntry>) : EntriesListState
+    data class Error(val message: String) : EntriesListState
+}

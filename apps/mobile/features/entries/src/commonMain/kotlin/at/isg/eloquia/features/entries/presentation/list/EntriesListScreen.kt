@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
@@ -61,14 +62,28 @@ private fun EntriesContent(
     state: EntriesListState, onEntryClick: (JournalEntry) -> Unit, modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        when {
-            state.entries.isEmpty() && !state.isLoading -> {
-                EmptyEntriesState(modifier = Modifier.fillMaxSize())
+        when (state) {
+            is EntriesListState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
 
-            state.entries.isNotEmpty() -> {
-                // TODO: Show list of entries
-                EmptyEntriesState(modifier = Modifier.fillMaxSize())
+            is EntriesListState.Content -> {
+                if (state.entries.isEmpty()) {
+                    EmptyEntriesState(modifier = Modifier.fillMaxSize())
+                } else {
+                    // TODO: Show list of entries
+                    EmptyEntriesState(modifier = Modifier.fillMaxSize())
+                }
+            }
+
+            is EntriesListState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }

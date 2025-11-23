@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock.*
+import kotlin.time.Clock.System
 
 class EntriesListViewModel(
     observeEntriesUseCase: ObserveJournalEntriesUseCase,
@@ -25,10 +25,10 @@ class EntriesListViewModel(
         observeEntriesUseCase().map<_, EntriesListState> { entries ->
             EntriesListState.Content(entries)
         }.catch { emit(EntriesListState.Error(it.message ?: "Unable to load entries")) }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = EntriesListState.Loading,
-            )
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = EntriesListState.Loading,
+        )
 
     private val submissionErrors = MutableStateFlow<String?>(null)
     val lastSubmissionError: StateFlow<String?> = submissionErrors

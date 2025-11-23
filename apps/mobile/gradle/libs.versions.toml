@@ -47,6 +47,11 @@ konsist = "0.17.3"
 #region Code Quality
 spotless = "8.1.0"
 
+#region Database
+room = "2.8.4"
+sqlite = "2.6.2"
+ksp = "2.2.21-2.0.4"
+
 [libraries]
 #region AndroidX & Compose UI
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activityCompose" }
@@ -113,6 +118,12 @@ kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core",
 konsist = { group = "com.lemonappdev", name = "konsist", version.ref = "konsist" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform-launcher" }
 
+#region Database
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-room-runtime   = { module = "androidx.room:room-runtime",   version.ref = "room" }
+androidx-room-compiler  = { module = "androidx.room:room-compiler",  version.ref = "room" }
+androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "room" }
+
 #region Code Quality
 spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 
@@ -120,6 +131,8 @@ spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plug
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "compose-multiplatform" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
 
 [bundles]
 compose-ui = [
@@ -159,6 +172,8 @@ kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
 
 # Convention Plugins
 eloquia-android-application = { id = "eloquia.android.application" }
@@ -174,3 +189,5 @@ eloquia-android-compose = { id = "eloquia.android.compose" }
 eloquia-ios-framework = { id = "eloquia.ios.framework" }
 eloquia-kmp-networking = { id = "eloquia.kmp.networking" }
 eloquia-kmp-di = { id = "eloquia.kmp.di" }
+eloquia-kmp-room = { id = "eloquia.kmp.room" }
+eloquia-kmp-library-no-desktop = { id = "eloquia.kmp.library.no-desktop" }

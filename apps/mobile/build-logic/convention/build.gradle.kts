@@ -8,6 +8,8 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    implementation(libs.ksp.gradlePlugin)
+    implementation(libs.room.gradlePlugin)
     implementation(libs.spotless.gradlePlugin)
 }
 
@@ -50,6 +52,11 @@ gradlePlugin {
             implementationClass = "KmpLibraryConventionPlugin"
         }
 
+        register("kmpLibraryNoDesktop") {
+            id = "eloquia.kmp.library.no-desktop"
+            implementationClass = "KmpLibraryNoDesktopConventionPlugin"
+        }
+
         // Keep old plugins for backward compatibility if needed
         register("kmpApplication") {
             id = "eloquia.kmp.application"
@@ -74,6 +81,11 @@ gradlePlugin {
         register("kmpDependencyInjection") {
             id = "eloquia.kmp.di"
             implementationClass = "KmpDependencyInjectionConventionPlugin"
+        }
+
+        register("kmpRoom") {
+            id = "eloquia.kmp.room"
+            implementationClass = "KmpRoomConventionPlugin"
         }
 
         register("androidCompose") {

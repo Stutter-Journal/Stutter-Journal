@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.screens.main
+package at.isg.eloquia.kmpapp.presentation.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

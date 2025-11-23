@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.screens.list
+package at.isg.eloquia.kmpapp.presentation.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

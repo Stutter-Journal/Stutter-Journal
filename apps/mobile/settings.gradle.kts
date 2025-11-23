@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+include(":tests:architecture")
+
+
 rootProject.name = "KMP-App-Template"
 
 pluginManagement {

@@ -15,14 +15,12 @@ class KtorMuseumApi(private val client: HttpClient) : MuseumApi {
             "https://raw.githubusercontent.com/Kotlin/KMP-App-Template/main/list.json"
     }
 
-    override suspend fun getData(): List<MuseumObject> {
-        return try {
-            client.get(API_URL).body()
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            e.printStackTrace()
+    override suspend fun getData(): List<MuseumObject> = try {
+        client.get(API_URL).body()
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        e.printStackTrace()
 
-            emptyList()
-        }
+        emptyList()
     }
 }

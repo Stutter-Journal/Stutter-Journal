@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.screens.detail
+package at.isg.eloquia.kmpapp.presentation.detail
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.isg.eloquia.kmpapp.data.MuseumObject
-import at.isg.eloquia.kmpapp.screens.EmptyScreenContent
+import at.isg.eloquia.kmpapp.presentation.EmptyScreenContent
 import coil3.compose.AsyncImage
 import kmp_app_template.composeapp.generated.resources.Res
 import kmp_app_template.composeapp.generated.resources.back

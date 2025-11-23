@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import at.isg.eloquia.core.theme.EloquiaTheme
 import at.isg.eloquia.core.theme.components.EloquiaPreview
 import at.isg.eloquia.kmpapp.data.MuseumObject
-import at.isg.eloquia.kmpapp.screens.detail.DetailScreenContent
-import at.isg.eloquia.kmpapp.screens.list.ListScreenContent
+import at.isg.eloquia.kmpapp.presentation.detail.DetailScreenContent
+import at.isg.eloquia.kmpapp.presentation.list.ListScreenContent
 
 /**
  * Android-specific previews for commonMain composables.

@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.screens.list
+package at.isg.eloquia.kmpapp.presentation.list
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.isg.eloquia.kmpapp.data.MuseumObject
-import at.isg.eloquia.kmpapp.screens.EmptyScreenContent
+import at.isg.eloquia.kmpapp.presentation.EmptyScreenContent
 import coil3.compose.AsyncImage
 import org.koin.compose.viewmodel.koinViewModel
 

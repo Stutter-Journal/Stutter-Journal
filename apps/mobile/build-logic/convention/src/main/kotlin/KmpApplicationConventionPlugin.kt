@@ -22,6 +22,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.composeMultiplatform.get().pluginId)
                 apply(libs.plugins.composeCompiler.get().pluginId)
                 apply(libs.plugins.kotlinxSerialization.get().pluginId)
+                apply("eloquia.spotless")
             }
 
             configureAndroidTarget()

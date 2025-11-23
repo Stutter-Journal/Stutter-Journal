@@ -11,5 +11,5 @@ data class JournalEntry(
     val content: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
 )

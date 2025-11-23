@@ -6,11 +6,11 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview(
     name = "Preview Day",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Preview(
     name = "Preview Night",
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 actual annotation class EloquiaPreview()

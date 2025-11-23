@@ -25,7 +25,7 @@ private val sampleMuseumObject = MuseumObject(
     primaryImageSmall = "https://via.placeholder.com/200",
     repository = "Museum of Modern Art",
     department = "European Paintings",
-    creditLine = "Gift of Anonymous Donor"
+    creditLine = "Gift of Anonymous Donor",
 )
 
 private val sampleMuseumObjects = listOf(
@@ -34,14 +34,14 @@ private val sampleMuseumObjects = listOf(
         objectID = 2,
         title = "The Scream",
         artistDisplayName = "Edvard Munch",
-        objectDate = "1893"
+        objectDate = "1893",
     ),
     sampleMuseumObject.copy(
         objectID = 3,
         title = "Girl with a Pearl Earring",
         artistDisplayName = "Johannes Vermeer",
-        objectDate = "1665"
-    )
+        objectDate = "1665",
+    ),
 )
 
 @EloquiaPreview
@@ -50,7 +50,7 @@ fun ListScreenPreview() {
     EloquiaTheme {
         ListScreenContent(
             objects = sampleMuseumObjects,
-            onObjectClick = {}
+            onObjectClick = {},
         )
     }
 }
@@ -61,7 +61,7 @@ fun ListScreenEmptyPreview() {
     EloquiaTheme {
         ListScreenContent(
             objects = emptyList(),
-            onObjectClick = {}
+            onObjectClick = {},
         )
     }
 }
@@ -72,7 +72,7 @@ fun DetailScreenPreview() {
     EloquiaTheme {
         DetailScreenContent(
             museumObject = sampleMuseumObject,
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }
@@ -83,7 +83,7 @@ fun DetailScreenLoadingPreview() {
     EloquiaTheme {
         DetailScreenContent(
             museumObject = null,
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }

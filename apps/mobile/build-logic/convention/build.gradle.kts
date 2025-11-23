@@ -8,6 +8,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    implementation(libs.spotless.gradlePlugin)
 }
 
 tasks {
@@ -78,6 +79,11 @@ gradlePlugin {
         register("androidCompose") {
             id = "eloquia.android.compose"
             implementationClass = "AndroidComposeConventionPlugin"
+        }
+
+        register("spotless") {
+            id = "eloquia.spotless"
+            implementationClass = "SpotlessConventionPlugin"
         }
     }
 }

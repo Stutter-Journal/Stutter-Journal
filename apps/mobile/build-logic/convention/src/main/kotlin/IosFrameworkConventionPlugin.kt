@@ -13,6 +13,7 @@ class IosFrameworkConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply(libs.plugins.kotlinMultiplatform.get().pluginId)
+                apply("eloquia.spotless")
             }
 
             extensions.configure<KotlinMultiplatformExtension> {

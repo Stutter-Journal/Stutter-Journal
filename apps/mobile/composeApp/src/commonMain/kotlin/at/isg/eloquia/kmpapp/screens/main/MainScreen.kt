@@ -40,7 +40,6 @@ import at.isg.eloquia.features.entries.presentation.list.EntriesListScreenConten
 import at.isg.eloquia.features.entries.presentation.list.EntriesListState
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 object EntriesDestination
 
@@ -54,13 +53,15 @@ object ProgressDestination
 object SupportDestination
 
 enum class MainTab(
-    val destination: Any, val icon: ImageVector, val label: String
+    val destination: Any,
+    val icon: ImageVector,
+    val label: String,
 ) {
     Entries(EntriesDestination, Icons.AutoMirrored.Filled.List, "Entries"),
 
     Progress(ProgressDestination, Icons.Default.Timeline, "Progress"),
 
-    Support(SupportDestination, Icons.Default.Favorite, "Support")
+    Support(SupportDestination, Icons.Default.Favorite, "Support"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,47 +76,53 @@ fun MainScreen() {
             CenterAlignedTopAppBar(
                 title = {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Stutter Journal", style = MaterialTheme.typography.titleMedium
+                            text = "Stutter Journal",
+                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = "Track your progress",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }, navigationIcon = {
+                },
+                navigationIcon = {
                     Box(
                         modifier = Modifier.padding(start = 16.dp).size(40.dp).clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Favorite,
                             contentDescription = "Logo",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(24.dp),
                         )
                     }
-                }, actions = {
+                },
+                actions = {
                     IconButton(onClick = { /* TODO: Menu */ }) {
                         Icon(
-                            imageVector = Icons.Default.Menu, contentDescription = "Menu"
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu",
                         )
                     }
-                }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface, modifier = Modifier.border(
+                containerColor = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                ),
             ) {
                 NavigationBarItem(selected = currentTab == MainTab.Entries, onClick = {
                     currentTab = MainTab.Entries
@@ -125,7 +132,8 @@ fun MainScreen() {
                     }
                 }, icon = {
                     Icon(
-                        MainTab.Entries.icon, contentDescription = MainTab.Entries.label
+                        MainTab.Entries.icon,
+                        contentDescription = MainTab.Entries.label,
                     )
                 }, label = { Text(MainTab.Entries.label) })
 
@@ -137,7 +145,8 @@ fun MainScreen() {
                     }
                 }, icon = {
                     Icon(
-                        MainTab.Progress.icon, contentDescription = MainTab.Progress.label
+                        MainTab.Progress.icon,
+                        contentDescription = MainTab.Progress.label,
                     )
                 }, label = { Text(MainTab.Progress.label) })
 
@@ -149,21 +158,25 @@ fun MainScreen() {
                     }
                 }, icon = {
                     Icon(
-                        MainTab.Support.icon, contentDescription = MainTab.Support.label
+                        MainTab.Support.icon,
+                        contentDescription = MainTab.Support.label,
                     )
                 }, label = { Text(MainTab.Support.label) })
             }
-        }) { innerPadding ->
+        },
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = EntriesDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             composable<EntriesDestination> {
                 EntriesListScreenContent(
-                    state = EntriesListState(),
+                    // TODO: This should be in a different state like Loading, as soon as we have a room database, we can implement a better data loading logic
+                    state = EntriesListState.Content(emptyList()),
                     onEntryClick = {},
-                    onCreateEntry = {})
+                    onCreateEntry = {},
+                )
             }
             composable<ProgressDestination> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

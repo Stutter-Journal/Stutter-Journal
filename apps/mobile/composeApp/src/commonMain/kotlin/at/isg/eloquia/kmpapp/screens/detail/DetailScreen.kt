@@ -37,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.isg.eloquia.kmpapp.data.MuseumObject
 import at.isg.eloquia.kmpapp.screens.EmptyScreenContent
 import coil3.compose.AsyncImage
-
 import kmp_app_template.composeapp.generated.resources.Res
 import kmp_app_template.composeapp.generated.resources.back
 import kmp_app_template.composeapp.generated.resources.label_artist
@@ -63,7 +62,8 @@ fun DetailScreen(
 
     val obj by viewModel.getObject(objectId).collectAsStateWithLifecycle(initialValue = null)
     DetailScreenContent(
-        museumObject = obj, onBackClick = navigateBack
+        museumObject = obj,
+        onBackClick = navigateBack,
     )
 }
 
@@ -72,7 +72,9 @@ fun DetailScreen(
  */
 @Composable
 fun DetailScreenContent(
-    museumObject: MuseumObject?, onBackClick: () -> Unit, modifier: Modifier = Modifier
+    museumObject: MuseumObject?,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AnimatedContent(museumObject != null) { objectAvailable ->
         if (objectAvailable) {
@@ -91,7 +93,8 @@ private fun ObjectDetails(
 ) {
     Scaffold(
         topBar = {
-            @OptIn(ExperimentalMaterial3Api::class) TopAppBar(title = {}, navigationIcon = {
+            @OptIn(ExperimentalMaterial3Api::class)
+            TopAppBar(title = {}, navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.back))
                 }
@@ -100,13 +103,13 @@ private fun ObjectDetails(
         modifier = modifier.windowInsetsPadding(WindowInsets.systemBars),
     ) { paddingValues ->
         Column(
-            Modifier.verticalScroll(rememberScrollState()).padding(paddingValues)
+            Modifier.verticalScroll(rememberScrollState()).padding(paddingValues),
         ) {
             AsyncImage(
                 model = obj.primaryImageSmall,
                 contentDescription = obj.title,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth().background(Color.LightGray)
+                modifier = Modifier.fillMaxWidth().background(Color.LightGray),
             )
 
             SelectionContainer {
@@ -141,6 +144,7 @@ private fun LabeledInfo(
                     append("$label: ")
                 }
                 append(data)
-            })
+            },
+        )
     }
 }

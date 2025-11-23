@@ -45,27 +45,33 @@ fun EntriesListScreenContent(
     state: EntriesListState,
     onEntryClick: (JournalEntry) -> Unit,
     onCreateEntry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        modifier = modifier, floatingActionButton = {
+        modifier = modifier,
+        floatingActionButton = {
             EntriesFabMenu(onCreateEntry = onCreateEntry)
-        }) { padding ->
+        },
+    ) { padding ->
         EntriesContent(
-            state = state, onEntryClick = onEntryClick, modifier = Modifier.padding(padding)
+            state = state,
+            onEntryClick = onEntryClick,
+            modifier = Modifier.padding(padding),
         )
     }
 }
 
 @Composable
 private fun EntriesContent(
-    state: EntriesListState, onEntryClick: (JournalEntry) -> Unit, modifier: Modifier = Modifier
+    state: EntriesListState,
+    onEntryClick: (JournalEntry) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
             is EntriesListState.Loading -> {
                 CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             }
 
@@ -82,7 +88,7 @@ private fun EntriesContent(
                 Text(
                     text = state.message,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             }
         }
@@ -92,21 +98,29 @@ private fun EntriesContent(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun EntriesFabMenu(
-    onCreateEntry: () -> Unit, modifier: Modifier = Modifier
+    onCreateEntry: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     AnimatedVisibility(
-        visible = true, enter = scaleIn(
+        visible = true,
+        enter = scaleIn(
             animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow
-            )
-        ), exit = scaleOut(), modifier = modifier
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        ),
+        exit = scaleOut(),
+        modifier = modifier,
     ) {
         FloatingActionButtonMenu(
-            expanded = isMenuExpanded, button = {
+            expanded = isMenuExpanded,
+            button = {
                 ToggleFloatingActionButton(
-                    checked = isMenuExpanded, onCheckedChange = { isMenuExpanded = it }) {
+                    checked = isMenuExpanded,
+                    onCheckedChange = { isMenuExpanded = it },
+                ) {
                     val imageVector by remember(isMenuExpanded) {
                         derivedStateOf {
                             if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add
@@ -115,10 +129,11 @@ private fun EntriesFabMenu(
                     Icon(
                         imageVector = imageVector,
                         contentDescription = if (isMenuExpanded) "Close Menu" else "Create Entry",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
-            }) {
+            },
+        ) {
             FloatingActionButtonMenuItem(
                 onClick = {
                     isMenuExpanded = false
@@ -133,18 +148,18 @@ private fun EntriesFabMenu(
 
 @Composable
 private fun EmptyEntriesState(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = EntriesIcons.calendarToday,
             contentDescription = "No entries",
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +168,7 @@ private fun EmptyEntriesState(
             text = "No entries yet",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -162,7 +177,7 @@ private fun EmptyEntriesState(
             text = "Start tracking your progress by creating your first journal entry",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

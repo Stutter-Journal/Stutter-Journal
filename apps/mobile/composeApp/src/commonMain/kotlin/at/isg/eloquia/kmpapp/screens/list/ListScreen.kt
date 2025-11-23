@@ -25,9 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import at.isg.eloquia.kmpapp.data.MuseumObject
 import at.isg.eloquia.kmpapp.screens.EmptyScreenContent
+import coil3.compose.AsyncImage
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -35,14 +35,14 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun ListScreen(
-    navigateToDetails: (objectId: Int) -> Unit
+    navigateToDetails: (objectId: Int) -> Unit,
 ) {
     val viewModel = koinViewModel<ListViewModel>()
     val objects by viewModel.objects.collectAsStateWithLifecycle()
 
     ListScreenContent(
         objects = objects,
-        onObjectClick = navigateToDetails
+        onObjectClick = navigateToDetails,
     )
 }
 
@@ -53,7 +53,7 @@ fun ListScreen(
 fun ListScreenContent(
     objects: List<MuseumObject>,
     onObjectClick: (objectId: Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     AnimatedContent(objects.isNotEmpty()) { objectsAvailable ->
         if (objectsAvailable) {
@@ -96,7 +96,7 @@ private fun ObjectFrame(
     Column(
         modifier
             .padding(8.dp)
-            .clickable { onClick() }
+            .clickable { onClick() },
     ) {
         AsyncImage(
             model = obj.primaryImageSmall,

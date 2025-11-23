@@ -46,62 +46,72 @@ fun EntriesListScreenContent(
     onCreateEntry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isMenuExpanded by remember { mutableStateOf(false) }
-
     Scaffold(
         modifier = modifier, floatingActionButton = {
-            AnimatedVisibility(
-                visible = true, enter = scaleIn(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                ), exit = scaleOut()
-            ) {
-                FloatingActionButtonMenu(
-                    expanded = isMenuExpanded,
-                    button = {
-                        ToggleFloatingActionButton(
-                            checked = isMenuExpanded,
-                            onCheckedChange = { isMenuExpanded = it }
-                        ) {
-                            val imageVector by remember(isMenuExpanded) {
-                                derivedStateOf {
-                                    if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add
-                                }
-                            }
-                            Icon(
-                                imageVector = imageVector,
-                                contentDescription = if (isMenuExpanded) "Close Menu" else "Create Entry",
-                                modifier = Modifier.size(24.dp)
-                            )
+            EntriesFabMenu(onCreateEntry = onCreateEntry)
+        }) { padding ->
+        EntriesContent(
+            state = state, onEntryClick = onEntryClick, modifier = Modifier.padding(padding)
+        )
+    }
+}
+
+@Composable
+private fun EntriesContent(
+    state: EntriesListState, onEntryClick: (JournalEntry) -> Unit, modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
+            state.entries.isEmpty() && !state.isLoading -> {
+                EmptyEntriesState(modifier = Modifier.fillMaxSize())
+            }
+
+            state.entries.isNotEmpty() -> {
+                // TODO: Show list of entries
+                EmptyEntriesState(modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun EntriesFabMenu(
+    onCreateEntry: () -> Unit, modifier: Modifier = Modifier
+) {
+    var isMenuExpanded by remember { mutableStateOf(false) }
+
+    AnimatedVisibility(
+        visible = true, enter = scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow
+            )
+        ), exit = scaleOut(), modifier = modifier
+    ) {
+        FloatingActionButtonMenu(
+            expanded = isMenuExpanded, button = {
+                ToggleFloatingActionButton(
+                    checked = isMenuExpanded, onCheckedChange = { isMenuExpanded = it }) {
+                    val imageVector by remember(isMenuExpanded) {
+                        derivedStateOf {
+                            if (isMenuExpanded) Icons.Default.Close else Icons.Default.Add
                         }
                     }
-                ) {
-                    FloatingActionButtonMenuItem(
-                        onClick = {
-                            isMenuExpanded = false
-                            onCreateEntry()
-                        },
-                        icon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                        text = { Text(text = "New Entry") },
+                    Icon(
+                        imageVector = imageVector,
+                        contentDescription = if (isMenuExpanded) "Close Menu" else "Create Entry",
+                        modifier = Modifier.size(24.dp)
                     )
                 }
-            }
-        }) { padding ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(padding)
-        ) {
-            when {
-                state.entries.isEmpty() && !state.isLoading -> {
-                    EmptyEntriesState(modifier = Modifier.fillMaxSize())
-                }
-
-                state.entries.isNotEmpty() -> {
-                    // TODO: Show list of entries
-                    EmptyEntriesState(modifier = Modifier.fillMaxSize())
-                }
-            }
+            }) {
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    isMenuExpanded = false
+                    onCreateEntry()
+                },
+                icon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                text = { Text(text = "New Entry") },
+            )
         }
     }
 }

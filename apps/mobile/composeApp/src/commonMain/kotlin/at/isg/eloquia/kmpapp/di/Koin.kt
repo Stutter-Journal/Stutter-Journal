@@ -5,8 +5,8 @@ import at.isg.eloquia.kmpapp.data.KtorMuseumApi
 import at.isg.eloquia.kmpapp.data.MuseumApi
 import at.isg.eloquia.kmpapp.data.MuseumRepository
 import at.isg.eloquia.kmpapp.data.MuseumStorage
-import at.isg.eloquia.kmpapp.screens.detail.DetailViewModel
-import at.isg.eloquia.kmpapp.screens.list.ListViewModel
+import at.isg.eloquia.kmpapp.presentation.detail.DetailViewModel
+import at.isg.eloquia.kmpapp.presentation.list.ListViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType

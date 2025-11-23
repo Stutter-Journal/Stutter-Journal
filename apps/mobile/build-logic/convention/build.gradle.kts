@@ -81,6 +81,11 @@ gradlePlugin {
             implementationClass = "AndroidComposeConventionPlugin"
         }
 
+        register("architectureTests") {
+            id = "eloquia.architecture.tests"
+            implementationClass = "ArchitectureTestsConventionPlugin"
+        }
+
         register("spotless") {
             id = "eloquia.spotless"
             implementationClass = "SpotlessConventionPlugin"

@@ -12,11 +12,9 @@ internal class RoomJournalEntryLocalDataSource(
     private val dao: JournalEntryDao,
 ) : JournalEntryLocalDataSource {
 
-    override fun observeEntries(): Flow<List<JournalEntryDto>> =
-        dao.observeEntries().map { list -> list.map { it.toDto() } }
+    override fun observeEntries(): Flow<List<JournalEntryDto>> = dao.observeEntries().map { list -> list.map { it.toDto() } }
 
-    override suspend fun getEntries(): List<JournalEntryDto> =
-        dao.getEntries().map { it.toDto() }
+    override suspend fun getEntries(): List<JournalEntryDto> = dao.getEntries().map { it.toDto() }
 
     override suspend fun upsert(entry: JournalEntryDto) {
         dao.upsert(entry.toEntity())

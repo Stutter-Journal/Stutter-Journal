@@ -15,10 +15,8 @@ internal object JournalEntryTypeConverters {
     fun toTags(value: String): List<String> = if (value.isBlank()) emptyList() else value.split("|")
 
     @TypeConverter
-    fun fromLocalDateTime(value: LocalDateTime): Long =
-        value.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+    fun fromLocalDateTime(value: LocalDateTime): Long = value.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
     @TypeConverter
-    fun toLocalDateTime(value: Long): LocalDateTime =
-        Instant.fromEpochMilliseconds(value).toLocalDateTime(TimeZone.currentSystemDefault())
+    fun toLocalDateTime(value: Long): LocalDateTime = Instant.fromEpochMilliseconds(value).toLocalDateTime(TimeZone.currentSystemDefault())
 }

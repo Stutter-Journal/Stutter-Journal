@@ -9,7 +9,6 @@ kotlin {
             implementation(projects.features.entries)
             implementation(projects.features.progress)
             implementation(projects.features.support)
-            implementation(libs.jetbrains.compose.material.icons.extended)
         }
     }
 }

@@ -32,15 +32,6 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
                     androidMain.dependencies {
                         implementation(libs.jetbrains.compose.material.icons.extended)
                     }
-
-                    iosMain.dependencies {
-                        implementation(libs.jetbrains.compose.material.icons.extended)
-                    }
-
-                    // Add for desktop if it exists
-                    findByName("desktopMain")?.dependencies {
-                        implementation(libs.jetbrains.compose.material.icons.extended)
-                    }
                 }
             }
 

@@ -1,8 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-include(":tests:architecture")
-
-
 rootProject.name = "KMP-App-Template"
 
 pluginManagement {
@@ -37,7 +34,11 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":composeApp")
+include(":core:data")
+include(":core:domain")
 include(":core:theme")
 include(":features:entries")
 include(":features:progress")
 include(":features:support")
+include(":tests:architecture")
+

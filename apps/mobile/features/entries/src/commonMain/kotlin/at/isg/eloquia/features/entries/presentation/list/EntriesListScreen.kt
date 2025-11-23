@@ -18,10 +18,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -34,10 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import at.isg.eloquia.features.entries.domain.model.JournalEntry
 
-/**
- * Stateless entries list screen content
- */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EntriesListScreenContent(
     state: EntriesListState,
@@ -48,17 +49,14 @@ fun EntriesListScreenContent(
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier,
-        floatingActionButton = {
+        modifier = modifier, floatingActionButton = {
             AnimatedVisibility(
-                visible = true,
-                enter = scaleIn(
+                visible = true, enter = scaleIn(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessLow
                     )
-                ),
-                exit = scaleOut()
+                ), exit = scaleOut()
             ) {
                 FloatingActionButtonMenu(
                     expanded = isMenuExpanded,
@@ -73,7 +71,7 @@ fun EntriesListScreenContent(
                                 }
                             }
                             Icon(
-                                imageVector = imageVector.value,
+                                imageVector = imageVector,
                                 contentDescription = if (isMenuExpanded) "Close Menu" else "Create Entry",
                                 modifier = Modifier.size(24.dp)
                             )
@@ -90,12 +88,9 @@ fun EntriesListScreenContent(
                     )
                 }
             }
-        }
-    ) { padding ->
+        }) { padding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+            modifier = Modifier.fillMaxSize().padding(padding)
         ) {
             when {
                 state.entries.isEmpty() && !state.isLoading -> {

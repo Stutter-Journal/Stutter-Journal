@@ -25,10 +25,11 @@ class KmpRoomConventionPlugin : Plugin<Project> {
                 schemaDirectory("$projectDir/schemas")
             }
 
-            // Add Room runtime dependencies
+            // Add Room runtime dependencies scoped to Android
             dependencies {
-                add("commonMainImplementation", libs.androidx.room.runtime)
-                add("commonMainImplementation", libs.androidx.sqlite.bundled)
+                add("androidMainImplementation", libs.androidx.room.runtime)
+                add("androidMainImplementation", libs.androidx.room.ktx)
+                add("androidMainImplementation", libs.androidx.sqlite.bundled)
             }
 
             // Add KSP dependencies after project evaluation when all configurations exist

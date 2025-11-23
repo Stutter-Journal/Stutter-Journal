@@ -30,6 +30,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
+                "commonMainImplementation"(libs.kotlinx.coroutines.core)
                 "commonMainImplementation"(libs.kotlinx.serialization.json)
                 "commonTestImplementation"(libs.kotlin.test)
             }

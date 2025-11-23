@@ -12,8 +12,7 @@ internal class JournalEntryRepositoryImpl(
     private val localDataSource: JournalEntryLocalDataSource,
 ) : JournalEntryRepository {
 
-    override fun observeEntries(): Flow<List<JournalEntry>> =
-        localDataSource.observeEntries().map { list -> list.map { it.toDomain() } }
+    override fun observeEntries(): Flow<List<JournalEntry>> = localDataSource.observeEntries().map { list -> list.map { it.toDomain() } }
 
     override suspend fun createEntry(entry: JournalEntry) {
         localDataSource.upsert(entry.toDto())

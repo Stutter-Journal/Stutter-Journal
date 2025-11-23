@@ -32,6 +32,7 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
                 "androidMainImplementation"(libs.koin.android)
 
                 "commonMainImplementation"(project(":core:theme"))
+                "commonMainImplementation"(project(":core:domain"))
             }
         }
     }

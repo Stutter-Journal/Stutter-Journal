@@ -30,6 +30,50 @@ class ArchitectureTest {
     }
 
     @Test
+    fun `classes with 'DataSource' suffix should reside in 'data' package`() {
+        Konsist
+            .scopeFromProject()
+            .classes()
+            .withNameEndingWith("DataSource")
+            .assertTrue {
+                it.resideInPackage("..data..")
+            }
+    }
+
+    @Test
+    fun `classes with 'Dto' suffix should reside in 'data' package`() {
+        Konsist
+            .scopeFromProject()
+            .classes()
+            .withNameEndingWith("Dto")
+            .assertTrue {
+                it.resideInPackage("..data..")
+            }
+    }
+
+    @Test
+    fun `classes with 'Dao' suffix should reside in 'data' package`() {
+        Konsist
+            .scopeFromProject()
+            .classes()
+            .withNameEndingWith("Dao")
+            .assertTrue {
+                it.resideInPackage("..data..")
+            }
+    }
+
+    @Test
+    fun `classes with 'Entity' suffix should reside in 'data' package`() {
+        Konsist
+            .scopeFromProject()
+            .classes()
+            .withNameEndingWith("Entity")
+            .assertTrue {
+                it.resideInPackage("..data..")
+            }
+    }
+
+    @Test
     fun `classes with 'ViewModel' suffix should reside in 'presentation' package`() {
         Konsist
             .scopeFromProject()

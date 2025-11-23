@@ -35,7 +35,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
 
                 sourceSets.apply {
                     androidMain.dependencies {
-                        implementation(libs.androidx.compose.ui.tooling.preview)
+                        implementation(libs.jetbrains.compose.ui.tooling.preview)
                         implementation(libs.androidx.activity.compose)
                         implementation(libs.ktor.client.okhttp)
                     }
@@ -52,10 +52,15 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.components.resources)
 
                         implementation(libs.bundles.navigation.lifecycle)
-                        implementation(libs.material.icons.core)
+                        implementation(libs.jetbrains.compose.material.icons.extended)
                         implementation(libs.bundles.ktor.common)
                         implementation(libs.bundles.coil)
                         implementation(libs.bundles.koin)
+
+                        implementation(project(":core:theme"))
+                        implementation(project(":features:entries"))
+                        implementation(project(":features:progress"))
+                        implementation(project(":features:support"))
                     }
                 }
             }

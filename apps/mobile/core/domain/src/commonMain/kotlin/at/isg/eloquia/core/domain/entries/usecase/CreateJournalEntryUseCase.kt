@@ -2,10 +2,10 @@ package at.isg.eloquia.core.domain.entries.usecase
 
 import at.isg.eloquia.core.domain.entries.model.JournalEntry
 import at.isg.eloquia.core.domain.entries.repository.JournalEntryRepository
-import kotlinx.datetime.Clock
+import at.isg.eloquia.core.domain.util.generateEntryId
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.UUID
+import kotlin.time.Clock
 
 class CreateJournalEntryUseCase(
     private val repository: JournalEntryRepository,
@@ -14,7 +14,7 @@ class CreateJournalEntryUseCase(
     suspend operator fun invoke(request: CreateJournalEntryRequest) {
         val now = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
         val entry = JournalEntry(
-            id = UUID.randomUUID().toString(),
+            id = generateEntryId(),
             title = request.title.trim(),
             content = request.content.trim(),
             createdAt = now,

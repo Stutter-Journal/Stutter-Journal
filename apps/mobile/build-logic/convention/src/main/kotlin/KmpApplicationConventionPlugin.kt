@@ -59,6 +59,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.bundles.koin)
 
                         implementation(project(":core:theme"))
+                        implementation(project(":core:domain"))
                         implementation(project(":features:entries"))
                         implementation(project(":features:progress"))
                         implementation(project(":features:support"))

@@ -12,23 +12,23 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock.*
 
 class EntriesListViewModel(
     observeEntriesUseCase: ObserveJournalEntriesUseCase,
     private val createJournalEntryUseCase: CreateJournalEntryUseCase,
 ) : ViewModel() {
 
-    val state: StateFlow<EntriesListState> = observeEntriesUseCase()
-        .map<_, EntriesListState> { entries -> EntriesListState.Content(entries) }
-        .catch { emit(EntriesListState.Error(it.message ?: "Unable to load entries")) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = EntriesListState.Loading,
-        )
+    val state: StateFlow<EntriesListState> =
+        observeEntriesUseCase().map<_, EntriesListState> { entries ->
+            EntriesListState.Content(entries)
+        }.catch { emit(EntriesListState.Error(it.message ?: "Unable to load entries")) }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = EntriesListState.Loading,
+            )
 
     private val submissionErrors = MutableStateFlow<String?>(null)
     val lastSubmissionError: StateFlow<String?> = submissionErrors
@@ -53,7 +53,7 @@ class EntriesListViewModel(
     }
 
     fun createQuickEntry() {
-        val timestamp = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val timestamp = System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         val display = timestamp.date.toString()
         createQuickEntry(title = "Entry $display", content = "Captured at ${timestamp.time}")
     }

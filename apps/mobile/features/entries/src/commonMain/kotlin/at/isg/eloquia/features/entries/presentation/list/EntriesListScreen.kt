@@ -45,7 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import at.isg.eloquia.features.entries.domain.model.JournalEntry
+import at.isg.eloquia.core.domain.entries.model.JournalEntry
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -148,9 +148,7 @@ private fun JournalEntryItem(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(

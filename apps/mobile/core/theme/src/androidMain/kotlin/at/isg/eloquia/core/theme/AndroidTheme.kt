@@ -11,18 +11,25 @@ import androidx.compose.ui.platform.LocalContext
 
 @Immutable
 data class ColorFamily(
-    val color: Color, val onColor: Color, val colorContainer: Color, val onColorContainer: Color
+    val color: Color,
+    val onColor: Color,
+    val colorContainer: Color,
+    val onColorContainer: Color,
 )
 
 val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified,
 )
 
 @Composable
 actual fun EloquiaTheme(
     darkTheme: Boolean,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean, content: @Composable () -> Unit
+    dynamicColor: Boolean,
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -35,6 +42,8 @@ actual fun EloquiaTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme, typography = AppTypography, content = content
+        colorScheme = colorScheme,
+        typography = AppTypography,
+        content = content,
     )
 }

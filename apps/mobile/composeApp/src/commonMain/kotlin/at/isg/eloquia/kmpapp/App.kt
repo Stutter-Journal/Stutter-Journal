@@ -31,7 +31,8 @@ fun App() {
                     objectId = backStackEntry.toRoute<DetailDestination>().objectId,
                     navigateBack = {
                         navController.popBackStack()
-                    })
+                    },
+                )
             }
         }
     }

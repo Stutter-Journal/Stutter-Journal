@@ -7,13 +7,13 @@ import androidx.compose.runtime.Composable
 actual fun EloquiaTheme(
     darkTheme: Boolean,
     dynamicColor: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) darkScheme else lightScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
-        content = content
+        content = content,
     )
 }

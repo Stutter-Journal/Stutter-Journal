@@ -10,6 +10,7 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("eloquia.android.application")
+                apply("eloquia.spotless")
                 apply(libs.plugins.composeCompiler.get().pluginId)
             }
 

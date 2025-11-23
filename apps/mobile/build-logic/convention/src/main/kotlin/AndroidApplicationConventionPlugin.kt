@@ -11,6 +11,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply(libs.plugins.androidApplication.get().pluginId)
+                apply("eloquia.spotless")
             }
 
             extensions.configure<ApplicationExtension> {

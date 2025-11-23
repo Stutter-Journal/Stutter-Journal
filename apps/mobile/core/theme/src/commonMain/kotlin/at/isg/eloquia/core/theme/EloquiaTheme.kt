@@ -7,5 +7,5 @@ import androidx.compose.runtime.Composable
 expect fun EloquiaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 )

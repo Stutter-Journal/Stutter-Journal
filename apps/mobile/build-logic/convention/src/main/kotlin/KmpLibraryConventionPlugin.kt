@@ -10,13 +10,12 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
 class KmpLibraryConventionPlugin : Plugin<Project> {
-
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("com.android.library")
                 apply(libs.plugins.kotlinMultiplatform.get().pluginId)
-                apply(libs.plugins.kotlinxSerialization.get().pluginId)
+                apply(libs.plugins.androidLibrary.get().pluginId)
+                apply("eloquia.spotless")
             }
 
             configureKotlinMultiplatform()

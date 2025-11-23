@@ -12,6 +12,7 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("eloquia.kmp.library")
+                apply("eloquia.spotless")
                 apply(libs.plugins.composeCompiler.get().pluginId)
                 apply(libs.plugins.composeMultiplatform.get().pluginId)
             }

@@ -13,6 +13,12 @@ internal interface JournalEntryDao {
     @Query("SELECT * FROM journal_entries ORDER BY created_at DESC")
     suspend fun getEntries(): List<JournalEntryEntity>
 
+    @Query("SELECT * FROM journal_entries WHERE id = :id LIMIT 1")
+    suspend fun getEntry(id: String): JournalEntryEntity?
+
     @Upsert
     suspend fun upsert(entry: JournalEntryEntity)
+
+    @Query("DELETE FROM journal_entries WHERE id = :id")
+    suspend fun delete(id: String)
 }

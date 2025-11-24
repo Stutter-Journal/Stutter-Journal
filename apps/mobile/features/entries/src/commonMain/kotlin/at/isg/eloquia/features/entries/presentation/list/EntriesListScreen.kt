@@ -52,13 +52,14 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EntriesListScreen(
     viewModel: EntriesListViewModel = koinViewModel(),
     onEntryClick: (JournalEntry) -> Unit = {},
+    onCreateEntry: () -> Unit = viewModel::createQuickEntry,
 ) {
     val state by viewModel.state.collectAsState()
 
     EntriesListScreenContent(
         state = state,
         onEntryClick = onEntryClick,
-        onCreateEntry = viewModel::createQuickEntry,
+        onCreateEntry = onCreateEntry,
     )
 }
 

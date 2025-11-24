@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import at.isg.eloquia.features.entries.presentation.list.EntriesListScreenContent
-import at.isg.eloquia.features.entries.presentation.list.EntriesListState
+import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
+import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -171,11 +171,23 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable<EntriesDestination> {
-                EntriesListScreenContent(
-                    // TODO: This should be in a different state like Loading, as soon as we have a room database, we can implement a better data loading logic
-                    state = EntriesListState.Content(emptyList()),
+                EntriesListScreen(
                     onEntryClick = {},
-                    onCreateEntry = {},
+                    onCreateEntry = {
+                        navController.navigate(NewEntryDestination)
+                    },
+                )
+            }
+            composable<NewEntryDestination> {
+                NewEntryScreen(
+                    onClose = {
+                        currentTab = MainTab.Entries
+                        navController.popBackStack()
+                    },
+                    onEntrySaved = {
+                        currentTab = MainTab.Entries
+                        navController.popBackStack()
+                    },
                 )
             }
             composable<ProgressDestination> {

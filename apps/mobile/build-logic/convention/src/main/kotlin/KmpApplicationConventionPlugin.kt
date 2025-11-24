@@ -39,10 +39,12 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.jetbrains.compose.ui.tooling.preview)
                         implementation(libs.androidx.activity.compose)
                         implementation(libs.ktor.client.okhttp)
+                        implementation(project(":core:data"))
                     }
 
                     iosMain.dependencies {
                         implementation(libs.ktor.client.darwin)
+                        implementation(project(":core:data"))
                     }
 
                     commonMain.dependencies {

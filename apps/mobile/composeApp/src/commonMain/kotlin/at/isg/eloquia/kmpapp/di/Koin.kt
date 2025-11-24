@@ -1,5 +1,7 @@
 package at.isg.eloquia.kmpapp.di
 
+import at.isg.eloquia.core.domain.entries.di.entriesDomainModule
+import at.isg.eloquia.features.entries.di.entriesFeatureModule
 import at.isg.eloquia.kmpapp.data.InMemoryMuseumStorage
 import at.isg.eloquia.kmpapp.data.KtorMuseumApi
 import at.isg.eloquia.kmpapp.data.MuseumApi
@@ -12,7 +14,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -41,11 +45,19 @@ val viewModelModule = module {
     factoryOf(::DetailViewModel)
 }
 
-fun initKoin() {
+typealias KoinAppDeclaration = KoinApplication.() -> Unit
+
+fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
     startKoin {
+        appDeclaration()
         modules(
             dataModule,
             viewModelModule,
+            entriesDomainModule,
+            entriesFeatureModule,
         )
+        modules(platformModules())
     }
 }
+
+expect fun platformModules(): List<Module>

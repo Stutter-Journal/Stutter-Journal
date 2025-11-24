@@ -188,8 +188,9 @@ fun NewEntryScreenContent(
             datePickerState.selectedDateMillis?.let { millis ->
                 callbacks.onDateChange(millis.toLocalDateInSystemZone())
             }
+            showDatePicker = false
         },
-        onDismiss = { },
+        onDismiss = { showDatePicker = false },
     )
 }
 

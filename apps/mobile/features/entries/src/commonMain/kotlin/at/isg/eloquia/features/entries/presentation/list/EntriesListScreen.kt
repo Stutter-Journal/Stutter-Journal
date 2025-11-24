@@ -205,7 +205,7 @@ private fun EntriesFabMenu(
             button = {
                 ToggleFloatingActionButton(
                     checked = isMenuExpanded,
-                    onCheckedChange = { isMenuExpanded = it },
+                    onCheckedChange = { },
                 ) {
                     val imageVector by remember(isMenuExpanded) {
                         derivedStateOf {
@@ -222,7 +222,6 @@ private fun EntriesFabMenu(
         ) {
             FloatingActionButtonMenuItem(
                 onClick = {
-                    isMenuExpanded = false
                     onCreateEntry()
                 },
                 icon = { Icon(Icons.Default.Edit, contentDescription = null) },

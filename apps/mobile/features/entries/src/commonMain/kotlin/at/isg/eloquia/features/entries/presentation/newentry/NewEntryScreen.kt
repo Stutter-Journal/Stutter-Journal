@@ -40,9 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +53,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import at.isg.eloquia.features.entries.presentation.newentry.model.MultiSelectOption
+import at.isg.eloquia.features.entries.presentation.newentry.model.NewEntryCallbacks
+import at.isg.eloquia.features.entries.presentation.newentry.model.NewEntryUiState
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -62,51 +63,6 @@ import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.Instant
-
-@Immutable
-data class MultiSelectOption(
-    val id: String,
-    val label: String,
-)
-
-@Stable
-data class NewEntryUiState(
-    val entryId: String? = null,
-    val date: LocalDate = LocalDate(1970, 1, 1),
-    val intensity: Int = 5,
-    val intensityRange: IntRange = 1..10,
-    val triggers: List<MultiSelectOption> = emptyList(),
-    val selectedTriggerIds: Set<String> = emptySet(),
-    val customTrigger: String = "",
-    val methods: List<MultiSelectOption> = emptyList(),
-    val selectedMethodIds: Set<String> = emptySet(),
-    val customMethod: String = "",
-    val notes: String = "",
-    val isSaving: Boolean = false,
-    val errorMessage: String? = null,
-) {
-    val dateDisplay: String get() = date.toString()
-    val canSave: Boolean
-        get() = notes.isNotBlank() || selectedTriggerIds.isNotEmpty() || selectedMethodIds.isNotEmpty() || customTrigger.isNotBlank() || customMethod.isNotBlank()
-
-    val isEditing: Boolean get() = entryId != null
-}
-
-@Immutable
-data class NewEntryCallbacks(
-    val onClose: () -> Unit,
-    val onDateChange: (LocalDate) -> Unit,
-    val onIntensityChange: (Int) -> Unit,
-    val onToggleTrigger: (String) -> Unit,
-    val onCustomTriggerChange: (String) -> Unit,
-    val onAddCustomTrigger: () -> Unit,
-    val onToggleMethod: (String) -> Unit,
-    val onCustomMethodChange: (String) -> Unit,
-    val onAddCustomMethod: () -> Unit,
-    val onNotesChange: (String) -> Unit,
-    val onCancel: () -> Unit,
-    val onSave: () -> Unit,
-)
 
 @Composable
 fun NewEntryScreen(
@@ -329,10 +285,10 @@ private fun EntryFormList(
             }
         }
 
-        if (state.errorMessage != null) {
+        state.errorMessage?.let { error ->
             item {
                 Text(
-                    text = state.errorMessage,
+                    text = error,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )

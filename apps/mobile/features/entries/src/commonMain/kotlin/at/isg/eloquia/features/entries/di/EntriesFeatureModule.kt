@@ -1,6 +1,5 @@
 package at.isg.eloquia.features.entries.di
 
-import at.isg.eloquia.features.entries.presentation.detail.EntryDetailViewModel
 import at.isg.eloquia.features.entries.presentation.list.EntriesListViewModel
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryViewModel
 import org.koin.core.module.Module
@@ -18,14 +17,6 @@ val entriesFeatureModule: Module = module {
             getJournalEntryUseCase = get(),
             clock = get(),
             initialEntryId = entryId,
-        )
-    }
-
-    viewModel { (entryId: String) ->
-        EntryDetailViewModel(
-            entryId = entryId,
-            observeJournalEntriesUseCase = get(),
-            deleteJournalEntryUseCase = get(),
         )
     }
 }

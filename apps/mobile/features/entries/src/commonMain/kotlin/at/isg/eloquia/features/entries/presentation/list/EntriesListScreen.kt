@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +21,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +35,9 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -66,7 +68,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EntriesListScreen(
     viewModel: EntriesListViewModel = koinViewModel(),
     onEntryClick: (JournalEntry) -> Unit = {},
-    onEditEntry: (JournalEntry) -> Unit = onEntryClick,
     onCreateEntry: () -> Unit = viewModel::createQuickEntry,
 ) {
     val state by viewModel.state.collectAsState()
@@ -87,7 +88,6 @@ fun EntriesListScreen(
     EntriesListScreenContent(
         state = state,
         onEntryClick = onEntryClick,
-        onEditEntry = onEditEntry,
         onDeleteEntry = deleteEntryAction,
         onCreateEntry = onCreateEntry,
         snackbarHostState = snackbarHostState,
@@ -99,7 +99,6 @@ fun EntriesListScreen(
 fun EntriesListScreenContent(
     state: EntriesListState,
     onEntryClick: (JournalEntry) -> Unit,
-    onEditEntry: (JournalEntry) -> Unit,
     onDeleteEntry: (JournalEntry) -> Unit,
     onCreateEntry: () -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -116,7 +115,6 @@ fun EntriesListScreenContent(
         EntriesContent(
             state = state,
             onEntryClick = onEntryClick,
-            onEditEntry = onEditEntry,
             onDeleteRequest = { entryPendingDeletion = it },
             modifier = Modifier.padding(padding),
         )
@@ -136,7 +134,6 @@ fun EntriesListScreenContent(
 private fun EntriesContent(
     state: EntriesListState,
     onEntryClick: (JournalEntry) -> Unit,
-    onEditEntry: (JournalEntry) -> Unit,
     onDeleteRequest: (JournalEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -155,7 +152,6 @@ private fun EntriesContent(
                     EntriesList(
                         entries = state.entries,
                         onEntryClick = onEntryClick,
-                        onEditEntry = onEditEntry,
                         onDeleteRequest = onDeleteRequest,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -177,7 +173,6 @@ private fun EntriesContent(
 private fun EntriesList(
     entries: List<JournalEntry>,
     onEntryClick: (JournalEntry) -> Unit,
-    onEditEntry: (JournalEntry) -> Unit,
     onDeleteRequest: (JournalEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -187,10 +182,10 @@ private fun EntriesList(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(entries) { entry ->
+            val details = entry.toDisplayDetails()
             JournalEntryItem(
-                entry = entry,
-                onClick = { onEntryClick(entry) },
-                onEdit = { onEditEntry(entry) },
+                details = details,
+                onOpen = { onEntryClick(entry) },
                 onDelete = { onDeleteRequest(entry) },
             )
         }
@@ -199,86 +194,108 @@ private fun EntriesList(
 
 @Composable
 private fun JournalEntryItem(
-    entry: JournalEntry,
-    onClick: () -> Unit,
-    onEdit: () -> Unit,
+    details: EntryDisplayDetails,
+    onOpen: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = CardDefaults.outlinedCardBorder(),
+        onClick = onOpen,
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text(
-                    text = entry.content.ifBlank { entry.title.ifBlank { "No notes provided" } },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (entry.title.isNotBlank()) {
-                    Text(
-                        text = entry.title,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (entry.tags.isNotEmpty()) {
-                    Text(
-                        text = entry.tags.joinToString(separator = " · ", limit = 3),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            EntryMetaRow(entry = entry)
-
-            EntryActionRow(onEdit = onEdit, onDelete = onDelete)
+            EntryHeaderRow(title = details.title.ifBlank { "Journal entry" }, onDelete = onDelete)
+            EntryDateTimeGroup(dateLabel = details.dateLabel, timeLabel = details.timeLabel)
+            EntryDescriptionGroup(description = details.description)
+            EntryIntensityGroup(intensity = details.intensity)
         }
     }
 }
 
 @Composable
-private fun EntryMetaRow(entry: JournalEntry) {
+private fun EntryHeaderRow(title: String, onDelete: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        EntryMetaChip(
-            icon = Icons.Outlined.CalendarMonth,
-            label = entry.createdAt.date.toString(),
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
-        EntryMetaChip(
-            icon = Icons.Outlined.Schedule,
-            label = entry.createdAt.formatTimeLabel(),
-        )
-        EntryMetaChip(
-            icon = Icons.Outlined.Description,
-            label = run {
-                val raw = entry.content.ifBlank { entry.title }.ifBlank { "No notes" }
-                val clipped = raw.take(30)
-                if (raw.length > 30) "$clipped…" else clipped
-            },
+        IconButton(
+            onClick = onDelete,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            ),
+        ) {
+            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete entry")
+        }
+    }
+}
+
+@Composable
+private fun EntryDateTimeGroup(dateLabel: String, timeLabel: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconLabel(icon = Icons.Outlined.CalendarMonth, text = dateLabel)
+        IconLabel(icon = Icons.Outlined.Schedule, text = timeLabel)
+    }
+}
+
+@Composable
+private fun EntryDescriptionGroup(description: String) {
+    Text(
+        text = description,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 4,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+private fun EntryIntensityGroup(intensity: Int) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(
+                imageVector = Icons.Outlined.Timeline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = "Intensity",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "$intensity / 10",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        LinearProgressIndicator(
+            progress = { intensity.coerceIn(1, 10) / 10f },
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
 
 @Composable
-private fun EntryMetaChip(icon: ImageVector, label: String) {
+private fun IconLabel(icon: ImageVector, text: String) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = MaterialTheme.shapes.small,
@@ -295,33 +312,12 @@ private fun EntryMetaChip(icon: ImageVector, label: String) {
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(
-                text = label,
+                text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-        }
-    }
-}
-
-@Composable
-private fun EntryActionRow(onEdit: () -> Unit, onDelete: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextButton(onClick = onEdit) {
-            Text("Edit")
-        }
-        TextButton(
-            onClick = onDelete,
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = MaterialTheme.colorScheme.error,
-            ),
-        ) {
-            Text("Delete")
         }
     }
 }
@@ -412,6 +408,34 @@ private fun EntriesFabMenu(
         }
     }
 }
+
+private data class EntryDisplayDetails(
+    val title: String,
+    val description: String,
+    val dateLabel: String,
+    val timeLabel: String,
+    val intensity: Int,
+)
+
+private fun JournalEntry.toDisplayDetails(): EntryDisplayDetails {
+    val description = content.ifBlank { title }.ifBlank { "No notes yet" }
+    val intensity = tags.firstNotNullOfOrNull(::parseIntensityTag) ?: DEFAULT_INTENSITY
+    return EntryDisplayDetails(
+        title = title,
+        description = description,
+        dateLabel = createdAt.date.toString(),
+        timeLabel = createdAt.formatTimeLabel(),
+        intensity = intensity,
+    )
+}
+
+private fun parseIntensityTag(tag: String): Int? = when {
+    tag.startsWith("intensity:", ignoreCase = true) -> tag.substringAfter(":").trim().toIntOrNull()
+    tag.startsWith("Intensity", ignoreCase = true) -> tag.substringAfterLast(' ').trim().toIntOrNull()
+    else -> null
+}
+
+private const val DEFAULT_INTENSITY = 5
 
 @Composable
 private fun EmptyEntriesState(

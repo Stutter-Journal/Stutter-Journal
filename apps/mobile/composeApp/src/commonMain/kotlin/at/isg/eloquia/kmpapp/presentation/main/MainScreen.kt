@@ -167,8 +167,7 @@ fun MainScreen() {
         ) {
             composable<EntriesDestination> {
                 EntriesListScreen(
-                    onEntryClick = {},
-                    onEditEntry = { entry ->
+                    onEntryClick = { entry ->
                         currentTab = MainTab.Entries
                         navController.navigate(NewEntryDestination(entryId = entry.id))
                     },

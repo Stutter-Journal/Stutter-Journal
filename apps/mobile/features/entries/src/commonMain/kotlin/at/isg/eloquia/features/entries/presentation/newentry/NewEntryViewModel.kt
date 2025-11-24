@@ -237,7 +237,7 @@ class NewEntryViewModel(
         options: List<MultiSelectOption>,
         selectedIds: Set<String>,
         prefix: String,
-    ): List<String> = selectedIds.mapNotNull { id -> options.firstOrNull { it.id == id }?.label?.let { "$prefix:${it}" } }
+    ): List<String> = selectedIds.mapNotNull { id -> options.firstOrNull { it.id == id }?.label?.let { "$prefix:$it" } }
 
     private fun JournalEntry.toUiState(): NewEntryUiState {
         val tags = this.tags

@@ -35,19 +35,30 @@ class KmpRoomConventionPlugin : Plugin<Project> {
             // Add KSP dependencies after project evaluation when all configurations exist
             afterEvaluate {
                 dependencies {
-                    // KSP dependencies for Room compiler
-                    // We check if configurations exist because targets are defined by other plugins
-                    listOf(
+                    val staticKspConfigs = listOf(
                         "kspCommonMainMetadata",
                         "kspAndroid",
                         "kspIosX64",
                         "kspIosArm64",
                         "kspIosSimulatorArm64"
-                    ).forEach { configName ->
-                        if (configurations.findByName(configName) != null) {
-                            add(configName, libs.androidx.room.compiler)
+                    )
+
+                    val variantAwareAndroidKspConfigs = configurations
+                        .filter { it.name.startsWith("ksp", ignoreCase = true) }
+                        .map { it.name }
+                        .filter { name ->
+                            val lower = name.lowercase()
+                            // Match debug/release + any Android-specific configurations (tests, unit tests, etc.).
+                            lower.contains("android") || lower.contains("debug") || lower.contains("release")
                         }
-                    }
+
+                    (staticKspConfigs + variantAwareAndroidKspConfigs)
+                        .distinct()
+                        .forEach { configName ->
+                            if (configurations.findByName(configName) != null) {
+                                add(configName, libs.androidx.room.compiler)
+                            }
+                        }
                 }
             }
         }

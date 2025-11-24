@@ -14,7 +14,7 @@ actual fun platformEntriesDataModule(): Module = module {
             androidContext(),
             EloquiaDatabase::class.java,
             "eloquia.db",
-        ).fallbackToDestructiveMigration()
+        ).fallbackToDestructiveMigration(false)
             .build()
     }
 

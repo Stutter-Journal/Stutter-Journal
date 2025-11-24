@@ -16,7 +16,13 @@ internal class RoomJournalEntryLocalDataSource(
 
     override suspend fun getEntries(): List<JournalEntryDto> = dao.getEntries().map { it.toDto() }
 
+    override suspend fun getEntry(id: String): JournalEntryDto? = dao.getEntry(id)?.toDto()
+
     override suspend fun upsert(entry: JournalEntryDto) {
         dao.upsert(entry.toEntity())
+    }
+
+    override suspend fun delete(id: String) {
+        dao.delete(id)
     }
 }

@@ -2,8 +2,12 @@ package at.isg.eloquia.features.entries.presentation.newentry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.isg.eloquia.core.domain.entries.model.JournalEntry
 import at.isg.eloquia.core.domain.entries.usecase.CreateJournalEntryRequest
 import at.isg.eloquia.core.domain.entries.usecase.CreateJournalEntryUseCase
+import at.isg.eloquia.core.domain.entries.usecase.GetJournalEntryUseCase
+import at.isg.eloquia.core.domain.entries.usecase.UpdateJournalEntryRequest
+import at.isg.eloquia.core.domain.entries.usecase.UpdateJournalEntryUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,13 +16,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
 class NewEntryViewModel(
     private val createJournalEntryUseCase: CreateJournalEntryUseCase,
+    private val updateJournalEntryUseCase: UpdateJournalEntryUseCase,
+    private val getJournalEntryUseCase: GetJournalEntryUseCase,
     private val clock: Clock,
+    private val initialEntryId: String? = null,
 ) : ViewModel() {
 
     private val defaultTriggers = listOf(
@@ -46,6 +54,14 @@ class NewEntryViewModel(
 
     private val _events = MutableSharedFlow<NewEntryEvent>(replay = 0, extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
+
+    private var editingMetadata: EditingMetadata? = null
+
+    init {
+        initialEntryId?.let { existingId ->
+            viewModelScope.launch { loadEntry(existingId) }
+        }
+    }
 
     fun setEntryDate(date: LocalDate) {
         _state.update { it.copy(date = date, errorMessage = null) }
@@ -82,8 +98,38 @@ class NewEntryViewModel(
         _state.update { it.copy(customTrigger = value, errorMessage = null) }
     }
 
+    fun commitCustomTrigger() {
+        val label = _state.value.customTrigger.trim()
+        if (label.isBlank()) return
+        _state.update { current ->
+            val existing = current.triggers.firstOrNull { it.label.equals(label, ignoreCase = true) }
+            val option = existing ?: MultiSelectOption(generateCustomId("trigger", label), label)
+            current.copy(
+                triggers = (current.triggers + option).deduplicate(),
+                selectedTriggerIds = current.selectedTriggerIds + option.id,
+                customTrigger = "",
+                errorMessage = null,
+            )
+        }
+    }
+
     fun updateCustomMethod(value: String) {
         _state.update { it.copy(customMethod = value, errorMessage = null) }
+    }
+
+    fun commitCustomMethod() {
+        val label = _state.value.customMethod.trim()
+        if (label.isBlank()) return
+        _state.update { current ->
+            val existing = current.methods.firstOrNull { it.label.equals(label, ignoreCase = true) }
+            val option = existing ?: MultiSelectOption(generateCustomId("method", label), label)
+            current.copy(
+                methods = (current.methods + option).deduplicate(),
+                selectedMethodIds = current.selectedMethodIds + option.id,
+                customMethod = "",
+                errorMessage = null,
+            )
+        }
     }
 
     fun updateNotes(value: String) {
@@ -91,6 +137,7 @@ class NewEntryViewModel(
     }
 
     fun resetForm() {
+        editingMetadata = null
         _state.value = initialState()
     }
 
@@ -105,27 +152,38 @@ class NewEntryViewModel(
         _state.update { it.copy(isSaving = true, errorMessage = null) }
 
         viewModelScope.launch {
-            val tags = buildList {
-                add("Intensity ${current.intensity}")
-                tagsFromSelection(current.triggers, current.selectedTriggerIds).forEach(::add)
-                tagsFromSelection(current.methods, current.selectedMethodIds).forEach(::add)
-                current.customTrigger.takeIf(String::isNotBlank)?.let(::add)
-                current.customMethod.takeIf(String::isNotBlank)?.let(::add)
+            val tags = buildTags(current)
+            val notes = current.notes.ifBlank { "Journal entry recorded on ${current.dateDisplay}." }
+            val metadata = editingMetadata
+
+            val result = if (metadata == null) {
+                val title = "Entry ${current.dateDisplay}"
+                runCatching {
+                    createJournalEntryUseCase(
+                        CreateJournalEntryRequest(
+                            title = title,
+                            content = notes,
+                            tags = tags,
+                        ),
+                    )
+                }
+            } else {
+                runCatching {
+                    updateJournalEntryUseCase(
+                        UpdateJournalEntryRequest(
+                            entryId = metadata.id,
+                            title = metadata.title,
+                            content = notes,
+                            createdAt = metadata.createdAt,
+                            tags = tags,
+                        ),
+                    )
+                }
             }
 
-            val title = "Entry ${current.dateDisplay}"
-            val notes = current.notes.ifBlank { "Journal entry recorded on ${current.dateDisplay}." }
-
-            runCatching {
-                createJournalEntryUseCase(
-                    CreateJournalEntryRequest(
-                        title = title,
-                        content = notes,
-                        tags = tags,
-                    ),
-                )
-            }.onSuccess {
+            result.onSuccess {
                 _state.value = initialState()
+                editingMetadata = null
                 _events.emit(NewEntryEvent.EntrySaved)
             }.onFailure { throwable ->
                 _state.update {
@@ -138,9 +196,20 @@ class NewEntryViewModel(
         }
     }
 
+    private suspend fun loadEntry(entryId: String) {
+        val entry = getJournalEntryUseCase(entryId)
+        if (entry == null) {
+            _state.update { it.copy(errorMessage = "Entry not found", isSaving = false) }
+            return
+        }
+        editingMetadata = EditingMetadata(entry.id, entry.title, entry.createdAt)
+        _state.value = entry.toUiState()
+    }
+
     private fun initialState(): NewEntryUiState {
         val today = clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         return NewEntryUiState(
+            entryId = null,
             date = today,
             intensity = DEFAULT_INTENSITY,
             intensityRange = INTENSITY_RANGE,
@@ -156,12 +225,83 @@ class NewEntryViewModel(
         )
     }
 
+    private fun buildTags(state: NewEntryUiState): List<String> = buildList {
+        add("intensity:${state.intensity}")
+        tagsFromSelection(state.triggers, state.selectedTriggerIds, "trigger").forEach(::add)
+        tagsFromSelection(state.methods, state.selectedMethodIds, "method").forEach(::add)
+        state.customTrigger.takeIf(String::isNotBlank)?.let { add("trigger:${it.trim()}") }
+        state.customMethod.takeIf(String::isNotBlank)?.let { add("method:${it.trim()}") }
+    }
+
     private fun tagsFromSelection(
         options: List<MultiSelectOption>,
         selectedIds: Set<String>,
-    ): List<String> = selectedIds.mapNotNull { id -> options.firstOrNull { it.id == id }?.label }
+        prefix: String,
+    ): List<String> = selectedIds.mapNotNull { id -> options.firstOrNull { it.id == id }?.label?.let { "$prefix:${it}" } }
+
+    private fun JournalEntry.toUiState(): NewEntryUiState {
+        val tags = this.tags
+        val intensity = tags.firstNotNullOfOrNull { parseIntensity(it) } ?: DEFAULT_INTENSITY
+        val triggerLabels = parseLabels(tags, "trigger", defaultTriggers)
+        val methodLabels = parseLabels(tags, "method", defaultMethods)
+        val customTriggerOptions = triggerLabels.filter { label -> defaultTriggers.none { it.label.equals(label, true) } }
+            .map { MultiSelectOption(generateCustomId("trigger", it), it) }
+        val customMethodOptions = methodLabels.filter { label -> defaultMethods.none { it.label.equals(label, true) } }
+            .map { MultiSelectOption(generateCustomId("method", it), it) }
+
+        val triggerOptions = (defaultTriggers + customTriggerOptions).deduplicate()
+        val methodOptions = (defaultMethods + customMethodOptions).deduplicate()
+
+        return NewEntryUiState(
+            entryId = this.id,
+            date = this.createdAt.date,
+            intensity = intensity,
+            intensityRange = INTENSITY_RANGE,
+            triggers = triggerOptions,
+            selectedTriggerIds = triggerOptions.filter { option ->
+                triggerLabels.any { it.equals(option.label, true) }
+            }.map { it.id }.toSet(),
+            customTrigger = "",
+            methods = methodOptions,
+            selectedMethodIds = methodOptions.filter { option ->
+                methodLabels.any { it.equals(option.label, true) }
+            }.map { it.id }.toSet(),
+            customMethod = "",
+            notes = this.content,
+            isSaving = false,
+            errorMessage = null,
+        )
+    }
+
+    private fun parseIntensity(tag: String): Int? = when {
+        tag.startsWith("intensity:", ignoreCase = true) -> tag.substringAfter(":").trim().toIntOrNull()
+        tag.startsWith("Intensity", ignoreCase = true) -> tag.substringAfterLast(' ').trim().toIntOrNull()
+        else -> null
+    }
+
+    private fun parseLabels(tags: List<String>, prefix: String, defaults: List<MultiSelectOption>): List<String> = tags.mapNotNull { tag ->
+        when {
+            tag.startsWith("$prefix:", ignoreCase = true) -> tag.substringAfter(":").trim()
+            defaults.any { it.label.equals(tag, ignoreCase = true) } -> tag
+            else -> null
+        }
+    }
+
+    private fun List<MultiSelectOption>.deduplicate(): List<MultiSelectOption> = distinctBy { it.id }
+
+    private fun generateCustomId(prefix: String, label: String): String {
+        val timestamp = clock.now().toEpochMilliseconds()
+        val normalized = label.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+        return "$prefix-${normalized.ifBlank { "custom" }}-$timestamp"
+    }
 
     private fun Set<String>.toggle(value: String): Set<String> = if (value in this) this - value else this + value
+
+    private data class EditingMetadata(
+        val id: String,
+        val title: String,
+        val createdAt: LocalDateTime,
+    )
 
     companion object {
         private val INTENSITY_RANGE = 1..10

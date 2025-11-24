@@ -10,4 +10,10 @@ interface JournalEntryRepository {
     fun observeEntries(): Flow<List<JournalEntry>>
 
     suspend fun createEntry(entry: JournalEntry)
+
+    suspend fun updateEntry(entry: JournalEntry)
+
+    suspend fun deleteEntry(id: String)
+
+    suspend fun getEntry(id: String): JournalEntry?
 }

@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.NoteAlt
@@ -19,6 +22,8 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,20 +37,30 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Immutable
 data class MultiSelectOption(
@@ -55,6 +70,7 @@ data class MultiSelectOption(
 
 @Stable
 data class NewEntryUiState(
+    val entryId: String? = null,
     val date: LocalDate = LocalDate(1970, 1, 1),
     val intensity: Int = 5,
     val intensityRange: IntRange = 1..10,
@@ -71,17 +87,21 @@ data class NewEntryUiState(
     val dateDisplay: String get() = date.toString()
     val canSave: Boolean
         get() = notes.isNotBlank() || selectedTriggerIds.isNotEmpty() || selectedMethodIds.isNotEmpty() || customTrigger.isNotBlank() || customMethod.isNotBlank()
+
+    val isEditing: Boolean get() = entryId != null
 }
 
 @Immutable
 data class NewEntryCallbacks(
     val onClose: () -> Unit,
-    val onEditDate: () -> Unit,
+    val onDateChange: (LocalDate) -> Unit,
     val onIntensityChange: (Int) -> Unit,
     val onToggleTrigger: (String) -> Unit,
     val onCustomTriggerChange: (String) -> Unit,
+    val onAddCustomTrigger: () -> Unit,
     val onToggleMethod: (String) -> Unit,
     val onCustomMethodChange: (String) -> Unit,
+    val onAddCustomMethod: () -> Unit,
     val onNotesChange: (String) -> Unit,
     val onCancel: () -> Unit,
     val onSave: () -> Unit,
@@ -92,8 +112,8 @@ fun NewEntryScreen(
     onClose: () -> Unit,
     onEntrySaved: () -> Unit,
     modifier: Modifier = Modifier,
-    onEditDate: (currentDate: LocalDate, onDateSelected: (LocalDate) -> Unit) -> Unit = { _, _ -> },
-    viewModel: NewEntryViewModel = koinViewModel(),
+    entryId: String? = null,
+    viewModel: NewEntryViewModel = koinViewModel(parameters = { parametersOf(entryId) }),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -109,12 +129,14 @@ fun NewEntryScreen(
         state = state,
         callbacks = NewEntryCallbacks(
             onClose = onClose,
-            onEditDate = { onEditDate(state.date, viewModel::setEntryDate) },
+            onDateChange = viewModel::setEntryDate,
             onIntensityChange = viewModel::setIntensity,
             onToggleTrigger = viewModel::toggleTrigger,
             onCustomTriggerChange = viewModel::updateCustomTrigger,
+            onAddCustomTrigger = viewModel::commitCustomTrigger,
             onToggleMethod = viewModel::toggleMethod,
             onCustomMethodChange = viewModel::updateCustomMethod,
+            onAddCustomMethod = viewModel::commitCustomMethod,
             onNotesChange = viewModel::updateNotes,
             onCancel = {
                 viewModel.resetForm()
@@ -133,6 +155,14 @@ fun NewEntryScreenContent(
     callbacks: NewEntryCallbacks,
     modifier: Modifier = Modifier,
 ) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState =
+        rememberDatePickerState(initialSelectedDateMillis = state.date.toEpochMillisAtStart())
+
+    LaunchedEffect(state.date) {
+        datePickerState.selectedDateMillis = state.date.toEpochMillisAtStart()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -140,12 +170,12 @@ fun NewEntryScreenContent(
                 title = {
                     Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = "New Journal Entry",
+                            text = if (state.isEditing) "Edit Journal Entry" else "New Journal Entry",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Medium,
                         )
                         Text(
-                            text = "Capture today’s progress",
+                            text = if (state.isEditing) "Fine-tune the details" else "Capture today’s progress",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -175,7 +205,7 @@ fun NewEntryScreenContent(
                     FormRow(
                         title = state.dateDisplay,
                         subtitle = "Tap to change",
-                        onClick = callbacks.onEditDate,
+                        onClick = { showDatePicker = true },
                     )
                 }
             }
@@ -206,6 +236,14 @@ fun NewEntryScreenContent(
                         placeholder = { Text("Other trigger…") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = callbacks.onAddCustomTrigger,
+                                enabled = state.customTrigger.isNotBlank(),
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add trigger")
+                            }
+                        },
                     )
                 }
             }
@@ -226,6 +264,14 @@ fun NewEntryScreenContent(
                         placeholder = { Text("Other method…") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = callbacks.onAddCustomMethod,
+                                enabled = state.customMethod.isNotBlank(),
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add method")
+                            }
+                        },
                     )
                 }
             }
@@ -273,12 +319,51 @@ fun NewEntryScreenContent(
                             contentColor = MaterialTheme.colorScheme.background,
                         ),
                     ) {
-                        Text(if (state.isSaving) "Saving…" else "Save Entry")
+                        Text(
+                            text = when {
+                                state.isSaving -> "Saving…"
+                                state.isEditing -> "Update Entry"
+                                else -> "Save Entry"
+                            },
+                        )
                     }
                 }
             }
         }
     }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            callbacks.onDateChange(millis.toLocalDateInSystemZone())
+                        }
+                        showDatePicker = false
+                    },
+                ) {
+                    Text("Done")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            },
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+private fun LocalDate.toEpochMillisAtStart(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+    return atStartOfDayIn(timeZone).toEpochMilliseconds()
+}
+
+private fun Long.toLocalDateInSystemZone(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate {
+    return Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone).date
 }
 
 @Composable
@@ -396,15 +481,21 @@ private fun MultiSelectSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { option ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            val isChecked = option.id in selectedIds
+            Row(
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .toggleable(value = isChecked, onValueChange = { onToggle(option.id) })
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 androidx.compose.material3.Checkbox(
-                    checked = option.id in selectedIds,
-                    onCheckedChange = { onToggle(option.id) },
+                    checked = isChecked,
+                    onCheckedChange = null,
                 )
                 Text(
                     text = option.label,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 12.dp),
                 )
             }
         }

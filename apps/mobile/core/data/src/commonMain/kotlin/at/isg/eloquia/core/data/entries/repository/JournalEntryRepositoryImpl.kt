@@ -17,4 +17,14 @@ internal class JournalEntryRepositoryImpl(
     override suspend fun createEntry(entry: JournalEntry) {
         localDataSource.upsert(entry.toDto())
     }
+
+    override suspend fun updateEntry(entry: JournalEntry) {
+        localDataSource.upsert(entry.toDto())
+    }
+
+    override suspend fun deleteEntry(id: String) {
+        localDataSource.delete(id)
+    }
+
+    override suspend fun getEntry(id: String): JournalEntry? = localDataSource.getEntry(id)?.toDomain()
 }

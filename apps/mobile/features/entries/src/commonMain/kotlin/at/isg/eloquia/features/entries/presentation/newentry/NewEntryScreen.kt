@@ -55,13 +55,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Instant
 
 @Immutable
 data class MultiSelectOption(
@@ -413,13 +413,9 @@ private fun EntryDatePickerDialog(
     }
 }
 
-private fun LocalDate.toEpochMillisAtStart(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
-    return atStartOfDayIn(timeZone).toEpochMilliseconds()
-}
+private fun LocalDate.toEpochMillisAtStart(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long = atStartOfDayIn(timeZone).toEpochMilliseconds()
 
-private fun Long.toLocalDateInSystemZone(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate {
-    return Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone).date
-}
+private fun Long.toLocalDateInSystemZone(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate = Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone).date
 
 @Composable
 private fun SectionCard(

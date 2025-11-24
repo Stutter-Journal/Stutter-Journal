@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
@@ -46,7 +47,7 @@ import kotlinx.serialization.Serializable
 object EntriesDestination
 
 @Serializable
-object NewEntryDestination
+data class NewEntryDestination(val entryId: String? = null)
 
 @Serializable
 object ProgressDestination
@@ -167,13 +168,19 @@ fun MainScreen() {
             composable<EntriesDestination> {
                 EntriesListScreen(
                     onEntryClick = {},
+                    onEditEntry = { entry ->
+                        currentTab = MainTab.Entries
+                        navController.navigate(NewEntryDestination(entryId = entry.id))
+                    },
                     onCreateEntry = {
-                        navController.navigate(NewEntryDestination)
+                        navController.navigate(NewEntryDestination())
                     },
                 )
             }
-            composable<NewEntryDestination> {
+            composable<NewEntryDestination> { backStackEntry ->
+                val destination = backStackEntry.toRoute<NewEntryDestination>()
                 NewEntryScreen(
+                    entryId = destination.entryId,
                     onClose = {
                         currentTab = MainTab.Entries
                         navController.popBackStack()

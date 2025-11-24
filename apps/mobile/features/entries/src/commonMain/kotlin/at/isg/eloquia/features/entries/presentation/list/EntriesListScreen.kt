@@ -23,6 +23,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
@@ -50,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -121,8 +126,9 @@ fun EntriesListScreenContent(
         entryTitle = entryPendingDeletion?.title,
         onConfirm = {
             entryPendingDeletion?.let(onDeleteEntry)
+            entryPendingDeletion = null
         },
-        onDismiss = { },
+        onDismiss = { entryPendingDeletion = null },
     )
 }
 
@@ -215,59 +221,107 @@ private fun JournalEntryItem(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = entry.title.ifBlank { "Untitled entry" },
-                    style = MaterialTheme.typography.titleMedium,
+                    text = entry.content.ifBlank { entry.title.ifBlank { "No notes provided" } },
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = entry.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (entry.title.isNotBlank()) {
+                    Text(
+                        text = entry.title,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 if (entry.tags.isNotEmpty()) {
                     Text(
                         text = entry.tags.joinToString(separator = " · ", limit = 3),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = entry.createdAt.date.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = entry.createdAt.formatTimeLabel(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = onEdit) {
-                        Text("Edit")
-                    }
-                    TextButton(
-                        onClick = onDelete,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                    ) {
-                        Text("Delete")
-                    }
-                }
-            }
+            EntryMetaRow(entry = entry)
+
+            EntryActionRow(onEdit = onEdit, onDelete = onDelete)
+        }
+    }
+}
+
+@Composable
+private fun EntryMetaRow(entry: JournalEntry) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        EntryMetaChip(
+            icon = Icons.Outlined.CalendarMonth,
+            label = entry.createdAt.date.toString(),
+        )
+        EntryMetaChip(
+            icon = Icons.Outlined.Schedule,
+            label = entry.createdAt.formatTimeLabel(),
+        )
+        EntryMetaChip(
+            icon = Icons.Outlined.Description,
+            label = run {
+                val raw = entry.content.ifBlank { entry.title }.ifBlank { "No notes" }
+                val clipped = raw.take(30)
+                if (raw.length > 30) "$clipped…" else clipped
+            },
+        )
+    }
+}
+
+@Composable
+private fun EntryMetaChip(icon: ImageVector, label: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EntryActionRow(onEdit: () -> Unit, onDelete: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TextButton(onClick = onEdit) {
+            Text("Edit")
+        }
+        TextButton(
+            onClick = onDelete,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.error,
+            ),
+        ) {
+            Text("Delete")
         }
     }
 }
@@ -332,7 +386,7 @@ private fun EntriesFabMenu(
             button = {
                 ToggleFloatingActionButton(
                     checked = isMenuExpanded,
-                    onCheckedChange = { },
+                    onCheckedChange = { isMenuExpanded = it },
                 ) {
                     val imageVector by remember(isMenuExpanded) {
                         derivedStateOf {
@@ -350,6 +404,7 @@ private fun EntriesFabMenu(
             FloatingActionButtonMenuItem(
                 onClick = {
                     onCreateEntry()
+                    isMenuExpanded = false
                 },
                 icon = { Icon(Icons.Default.Edit, contentDescription = null) },
                 text = { Text(text = "New Entry") },

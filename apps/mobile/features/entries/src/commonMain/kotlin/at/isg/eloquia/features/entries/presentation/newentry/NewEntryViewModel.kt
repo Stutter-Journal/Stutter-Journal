@@ -8,6 +8,9 @@ import at.isg.eloquia.core.domain.entries.usecase.CreateJournalEntryUseCase
 import at.isg.eloquia.core.domain.entries.usecase.GetJournalEntryUseCase
 import at.isg.eloquia.core.domain.entries.usecase.UpdateJournalEntryRequest
 import at.isg.eloquia.core.domain.entries.usecase.UpdateJournalEntryUseCase
+import at.isg.eloquia.features.entries.presentation.newentry.model.MultiSelectOption
+import at.isg.eloquia.features.entries.presentation.newentry.model.NewEntryFormState
+import at.isg.eloquia.features.entries.presentation.newentry.model.NewEntryUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +52,7 @@ class NewEntryViewModel(
         MultiSelectOption("mindfulness", "Mindfulness"),
     )
 
-    private val _state = MutableStateFlow(initialState())
+    private val _state: MutableStateFlow<NewEntryFormState> = MutableStateFlow(initialState())
     val state: StateFlow<NewEntryUiState> = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<NewEntryEvent>(replay = 0, extraBufferCapacity = 1)
@@ -206,9 +209,9 @@ class NewEntryViewModel(
         _state.value = entry.toUiState()
     }
 
-    private fun initialState(): NewEntryUiState {
+    private fun initialState(): NewEntryFormState {
         val today = clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-        return NewEntryUiState(
+        return NewEntryFormState(
             entryId = null,
             date = today,
             intensity = DEFAULT_INTENSITY,
@@ -239,7 +242,7 @@ class NewEntryViewModel(
         prefix: String,
     ): List<String> = selectedIds.mapNotNull { id -> options.firstOrNull { it.id == id }?.label?.let { "$prefix:$it" } }
 
-    private fun JournalEntry.toUiState(): NewEntryUiState {
+    private fun JournalEntry.toUiState(): NewEntryFormState {
         val tags = this.tags
         val intensity = tags.firstNotNullOfOrNull { parseIntensity(it) } ?: DEFAULT_INTENSITY
         val triggerLabels = parseLabels(tags, "trigger", defaultTriggers)
@@ -252,7 +255,7 @@ class NewEntryViewModel(
         val triggerOptions = (defaultTriggers + customTriggerOptions).deduplicate()
         val methodOptions = (defaultMethods + customMethodOptions).deduplicate()
 
-        return NewEntryUiState(
+        return NewEntryFormState(
             entryId = this.id,
             date = this.createdAt.date,
             intensity = intensity,

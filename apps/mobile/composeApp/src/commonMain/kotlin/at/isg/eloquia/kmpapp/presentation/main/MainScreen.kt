@@ -32,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
+import at.isg.eloquia.features.support.presentation.SupportScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -100,14 +102,6 @@ fun MainScreen() {
                             contentDescription = "Logo",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(24.dp),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: Menu */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu",
                         )
                     }
                 },
@@ -196,9 +190,10 @@ fun MainScreen() {
                 }
             }
             composable<SupportDestination> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Support Screen")
-                }
+                val uriHandler = LocalUriHandler.current
+                SupportScreen(
+                    onResourceClick = { resource -> uriHandler.openUri(resource.url) },
+                )
             }
         }
     }

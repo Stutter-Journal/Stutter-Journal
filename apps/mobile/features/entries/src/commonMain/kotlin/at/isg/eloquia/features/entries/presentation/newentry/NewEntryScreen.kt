@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -54,7 +55,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -166,195 +167,248 @@ fun NewEntryScreenContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = if (state.isEditing) "Edit Journal Entry" else "New Journal Entry",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        Text(
-                            text = if (state.isEditing) "Fine-tune the details" else "Capture today’s progress",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = callbacks.onClose) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close",
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
+            EntryScreenTopBar(
+                isEditing = state.isEditing,
+                onClose = callbacks.onClose,
             )
         },
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-        ) {
-            item {
-                SectionCard(title = "Date", icon = Icons.Outlined.CalendarMonth) {
-                    FormRow(
-                        title = state.dateDisplay,
-                        subtitle = "Tap to change",
-                        onClick = { showDatePicker = true },
-                    )
-                }
-            }
-
-            item {
-                SectionCard(title = "Stutter Intensity") {
-                    IntensitySlider(
-                        value = state.intensity,
-                        range = state.intensityRange,
-                        onValueChange = callbacks.onIntensityChange,
-                    )
-                }
-            }
-
-            item {
-                SectionCard(title = "Possible Triggers") {
-                    MultiSelectSection(
-                        options = state.triggers,
-                        selectedIds = state.selectedTriggerIds,
-                        onToggle = callbacks.onToggleTrigger,
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = state.customTrigger,
-                        onValueChange = callbacks.onCustomTriggerChange,
-                        placeholder = { Text("Other trigger…") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        trailingIcon = {
-                            IconButton(
-                                onClick = callbacks.onAddCustomTrigger,
-                                enabled = state.customTrigger.isNotBlank(),
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add trigger")
-                            }
-                        },
-                    )
-                }
-            }
-
-            item {
-                SectionCard(title = "Therapy Methods Used") {
-                    MultiSelectSection(
-                        options = state.methods,
-                        selectedIds = state.selectedMethodIds,
-                        onToggle = callbacks.onToggleMethod,
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = state.customMethod,
-                        onValueChange = callbacks.onCustomMethodChange,
-                        placeholder = { Text("Other method…") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        trailingIcon = {
-                            IconButton(
-                                onClick = callbacks.onAddCustomMethod,
-                                enabled = state.customMethod.isNotBlank(),
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add method")
-                            }
-                        },
-                    )
-                }
-            }
-
-            item {
-                SectionCard(title = "Additional Notes", icon = Icons.Outlined.NoteAlt) {
-                    OutlinedTextField(
-                        value = state.notes,
-                        onValueChange = callbacks.onNotesChange,
-                        placeholder = { Text("How did you feel? What worked? Any observations…") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 4,
-                    )
-                }
-            }
-
-            if (state.errorMessage != null) {
-                item {
-                    Text(
-                        text = state.errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    TextButton(
-                        onClick = callbacks.onCancel,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text("Cancel")
-                    }
-
-                    Button(
-                        onClick = callbacks.onSave,
-                        enabled = state.canSave && !state.isSaving,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onBackground,
-                            contentColor = MaterialTheme.colorScheme.background,
-                        ),
-                    ) {
-                        Text(
-                            text = when {
-                                state.isSaving -> "Saving…"
-                                state.isEditing -> "Update Entry"
-                                else -> "Save Entry"
-                            },
-                        )
-                    }
-                }
-            }
-        }
+        EntryFormList(
+            state = state,
+            callbacks = callbacks,
+            contentPadding = padding,
+            onShowDatePicker = { showDatePicker = true },
+        )
     }
 
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            callbacks.onDateChange(millis.toLocalDateInSystemZone())
-                        }
-                        showDatePicker = false
-                    },
-                ) {
-                    Text("Done")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
-                }
-            },
-        ) {
-            DatePicker(state = datePickerState)
+    EntryDatePickerDialog(
+        isVisible = showDatePicker,
+        state = datePickerState,
+        onConfirm = {
+            datePickerState.selectedDateMillis?.let { millis ->
+                callbacks.onDateChange(millis.toLocalDateInSystemZone())
+            }
+        },
+        onDismiss = { },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EntryScreenTopBar(
+    isEditing: Boolean,
+    onClose: () -> Unit,
+) {
+    TopAppBar(
+        title = {
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = if (isEditing) "Edit Journal Entry" else "New Journal Entry",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    text = if (isEditing) "Fine-tune the details" else "Capture today’s progress",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onClose) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Close",
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    )
+}
+
+@Composable
+private fun EntryFormList(
+    state: NewEntryUiState,
+    callbacks: NewEntryCallbacks,
+    contentPadding: PaddingValues,
+    onShowDatePicker: () -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(contentPadding),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
+        item {
+            SectionCard(title = "Date", icon = Icons.Outlined.CalendarMonth) {
+                FormRow(
+                    title = state.dateDisplay,
+                    subtitle = "Tap to change",
+                    onClick = onShowDatePicker,
+                )
+            }
         }
+
+        item {
+            SectionCard(title = "Stutter Intensity") {
+                IntensitySlider(
+                    value = state.intensity,
+                    range = state.intensityRange,
+                    onValueChange = callbacks.onIntensityChange,
+                )
+            }
+        }
+
+        item {
+            SectionCard(title = "Possible Triggers") {
+                MultiSelectSection(
+                    options = state.triggers,
+                    selectedIds = state.selectedTriggerIds,
+                    onToggle = callbacks.onToggleTrigger,
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = state.customTrigger,
+                    onValueChange = callbacks.onCustomTriggerChange,
+                    placeholder = { Text("Other trigger…") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(
+                            onClick = callbacks.onAddCustomTrigger,
+                            enabled = state.customTrigger.isNotBlank(),
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Add trigger")
+                        }
+                    },
+                )
+            }
+        }
+
+        item {
+            SectionCard(title = "Therapy Methods Used") {
+                MultiSelectSection(
+                    options = state.methods,
+                    selectedIds = state.selectedMethodIds,
+                    onToggle = callbacks.onToggleMethod,
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = state.customMethod,
+                    onValueChange = callbacks.onCustomMethodChange,
+                    placeholder = { Text("Other method…") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(
+                            onClick = callbacks.onAddCustomMethod,
+                            enabled = state.customMethod.isNotBlank(),
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Add method")
+                        }
+                    },
+                )
+            }
+        }
+
+        item {
+            SectionCard(title = "Additional Notes", icon = Icons.Outlined.NoteAlt) {
+                OutlinedTextField(
+                    value = state.notes,
+                    onValueChange = callbacks.onNotesChange,
+                    placeholder = { Text("How did you feel? What worked? Any observations…") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4,
+                )
+            }
+        }
+
+        if (state.errorMessage != null) {
+            item {
+                Text(
+                    text = state.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+
+        item {
+            EntryFormActions(
+                state = state,
+                onCancel = callbacks.onCancel,
+                onSave = callbacks.onSave,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EntryFormActions(
+    state: NewEntryUiState,
+    onCancel: () -> Unit,
+    onSave: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        TextButton(
+            onClick = onCancel,
+            modifier = Modifier.weight(1f),
+        ) {
+            Text("Cancel")
+        }
+
+        Button(
+            onClick = onSave,
+            enabled = state.canSave && !state.isSaving,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onBackground,
+                contentColor = MaterialTheme.colorScheme.background,
+            ),
+        ) {
+            Text(
+                text = when {
+                    state.isSaving -> "Saving…"
+                    state.isEditing -> "Update Entry"
+                    else -> "Save Entry"
+                },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EntryDatePickerDialog(
+    isVisible: Boolean,
+    state: DatePickerState,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    if (!isVisible) return
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Done")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    ) {
+        DatePicker(state = state)
     }
 }
 

@@ -52,6 +52,12 @@ class NewEntryViewModel(
         MultiSelectOption("mindfulness", "Mindfulness"),
     )
 
+    private val defaultStutterForms = listOf(
+        MultiSelectOption("blocks", "Blocks"),
+        MultiSelectOption("repetitions", "Repetitions"),
+        MultiSelectOption("stretches", "Stretches"),
+    )
+
     private val _state: MutableStateFlow<NewEntryFormState> = MutableStateFlow(initialState())
     val state: StateFlow<NewEntryUiState> = _state.asStateFlow()
 
@@ -92,6 +98,15 @@ class NewEntryViewModel(
         _state.update {
             it.copy(
                 selectedMethodIds = it.selectedMethodIds.toggle(id),
+                errorMessage = null,
+            )
+        }
+    }
+
+    fun toggleStutterForm(id: String) {
+        _state.update {
+            it.copy(
+                selectedStutterFormIds = it.selectedStutterFormIds.toggle(id),
                 errorMessage = null,
             )
         }
@@ -147,8 +162,18 @@ class NewEntryViewModel(
     fun saveEntry() {
         val current = _state.value
         if (current.isSaving) return
-        if (!current.canSave) {
-            _state.update { it.copy(errorMessage = "Add details before saving.") }
+        
+        // Validate required fields
+        val errors = mutableListOf<String>()
+        if (current.selectedStutterFormIds.isEmpty()) {
+            errors.add("Stutter Form is required")
+        }
+        if (current.notes.isBlank()) {
+            errors.add("Additional Notes is required")
+        }
+        
+        if (errors.isNotEmpty()) {
+            _state.update { it.copy(errorMessage = errors.joinToString("; ")) }
             return
         }
 
@@ -222,6 +247,8 @@ class NewEntryViewModel(
             methods = defaultMethods,
             selectedMethodIds = emptySet(),
             customMethod = "",
+            stutterForms = defaultStutterForms,
+            selectedStutterFormIds = emptySet(),
             notes = "",
             isSaving = false,
             errorMessage = null,
@@ -232,6 +259,7 @@ class NewEntryViewModel(
         add("intensity:${state.intensity}")
         tagsFromSelection(state.triggers, state.selectedTriggerIds, "trigger").forEach(::add)
         tagsFromSelection(state.methods, state.selectedMethodIds, "method").forEach(::add)
+        tagsFromSelection(state.stutterForms, state.selectedStutterFormIds, "stutterform").forEach(::add)
         state.customTrigger.takeIf(String::isNotBlank)?.let { add("trigger:${it.trim()}") }
         state.customMethod.takeIf(String::isNotBlank)?.let { add("method:${it.trim()}") }
     }
@@ -247,6 +275,7 @@ class NewEntryViewModel(
         val intensity = tags.firstNotNullOfOrNull { parseIntensity(it) } ?: DEFAULT_INTENSITY
         val triggerLabels = parseLabels(tags, "trigger", defaultTriggers)
         val methodLabels = parseLabels(tags, "method", defaultMethods)
+        val stutterFormLabels = parseLabels(tags, "stutterform", defaultStutterForms)
         val customTriggerOptions = triggerLabels.filter { label -> defaultTriggers.none { it.label.equals(label, true) } }
             .map { MultiSelectOption(generateCustomId("trigger", it), it) }
         val customMethodOptions = methodLabels.filter { label -> defaultMethods.none { it.label.equals(label, true) } }
@@ -270,6 +299,10 @@ class NewEntryViewModel(
                 methodLabels.any { it.equals(option.label, true) }
             }.map { it.id }.toSet(),
             customMethod = "",
+            stutterForms = defaultStutterForms,
+            selectedStutterFormIds = defaultStutterForms.filter { option ->
+                stutterFormLabels.any { it.equals(option.label, true) }
+            }.map { it.id }.toSet(),
             notes = this.content,
             isSaving = false,
             errorMessage = null,

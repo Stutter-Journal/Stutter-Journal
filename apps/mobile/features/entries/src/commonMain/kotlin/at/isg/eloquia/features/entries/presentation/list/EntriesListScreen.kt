@@ -8,6 +8,8 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,18 +22,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
@@ -90,6 +101,10 @@ fun EntriesListScreen(
         onEntryClick = onEntryClick,
         onDeleteEntry = deleteEntryAction,
         onCreateEntry = onCreateEntry,
+        onGroupByChange = viewModel::setGroupBy,
+        onDateFilterChange = viewModel::setDateFilter,
+        onLabelFilterToggle = viewModel::toggleLabelFilter,
+        onClearFilters = viewModel::clearFilters,
         snackbarHostState = snackbarHostState,
     )
 }
@@ -101,12 +116,27 @@ fun EntriesListScreenContent(
     onEntryClick: (JournalEntry) -> Unit,
     onDeleteEntry: (JournalEntry) -> Unit,
     onCreateEntry: () -> Unit,
+    onGroupByChange: (EntriesGroupBy) -> Unit,
+    onDateFilterChange: (DateFilterPreset) -> Unit,
+    onLabelFilterToggle: (EntryLabel) -> Unit,
+    onClearFilters: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     var entryPendingDeletion by remember { mutableStateOf<JournalEntry?>(null) }
     Scaffold(
         modifier = modifier,
+        topBar = {
+            if (state is EntriesListState.Content) {
+                EntriesTopActions(
+                    state = state,
+                    onGroupByChange = onGroupByChange,
+                    onDateFilterChange = onDateFilterChange,
+                    onLabelFilterToggle = onLabelFilterToggle,
+                    onClearFilters = onClearFilters,
+                )
+            }
+        },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             EntriesFabMenu(onCreateEntry = onCreateEntry)
@@ -131,6 +161,146 @@ fun EntriesListScreenContent(
 }
 
 @Composable
+private fun EntriesTopActions(
+    state: EntriesListState.Content,
+    onGroupByChange: (EntriesGroupBy) -> Unit,
+    onDateFilterChange: (DateFilterPreset) -> Unit,
+    onLabelFilterToggle: (EntryLabel) -> Unit,
+    onClearFilters: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        GroupByMenu(
+            selected = state.grouping,
+            onSelect = onGroupByChange,
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        FilterMenu(
+            filters = state.filters,
+            availableLabels = state.availableLabels,
+            onDateFilterChange = onDateFilterChange,
+            onLabelFilterToggle = onLabelFilterToggle,
+            onClearFilters = onClearFilters,
+        )
+    }
+}
+
+@Composable
+private fun GroupByMenu(
+    selected: EntriesGroupBy,
+    onSelect: (EntriesGroupBy) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    FilledTonalButton(onClick = { expanded = true }) {
+        Icon(imageVector = Icons.Outlined.Sort, contentDescription = "Group entries")
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(text = "Group By")
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        EntriesGroupBy.values().forEach { option ->
+            DropdownMenuItem(
+                text = { Text(option.displayLabel()) },
+                onClick = {
+                    onSelect(option)
+                    expanded = false
+                },
+                leadingIcon = {
+                    if (option == selected) {
+                        Icon(imageVector = Icons.Filled.Check, contentDescription = null)
+                    }
+                },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FilterMenu(
+    filters: EntriesFilterState,
+    availableLabels: List<EntryLabel>,
+    onDateFilterChange: (DateFilterPreset) -> Unit,
+    onLabelFilterToggle: (EntryLabel) -> Unit,
+    onClearFilters: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    FilledTonalButton(onClick = { expanded = true }) {
+        Icon(imageVector = Icons.Outlined.FilterList, contentDescription = "Filter entries")
+        Spacer(modifier = Modifier.size(8.dp))
+        val activeCount = filters.selectedLabels.size
+        val label = if (filters.hasActiveFilters) "Filter (${activeCount.coerceAtLeast(1)})" else "Filter"
+        Text(text = label)
+    }
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+    ) {
+        DropdownMenuItem(
+            text = { Text("Date") },
+            onClick = {},
+            enabled = false,
+        )
+        DateFilterPreset.values().forEach { preset ->
+            DropdownMenuItem(
+                text = { Text(preset.label) },
+                onClick = {
+                    onDateFilterChange(preset)
+                    expanded = false
+                },
+                leadingIcon = {
+                    if (filters.datePreset == preset) {
+                        Icon(imageVector = Icons.Filled.Check, contentDescription = null)
+                    }
+                },
+            )
+        }
+
+        if (availableLabels.isNotEmpty()) {
+            DropdownMenuItem(
+                text = { Text("Labels") },
+                onClick = {},
+                enabled = false,
+            )
+            FlowRow(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                availableLabels.forEach { label ->
+                    val isSelected = filters.selectedLabels.any { it.id == label.id }
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onLabelFilterToggle(label) },
+                        label = { Text(label.chipLabel) },
+                    )
+                }
+            }
+        }
+
+        if (filters.hasActiveFilters) {
+            DropdownMenuItem(
+                text = { Text("Clear filters") },
+                onClick = {
+                    onClearFilters()
+                    expanded = false
+                },
+                leadingIcon = { Icon(imageVector = Icons.Filled.Close, contentDescription = null) },
+            )
+        }
+    }
+}
+
+private fun EntriesGroupBy.displayLabel(): String = when (this) {
+    EntriesGroupBy.None -> "None"
+    EntriesGroupBy.Date -> "Date"
+    EntriesGroupBy.Label -> "Label"
+}
+
+@Composable
 private fun EntriesContent(
     state: EntriesListState,
     onEntryClick: (JournalEntry) -> Unit,
@@ -146,11 +316,22 @@ private fun EntriesContent(
             }
 
             is EntriesListState.Content -> {
-                if (state.entries.isEmpty()) {
-                    EmptyEntriesState(modifier = Modifier.fillMaxSize())
+                val isEmpty = state.groups.isEmpty() || state.groups.all { it.entries.isEmpty() }
+                if (isEmpty) {
+                    val title = if (state.filters.hasActiveFilters) "No entries match filters" else "No entries yet"
+                    val description = if (state.filters.hasActiveFilters) {
+                        "Try adjusting date or label filters to see more entries"
+                    } else {
+                        "Start tracking your progress by creating your first journal entry"
+                    }
+                    EmptyEntriesState(
+                        title = title,
+                        description = description,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 } else {
                     EntriesList(
-                        entries = state.entries,
+                        groups = state.groups,
                         onEntryClick = onEntryClick,
                         onDeleteRequest = onDeleteRequest,
                         modifier = Modifier.fillMaxSize(),
@@ -171,7 +352,7 @@ private fun EntriesContent(
 
 @Composable
 private fun EntriesList(
-    entries: List<JournalEntry>,
+    groups: List<EntryGroupUiModel>,
     onEntryClick: (JournalEntry) -> Unit,
     onDeleteRequest: (JournalEntry) -> Unit,
     modifier: Modifier = Modifier,
@@ -181,14 +362,40 @@ private fun EntriesList(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        items(entries) { entry ->
-            val details = entry.toDisplayDetails()
-            JournalEntryItem(
-                details = details,
-                onOpen = { onEntryClick(entry) },
-                onDelete = { onDeleteRequest(entry) },
-            )
+        groups.forEach { group ->
+            item(key = "header_${group.id}") {
+                GroupHeader(title = group.title, count = group.entries.size)
+            }
+            items(group.entries, key = { it.id }) { entry ->
+                val labels = remember(entry.id, entry.tags) { entry.extractLabels() }
+                val details = remember(entry.id, labels) { entry.toDisplayDetails(labels) }
+                JournalEntryItem(
+                    details = details,
+                    onOpen = { onEntryClick(entry) },
+                    onDelete = { onDeleteRequest(entry) },
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun GroupHeader(title: String, count: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = "$count",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -212,6 +419,7 @@ private fun JournalEntryItem(
             EntryHeaderRow(title = details.title.ifBlank { "Journal entry" }, onDelete = onDelete)
             EntryDateTimeGroup(dateLabel = details.dateLabel, timeLabel = details.timeLabel)
             EntryDescriptionGroup(description = details.description)
+            EntryLabelsRow(labels = details.labels)
             EntryIntensityGroup(intensity = details.intensity)
         }
     }
@@ -264,6 +472,38 @@ private fun EntryDescriptionGroup(description: String) {
         maxLines = 4,
         overflow = TextOverflow.Ellipsis,
     )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EntryLabelsRow(labels: List<EntryLabel>) {
+    if (labels.isEmpty()) return
+
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        labels.forEach { label ->
+            AssistChip(
+                onClick = {},
+                enabled = false,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Label,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                    )
+                },
+                label = {
+                    Text(
+                        text = label.chipLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                },
+            )
+        }
+    }
 }
 
 @Composable
@@ -415,17 +655,20 @@ private data class EntryDisplayDetails(
     val dateLabel: String,
     val timeLabel: String,
     val intensity: Int,
+    val labels: List<EntryLabel>,
 )
 
-private fun JournalEntry.toDisplayDetails(): EntryDisplayDetails {
+private fun JournalEntry.toDisplayDetails(labels: List<EntryLabel>): EntryDisplayDetails {
     val description = content.ifBlank { title }.ifBlank { "No notes yet" }
     val intensity = tags.firstNotNullOfOrNull(::parseIntensityTag) ?: DEFAULT_INTENSITY
+    val sortedLabels = labels.sortedWith(entryLabelComparator)
     return EntryDisplayDetails(
         title = title,
         description = description,
         dateLabel = createdAt.date.toString(),
         timeLabel = createdAt.formatTimeLabel(),
         intensity = intensity,
+        labels = sortedLabels,
     )
 }
 
@@ -439,6 +682,8 @@ private const val DEFAULT_INTENSITY = 5
 
 @Composable
 private fun EmptyEntriesState(
+    title: String,
+    description: String,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -456,7 +701,7 @@ private fun EmptyEntriesState(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No entries yet",
+            text = title,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
@@ -465,7 +710,7 @@ private fun EmptyEntriesState(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Start tracking your progress by creating your first journal entry",
+            text = description,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

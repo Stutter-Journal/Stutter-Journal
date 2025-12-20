@@ -22,6 +22,8 @@ sealed interface NewEntryUiState {
     val methods: List<MultiSelectOption>
     val selectedMethodIds: Set<String>
     val customMethod: String
+    val stutterForms: List<MultiSelectOption>
+    val selectedStutterFormIds: Set<String>
     val notes: String
     val isSaving: Boolean
     val errorMessage: String?
@@ -30,11 +32,8 @@ sealed interface NewEntryUiState {
         get() = date.toString()
 
     val canSave: Boolean
-        get() = notes.isNotBlank() ||
-            selectedTriggerIds.isNotEmpty() ||
-            selectedMethodIds.isNotEmpty() ||
-            customTrigger.isNotBlank() ||
-            customMethod.isNotBlank()
+        get() = notes.isNotBlank() &&
+            selectedStutterFormIds.isNotEmpty()
 
     val isEditing: Boolean
         get() = entryId != null
@@ -52,6 +51,8 @@ data class NewEntryFormState(
     override val methods: List<MultiSelectOption> = emptyList(),
     override val selectedMethodIds: Set<String> = emptySet(),
     override val customMethod: String = "",
+    override val stutterForms: List<MultiSelectOption> = emptyList(),
+    override val selectedStutterFormIds: Set<String> = emptySet(),
     override val notes: String = "",
     override val isSaving: Boolean = false,
     override val errorMessage: String? = null,
@@ -68,6 +69,7 @@ data class NewEntryCallbacks(
     val onToggleMethod: (String) -> Unit,
     val onCustomMethodChange: (String) -> Unit,
     val onAddCustomMethod: () -> Unit,
+    val onToggleStutterForm: (String) -> Unit,
     val onNotesChange: (String) -> Unit,
     val onCancel: () -> Unit,
     val onSave: () -> Unit,

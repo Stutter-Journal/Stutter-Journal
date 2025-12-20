@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -94,6 +95,7 @@ fun NewEntryScreen(
             onToggleMethod = viewModel::toggleMethod,
             onCustomMethodChange = viewModel::updateCustomMethod,
             onAddCustomMethod = viewModel::commitCustomMethod,
+            onToggleStutterForm = viewModel::toggleStutterForm,
             onNotesChange = viewModel::updateNotes,
             onCancel = {
                 viewModel.resetForm()
@@ -274,13 +276,48 @@ private fun EntryFormList(
         }
 
         item {
-            SectionCard(title = "Additional Notes", icon = Icons.Outlined.NoteAlt) {
+            val hasStutterFormError = state.errorMessage?.contains("stutter form", ignoreCase = true) == true && 
+                                       state.selectedStutterFormIds.isEmpty()
+            
+            SectionCard(title = "Stutter Form") {
+                Column {
+                    MultiSelectSection(
+                        options = state.stutterForms,
+                        selectedIds = state.selectedStutterFormIds,
+                        onToggle = callbacks.onToggleStutterForm,
+                    )
+                    
+                    if (hasStutterFormError) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
+                            Text(
+                                text = "Please select at least one stutter form",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            SectionCard(
+                title = "Additional Notes",
+                icon = Icons.Outlined.NoteAlt,
+            ) {
                 OutlinedTextField(
                     value = state.notes,
                     onValueChange = callbacks.onNotesChange,
                     placeholder = { Text("How did you feel? What worked? Any observations…") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
+                    isError = state.errorMessage?.contains("notes", ignoreCase = true) == true && state.notes.isBlank(),
                 )
             }
         }
@@ -324,7 +361,7 @@ private fun EntryFormActions(
 
         Button(
             onClick = onSave,
-            enabled = state.canSave && !state.isSaving,
+            enabled = !state.isSaving,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onBackground,
@@ -378,6 +415,7 @@ private fun SectionCard(
     title: String,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    isRequired: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -397,6 +435,13 @@ private fun SectionCard(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                 )
+                if (isRequired) {
+                    Text(
+                        text = " *",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
             content()

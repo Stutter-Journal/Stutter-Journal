@@ -105,5 +105,8 @@
     "@nx/angular:component": {
       "style": "css"
     }
+  },
+  "tui": {
+    "enabled": true
   }
 }

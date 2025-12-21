@@ -39,6 +39,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Debug workspace files
+        run: |
+          pwd
+          ls -la
+          ls -la apps/desktop || true
+          ls -la tsconfig.base.json || true
+          ls -la apps/desktop/tsconfig.base.json || true
+          git rev-parse HEAD
+          git status --porcelain
+
       - name: Enable Corepack (pnpm)
         run: corepack enable
 

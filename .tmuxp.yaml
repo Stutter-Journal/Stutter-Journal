@@ -1,0 +1,17 @@
+# Tmux Session Template for Development
+
+session_name: eloquia
+start_directory: .
+
+windows:
+  - window_name: editor
+    panes:
+      - nvim
+
+  - window_name: git
+    panes:
+      - lazygit
+
+  - window_name: shell
+    panes:
+      - echo "ready"

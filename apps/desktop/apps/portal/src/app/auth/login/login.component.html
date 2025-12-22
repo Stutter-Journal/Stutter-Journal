@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-[var(--app-bg)]">
+  <div class="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-stretch gap-10 px-4 py-12 lg:flex-row lg:items-center">
+    <section class="w-full lg:max-w-md">
+      <lib-card>
+        <div cardHeader class="flex flex-col gap-1">
+          <span class="text-xs uppercase tracking-[0.3em] text-neutral-400">Portal access</span>
+          <span class="text-lg font-semibold text-neutral-900">Welcome back</span>
+        </div>
+        <div cardBody class="space-y-6">
+          <p class="text-sm text-neutral-600">
+            Sign in to continue patient care coordination.
+          </p>
+          <form class="space-y-5" [formGroup]="form" (ngSubmit)="onSubmit()">
+            <lib-form-field
+              [label]="'Email address'"
+              [hint]="'Use your work email.'"
+              [error]="emailError"
+              [fieldId]="emailId"
+              [required]="true"
+            >
+              <input
+                formFieldControl
+                type="email"
+                autocomplete="email"
+                [id]="emailId"
+                [attr.aria-describedby]="emailDescribedBy"
+                formControlName="email"
+                class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                placeholder="you@clinic.com"
+              />
+            </lib-form-field>
+
+            <lib-form-field
+              [label]="'Password'"
+              [hint]="'At least 8 characters.'"
+              [error]="passwordError"
+              [fieldId]="passwordId"
+              [required]="true"
+            >
+              <input
+                formFieldControl
+                type="password"
+                autocomplete="current-password"
+                [id]="passwordId"
+                [attr.aria-describedby]="passwordDescribedBy"
+                formControlName="password"
+                class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                placeholder="Enter your password"
+              />
+            </lib-form-field>
+
+            <div
+              *ngIf="formError"
+              class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+              role="alert"
+            >
+              {{ formError }}
+            </div>
+
+            <lib-button
+              [type]="'submit'"
+              [variant]="'primary'"
+              [size]="'lg'"
+              [loading]="loading"
+              [disabled]="loading"
+              class="w-full"
+            >
+              Sign in
+            </lib-button>
+          </form>
+        </div>
+      </lib-card>
+
+      <p class="mt-4 text-center text-sm text-neutral-600">
+        New to the portal?
+        <a class="font-medium text-neutral-900 underline" routerLink="/auth/register">
+          Create an account
+        </a>
+      </p>
+    </section>
+
+    <aside class="flex-1 rounded-3xl border border-neutral-200/70 bg-white/70 p-8 shadow-[var(--shadow-sm)]">
+      <div class="max-w-md space-y-5">
+        <p class="text-xs uppercase tracking-[0.35em] text-neutral-400">Clinic calm</p>
+        <h2 class="text-2xl font-semibold text-neutral-900">
+          Every patient journey, in one steady view.
+        </h2>
+        <p class="text-sm text-neutral-600">
+          Keep the day moving with shared context, gentle reminders, and clear
+          follow-ups.
+        </p>
+        <ul class="space-y-3 text-sm text-neutral-600">
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-neutral-900"></span>
+            Secure access for care teams.
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-neutral-900"></span>
+            Patient timelines stay organized.
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-2 w-2 rounded-full bg-neutral-900"></span>
+            New updates surface without noise.
+          </li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>

@@ -1,0 +1,142 @@
+<div class="min-h-screen bg-[var(--app-bg)]">
+  <div class="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-stretch gap-10 px-4 py-12 lg:flex-row lg:items-center">
+    <section class="w-full lg:max-w-md">
+      <lib-card>
+        <div cardHeader class="flex flex-col gap-1">
+          <span class="text-xs uppercase tracking-[0.3em] text-neutral-400">Portal access</span>
+          <span class="text-lg font-semibold text-neutral-900">Create your account</span>
+        </div>
+        <div cardBody class="space-y-6">
+          <p class="text-sm text-neutral-600">
+            Start a secure workspace for your care team.
+          </p>
+          <form class="space-y-5" [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <lib-form-field
+                [label]="'First name'"
+                [hint]="'As it appears on records.'"
+                [error]="firstNameError"
+                [fieldId]="firstNameId"
+                [required]="true"
+              >
+                <input
+                  formFieldControl
+                  type="text"
+                  autocomplete="given-name"
+                  [id]="firstNameId"
+                  [attr.aria-describedby]="firstNameDescribedBy"
+                  formControlName="firstName"
+                  class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                  placeholder="Avery"
+                />
+              </lib-form-field>
+
+              <lib-form-field
+                [label]="'Last name'"
+                [hint]="'For team visibility.'"
+                [error]="lastNameError"
+                [fieldId]="lastNameId"
+                [required]="true"
+              >
+                <input
+                  formFieldControl
+                  type="text"
+                  autocomplete="family-name"
+                  [id]="lastNameId"
+                  [attr.aria-describedby]="lastNameDescribedBy"
+                  formControlName="lastName"
+                  class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                  placeholder="Flores"
+                />
+              </lib-form-field>
+            </div>
+
+            <lib-form-field
+              [label]="'Work email'"
+              [hint]="'Use your clinic email.'"
+              [error]="emailError"
+              [fieldId]="emailId"
+              [required]="true"
+            >
+              <input
+                formFieldControl
+                type="email"
+                autocomplete="email"
+                [id]="emailId"
+                [attr.aria-describedby]="emailDescribedBy"
+                formControlName="email"
+                class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                placeholder="you@clinic.com"
+              />
+            </lib-form-field>
+
+            <lib-form-field
+              [label]="'Create password'"
+              [hint]="'Use at least 8 characters.'"
+              [error]="passwordError"
+              [fieldId]="passwordId"
+              [required]="true"
+            >
+              <input
+                formFieldControl
+                type="password"
+                autocomplete="new-password"
+                [id]="passwordId"
+                [attr.aria-describedby]="passwordDescribedBy"
+                formControlName="password"
+                class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                placeholder="Create a password"
+              />
+            </lib-form-field>
+
+            <div
+              *ngIf="formError"
+              class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+              role="alert"
+            >
+              {{ formError }}
+            </div>
+
+            <lib-button
+              [type]="'submit'"
+              [variant]="'primary'"
+              [size]="'lg'"
+              [loading]="loading"
+              [disabled]="loading"
+              class="w-full"
+            >
+              Create account
+            </lib-button>
+          </form>
+        </div>
+      </lib-card>
+
+      <p class="mt-4 text-center text-sm text-neutral-600">
+        Already have access?
+        <a class="font-medium text-neutral-900 underline" routerLink="/auth/login">
+          Sign in
+        </a>
+      </p>
+    </section>
+
+    <aside class="flex-1 rounded-3xl border border-neutral-200/70 bg-white/70 p-8 shadow-[var(--shadow-sm)]">
+      <div class="max-w-md space-y-5">
+        <p class="text-xs uppercase tracking-[0.35em] text-neutral-400">Clinic calm</p>
+        <h2 class="text-2xl font-semibold text-neutral-900">
+          Build a calm handoff for every patient.
+        </h2>
+        <p class="text-sm text-neutral-600">
+          Your portal keeps intake, follow-ups, and care teams aligned without
+          extra noise.
+        </p>
+        <div class="rounded-2xl border border-neutral-200/70 bg-neutral-50 p-4 text-sm text-neutral-600">
+          <p class="font-medium text-neutral-900">What happens next</p>
+          <p class="mt-2">
+            We will verify your organization and connect you with your practice
+            workspace.
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

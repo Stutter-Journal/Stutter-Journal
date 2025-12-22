@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+:host .empty-state-actions:empty {
+  display: none;
+}

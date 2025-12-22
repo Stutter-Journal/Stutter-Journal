@@ -1,0 +1,12 @@
+<div class="overflow-hidden rounded-2xl border border-neutral-200/70 bg-white shadow-[var(--shadow-sm)]">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left text-sm">
+      <thead class="bg-neutral-50 text-[11px] uppercase tracking-[0.2em] text-neutral-500">
+        <ng-content select="[tableHeader]"></ng-content>
+      </thead>
+      <tbody class="divide-y divide-neutral-200 text-neutral-700">
+        <ng-content select="[tableBody]"></ng-content>
+      </tbody>
+    </table>
+  </div>
+</div>

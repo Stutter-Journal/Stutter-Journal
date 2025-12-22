@@ -1,0 +1,3 @@
+:host .card-header:empty {
+  display: none;
+}

@@ -68,6 +68,20 @@ func (_u *DoctorUpdate) SetNillableDisplayName(v *string) *DoctorUpdate {
 	return _u
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_u *DoctorUpdate) SetPasswordHash(v string) *DoctorUpdate {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *DoctorUpdate) SetNillablePasswordHash(v *string) *DoctorUpdate {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
 // SetRole sets the "role" field.
 func (_u *DoctorUpdate) SetRole(v doctor.Role) *DoctorUpdate {
 	_u.mutation.SetRole(v)
@@ -346,6 +360,11 @@ func (_u *DoctorUpdate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Doctor.display_name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PasswordHash(); ok {
+		if err := doctor.PasswordHashValidator(v); err != nil {
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "Doctor.password_hash": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Role(); ok {
 		if err := doctor.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "Doctor.role": %w`, err)}
@@ -374,6 +393,9 @@ func (_u *DoctorUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(doctor.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(doctor.FieldPasswordHash, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(doctor.FieldRole, field.TypeEnum, value)
@@ -686,6 +708,20 @@ func (_u *DoctorUpdateOne) SetNillableDisplayName(v *string) *DoctorUpdateOne {
 	return _u
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_u *DoctorUpdateOne) SetPasswordHash(v string) *DoctorUpdateOne {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *DoctorUpdateOne) SetNillablePasswordHash(v *string) *DoctorUpdateOne {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
 // SetRole sets the "role" field.
 func (_u *DoctorUpdateOne) SetRole(v doctor.Role) *DoctorUpdateOne {
 	_u.mutation.SetRole(v)
@@ -977,6 +1013,11 @@ func (_u *DoctorUpdateOne) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Doctor.display_name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PasswordHash(); ok {
+		if err := doctor.PasswordHashValidator(v); err != nil {
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "Doctor.password_hash": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Role(); ok {
 		if err := doctor.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "Doctor.role": %w`, err)}
@@ -1022,6 +1063,9 @@ func (_u *DoctorUpdateOne) sqlSave(ctx context.Context) (_node *Doctor, err erro
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(doctor.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(doctor.FieldPasswordHash, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(doctor.FieldRole, field.TypeEnum, value)

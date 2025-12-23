@@ -66,6 +66,12 @@ func (_c *DoctorCreate) SetDisplayName(v string) *DoctorCreate {
 	return _c
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_c *DoctorCreate) SetPasswordHash(v string) *DoctorCreate {
+	_c.mutation.SetPasswordHash(v)
+	return _c
+}
+
 // SetRole sets the "role" field.
 func (_c *DoctorCreate) SetRole(v doctor.Role) *DoctorCreate {
 	_c.mutation.SetRole(v)
@@ -265,6 +271,14 @@ func (_c *DoctorCreate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Doctor.display_name": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.PasswordHash(); !ok {
+		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "Doctor.password_hash"`)}
+	}
+	if v, ok := _c.mutation.PasswordHash(); ok {
+		if err := doctor.PasswordHashValidator(v); err != nil {
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "Doctor.password_hash": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Role(); !ok {
 		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "Doctor.role"`)}
 	}
@@ -323,6 +337,10 @@ func (_c *DoctorCreate) createSpec() (*Doctor, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayName(); ok {
 		_spec.SetField(doctor.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
+	}
+	if value, ok := _c.mutation.PasswordHash(); ok {
+		_spec.SetField(doctor.FieldPasswordHash, field.TypeString, value)
+		_node.PasswordHash = value
 	}
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(doctor.FieldRole, field.TypeEnum, value)

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"backend/ent"
 )
 
 type fakeDB struct {
@@ -15,6 +17,10 @@ type fakeDB struct {
 
 func (f *fakeDB) Ping(ctx context.Context) error {
 	return f.err
+}
+
+func (f *fakeDB) Ent() *ent.Client {
+	return nil
 }
 
 func TestHelloWorldHandler(t *testing.T) {

@@ -27,6 +27,8 @@ type Doctor struct {
 	Email string `json:"email,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
+	// bcrypt hash of the doctor's password
+	PasswordHash string `json:"-"`
 	// Role holds the value of the "role" field.
 	Role doctor.Role `json:"role,omitempty"`
 	// PracticeID holds the value of the "practice_id" field.
@@ -119,7 +121,7 @@ func (*Doctor) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case doctor.FieldPracticeID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case doctor.FieldEmail, doctor.FieldDisplayName, doctor.FieldRole:
+		case doctor.FieldEmail, doctor.FieldDisplayName, doctor.FieldPasswordHash, doctor.FieldRole:
 			values[i] = new(sql.NullString)
 		case doctor.FieldCreatedAt, doctor.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -169,6 +171,12 @@ func (_m *Doctor) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field display_name", values[i])
 			} else if value.Valid {
 				_m.DisplayName = value.String
+			}
+		case doctor.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value.Valid {
+				_m.PasswordHash = value.String
 			}
 		case doctor.FieldRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -260,6 +268,8 @@ func (_m *Doctor) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("display_name=")
 	builder.WriteString(_m.DisplayName)
+	builder.WriteString(", ")
+	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Role))

@@ -23,6 +23,7 @@ func (Doctor) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("email").NotEmpty(),
 		field.String("display_name").NotEmpty(),
+		field.String("password_hash").NotEmpty().Sensitive().Comment("bcrypt hash of the doctor's password"),
 
 		field.Enum("role").Values("Owner", "Staff").Default("Owner"),
 

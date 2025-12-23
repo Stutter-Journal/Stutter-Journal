@@ -116,6 +116,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString},
 		{Name: "display_name", Type: field.TypeString},
+		{Name: "password_hash", Type: field.TypeString},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"Owner", "Staff"}, Default: "Owner"},
 		{Name: "practice_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -127,7 +128,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "doctors_practices_doctors",
-				Columns:    []*schema.Column{DoctorsColumns[6]},
+				Columns:    []*schema.Column{DoctorsColumns[7]},
 				RefColumns: []*schema.Column{PracticesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -141,7 +142,7 @@ var (
 			{
 				Name:    "doctor_practice_id",
 				Unique:  false,
-				Columns: []*schema.Column{DoctorsColumns[6]},
+				Columns: []*schema.Column{DoctorsColumns[7]},
 			},
 		},
 	}

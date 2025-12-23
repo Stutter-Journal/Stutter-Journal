@@ -92,6 +92,10 @@ func init() {
 	doctorDescDisplayName := doctorFields[1].Descriptor()
 	// doctor.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	doctor.DisplayNameValidator = doctorDescDisplayName.Validators[0].(func(string) error)
+	// doctorDescPasswordHash is the schema descriptor for password_hash field.
+	doctorDescPasswordHash := doctorFields[2].Descriptor()
+	// doctor.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
+	doctor.PasswordHashValidator = doctorDescPasswordHash.Validators[0].(func(string) error)
 	// doctorDescID is the schema descriptor for id field.
 	doctorDescID := doctorMixinFields0[0].Descriptor()
 	// doctor.DefaultID holds the default value on creation for the id field.

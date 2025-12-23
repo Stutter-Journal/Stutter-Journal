@@ -2,9 +2,8 @@ import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { LoginRequestDto, LoginResponseDto } from '@org/models';
 import { ButtonComponent, CardComponent, FormFieldComponent } from '@org/portal-ui';
-import { ApiClient, ApiError } from '@org/util';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'portal-login',
@@ -21,9 +20,9 @@ import { ApiClient, ApiError } from '@org/util';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private readonly api = new ApiClient();
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   readonly emailId = 'auth-login-email';
   readonly passwordId = 'auth-login-password';
@@ -91,56 +90,16 @@ export class LoginComponent {
     this.loading = true;
 
     try {
-      const payload: LoginRequestDto = this.form.getRawValue();
-      await this.api.post<LoginResponseDto, LoginRequestDto>(
-        '/api/auth/login',
-        payload
-      );
+      const { email, password } = this.form.getRawValue();
+      const errorMessage = await this.auth.login(email, password);
+      if (errorMessage) {
+        this.formError = errorMessage;
+        return;
+      }
+
       await this.router.navigate(['/patients']);
-    } catch (error) {
-      this.formError = this.mapErrorMessage(error);
     } finally {
       this.loading = false;
     }
-  }
-
-  private mapErrorMessage(error: unknown): string {
-    if (error instanceof ApiError) {
-      const payloadMessage = this.readPayloadMessage(error.payload);
-      if (payloadMessage) {
-        return payloadMessage;
-      }
-
-      switch (error.status) {
-        case 400:
-          return 'Check your email and password, then try again.';
-        case 401:
-          return 'That email and password do not match our records.';
-        case 403:
-          return 'Your account is pending approval.';
-        default:
-          return 'We could not sign you in. Please try again.';
-      }
-    }
-
-    return 'We could not sign you in. Please try again.';
-  }
-
-  private readPayloadMessage(payload: unknown): string | null {
-    if (!payload || typeof payload !== 'object') {
-      return null;
-    }
-
-    const message = (payload as { message?: unknown }).message;
-    if (typeof message === 'string' && message.trim().length > 0) {
-      return message;
-    }
-
-    const error = (payload as { error?: unknown }).error;
-    if (typeof error === 'string' && error.trim().length > 0) {
-      return error;
-    }
-
-    return null;
   }
 }

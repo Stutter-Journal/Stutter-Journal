@@ -76,6 +76,11 @@ func DisplayName(v string) predicate.Doctor {
 	return predicate.Doctor(sql.FieldEQ(FieldDisplayName, v))
 }
 
+// PasswordHash applies equality check predicate on the "password_hash" field. It's identical to PasswordHashEQ.
+func PasswordHash(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldEQ(FieldPasswordHash, v))
+}
+
 // PracticeID applies equality check predicate on the "practice_id" field. It's identical to PracticeIDEQ.
 func PracticeID(v uuid.UUID) predicate.Doctor {
 	return predicate.Doctor(sql.FieldEQ(FieldPracticeID, v))
@@ -289,6 +294,71 @@ func DisplayNameEqualFold(v string) predicate.Doctor {
 // DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
 func DisplayNameContainsFold(v string) predicate.Doctor {
 	return predicate.Doctor(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// PasswordHashEQ applies the EQ predicate on the "password_hash" field.
+func PasswordHashEQ(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashNEQ applies the NEQ predicate on the "password_hash" field.
+func PasswordHashNEQ(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldNEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashIn applies the In predicate on the "password_hash" field.
+func PasswordHashIn(vs ...string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashNotIn applies the NotIn predicate on the "password_hash" field.
+func PasswordHashNotIn(vs ...string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldNotIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashGT applies the GT predicate on the "password_hash" field.
+func PasswordHashGT(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldGT(FieldPasswordHash, v))
+}
+
+// PasswordHashGTE applies the GTE predicate on the "password_hash" field.
+func PasswordHashGTE(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldGTE(FieldPasswordHash, v))
+}
+
+// PasswordHashLT applies the LT predicate on the "password_hash" field.
+func PasswordHashLT(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldLT(FieldPasswordHash, v))
+}
+
+// PasswordHashLTE applies the LTE predicate on the "password_hash" field.
+func PasswordHashLTE(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldLTE(FieldPasswordHash, v))
+}
+
+// PasswordHashContains applies the Contains predicate on the "password_hash" field.
+func PasswordHashContains(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldContains(FieldPasswordHash, v))
+}
+
+// PasswordHashHasPrefix applies the HasPrefix predicate on the "password_hash" field.
+func PasswordHashHasPrefix(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldHasPrefix(FieldPasswordHash, v))
+}
+
+// PasswordHashHasSuffix applies the HasSuffix predicate on the "password_hash" field.
+func PasswordHashHasSuffix(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldHasSuffix(FieldPasswordHash, v))
+}
+
+// PasswordHashEqualFold applies the EqualFold predicate on the "password_hash" field.
+func PasswordHashEqualFold(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldEqualFold(FieldPasswordHash, v))
+}
+
+// PasswordHashContainsFold applies the ContainsFold predicate on the "password_hash" field.
+func PasswordHashContainsFold(v string) predicate.Doctor {
+	return predicate.Doctor(sql.FieldContainsFold(FieldPasswordHash, v))
 }
 
 // RoleEQ applies the EQ predicate on the "role" field.

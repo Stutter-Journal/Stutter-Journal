@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"backend/ent"
+	"backend/internal/auth"
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/charmbracelet/log"
@@ -15,25 +17,38 @@ import (
 
 const defaultPort = 8080
 
-type ReadyChecker interface {
+type Database interface {
 	Ping(ctx context.Context) error
+	Ent() *ent.Client
 }
 
 type Server struct {
 	port int
 
-	db ReadyChecker
+	db   Database
+	auth *auth.Manager
 }
 
-func NewServer(db ReadyChecker) *http.Server {
+func NewServer(db Database) *http.Server {
 	port := parsePort()
 	if db == nil {
 		log.Warn("server started without a database client; /ready will fail")
 	}
 
+	authCfg, err := auth.LoadConfig(log.Default())
+	if err != nil {
+		log.Fatalf("auth configuration error: %v", err)
+	}
+
+	authManager, err := auth.NewManager(authCfg)
+	if err != nil {
+		log.Fatalf("failed to initialize auth manager: %v", err)
+	}
+
 	s := &Server{
 		port: port,
 		db:   db,
+		auth: authManager,
 	}
 
 	server := &http.Server{

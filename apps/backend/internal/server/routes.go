@@ -27,7 +27,26 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/health", s.healthHandler)
 	r.Get("/ready", s.readyHandler)
 
+	if s.auth == nil {
+		log.Warn("auth manager missing; authentication routes are disabled")
+	} else {
+		s.registerDoctorRoutes(r)
+	}
+
 	return r
+}
+
+func (s *Server) registerDoctorRoutes(r chi.Router) {
+	r.Route("/doctor", func(r chi.Router) {
+		r.Post("/register", s.doctorRegisterHandler)
+		r.Post("/login", s.doctorLoginHandler)
+
+		r.Group(func(r chi.Router) {
+			r.Use(s.requireDoctor)
+			r.Get("/me", s.doctorMeHandler)
+			r.Post("/logout", s.doctorLogoutHandler)
+		})
+	})
 }
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,4 +79,8 @@ func (s *Server) writeJSON(w http.ResponseWriter, status int, payload any) {
 	if err := json.NewEncoder(w).Encode(payload); err != nil {
 		log.Error("failed to encode response", "err", err)
 	}
+}
+
+func (s *Server) writeError(w http.ResponseWriter, status int, message string) {
+	s.writeJSON(w, status, map[string]string{"error": message})
 }

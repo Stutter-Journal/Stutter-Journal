@@ -2013,6 +2013,7 @@ type DoctorMutation struct {
 	updated_at                    *time.Time
 	email                         *string
 	display_name                  *string
+	password_hash                 *string
 	role                          *doctor.Role
 	clearedFields                 map[string]struct{}
 	practice                      *uuid.UUID
@@ -2283,6 +2284,42 @@ func (m *DoctorMutation) OldDisplayName(ctx context.Context) (v string, err erro
 // ResetDisplayName resets all changes to the "display_name" field.
 func (m *DoctorMutation) ResetDisplayName() {
 	m.display_name = nil
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (m *DoctorMutation) SetPasswordHash(s string) {
+	m.password_hash = &s
+}
+
+// PasswordHash returns the value of the "password_hash" field in the mutation.
+func (m *DoctorMutation) PasswordHash() (r string, exists bool) {
+	v := m.password_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPasswordHash returns the old "password_hash" field's value of the Doctor entity.
+// If the Doctor object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DoctorMutation) OldPasswordHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPasswordHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPasswordHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPasswordHash: %w", err)
+	}
+	return oldValue.PasswordHash, nil
+}
+
+// ResetPasswordHash resets all changes to the "password_hash" field.
+func (m *DoctorMutation) ResetPasswordHash() {
+	m.password_hash = nil
 }
 
 // SetRole sets the "role" field.
@@ -2701,7 +2738,7 @@ func (m *DoctorMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DoctorMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, doctor.FieldCreatedAt)
 	}
@@ -2713,6 +2750,9 @@ func (m *DoctorMutation) Fields() []string {
 	}
 	if m.display_name != nil {
 		fields = append(fields, doctor.FieldDisplayName)
+	}
+	if m.password_hash != nil {
+		fields = append(fields, doctor.FieldPasswordHash)
 	}
 	if m.role != nil {
 		fields = append(fields, doctor.FieldRole)
@@ -2736,6 +2776,8 @@ func (m *DoctorMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case doctor.FieldDisplayName:
 		return m.DisplayName()
+	case doctor.FieldPasswordHash:
+		return m.PasswordHash()
 	case doctor.FieldRole:
 		return m.Role()
 	case doctor.FieldPracticeID:
@@ -2757,6 +2799,8 @@ func (m *DoctorMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldEmail(ctx)
 	case doctor.FieldDisplayName:
 		return m.OldDisplayName(ctx)
+	case doctor.FieldPasswordHash:
+		return m.OldPasswordHash(ctx)
 	case doctor.FieldRole:
 		return m.OldRole(ctx)
 	case doctor.FieldPracticeID:
@@ -2797,6 +2841,13 @@ func (m *DoctorMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisplayName(v)
+		return nil
+	case doctor.FieldPasswordHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPasswordHash(v)
 		return nil
 	case doctor.FieldRole:
 		v, ok := value.(doctor.Role)
@@ -2881,6 +2932,9 @@ func (m *DoctorMutation) ResetField(name string) error {
 		return nil
 	case doctor.FieldDisplayName:
 		m.ResetDisplayName()
+		return nil
+	case doctor.FieldPasswordHash:
+		m.ResetPasswordHash()
 		return nil
 	case doctor.FieldRole:
 		m.ResetRole()

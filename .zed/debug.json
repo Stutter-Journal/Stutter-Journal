@@ -1,0 +1,12 @@
+[
+  {
+    "label": "🐍 Backend: Debug Current Python File",
+    "adapter": "Debugpy",
+    "request": "launch",
+    "program": "$ZED_FILE",
+    "cwd": "$ZED_WORKTREE_ROOT/apps/backend",
+    "env": {
+      "PYTHONPATH": "$ZED_WORKTREE_ROOT/apps/backend/src"
+    }
+  }
+]

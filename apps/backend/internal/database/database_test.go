@@ -2,16 +2,20 @@ package database
 
 import (
 	"context"
-	"log"
+	"io"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func mustStartPostgresContainer() (func(context.Context, ...testcontainers.TerminateOption) error, error) {
+func mustStartPostgresContainer(tb testing.TB) (Config, func()) {
+	tb.Helper()
+
 	var (
 		dbName = "database"
 		dbPwd  = "password"
@@ -27,74 +31,101 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2).
-				WithStartupTimeout(5*time.Second)),
+				WithStartupTimeout(10*time.Second)),
 	)
 	if err != nil {
-		return nil, err
+		tb.Fatalf("could not start postgres container: %v", err)
 	}
-
-	database = dbName
-	password = dbPwd
-	username = dbUser
 
 	dbHost, err := dbContainer.Host(context.Background())
 	if err != nil {
-		return dbContainer.Terminate, err
+		tb.Fatalf("could not get postgres host: %v", err)
 	}
 
 	dbPort, err := dbContainer.MappedPort(context.Background(), "5432/tcp")
 	if err != nil {
-		return dbContainer.Terminate, err
+		tb.Fatalf("could not get postgres port: %v", err)
 	}
 
-	host = dbHost
-	port = dbPort.Port()
+	cfg := Config{
+		Host:     dbHost,
+		Port:     dbPort.Port(),
+		Username: dbUser,
+		Password: dbPwd,
+		Database: dbName,
+		Schema:   "public",
+	}
 
-	return dbContainer.Terminate, err
+	return cfg, func() {
+		if err := dbContainer.Terminate(context.Background()); err != nil {
+			tb.Fatalf("could not teardown postgres container: %v", err)
+		}
+	}
 }
 
-func TestMain(m *testing.M) {
-	teardown, err := mustStartPostgresContainer()
+func TestDSNFromConfig(t *testing.T) {
+	cfg := Config{
+		Host:     "localhost",
+		Port:     "5432",
+		Username: "user",
+		Password: "pass",
+		Database: "db",
+		Schema:   "custom",
+	}
+
+	dsn, err := cfg.DSN()
 	if err != nil {
-		log.Fatalf("could not start postgres container: %v", err)
+		t.Fatalf("unexpected error building DSN: %v", err)
 	}
 
-	m.Run()
-
-	if teardown != nil && teardown(context.Background()) != nil {
-		log.Fatalf("could not teardown postgres container: %v", err)
+	if !strings.Contains(dsn, "search_path=custom") {
+		t.Fatalf("expected DSN to include schema, got %s", dsn)
 	}
 }
 
-func TestNew(t *testing.T) {
-	srv := New()
-	if srv == nil {
-		t.Fatal("New() returned nil")
+func TestDSNRespectsURL(t *testing.T) {
+	cfg := Config{
+		URL:      "postgres://example",
+		Database: "ignored",
+	}
+
+	dsn, err := cfg.DSN()
+	if err != nil {
+		t.Fatalf("unexpected error building DSN: %v", err)
+	}
+
+	if dsn != cfg.URL {
+		t.Fatalf("expected DSN to match provided URL, got %s", dsn)
 	}
 }
 
-func TestHealth(t *testing.T) {
-	srv := New()
-
-	stats := srv.Health()
-
-	if stats["status"] != "up" {
-		t.Fatalf("expected status to be up, got %s", stats["status"])
+func TestShouldApplyMigrations(t *testing.T) {
+	cfg := Config{ApplyMigrations: true, Environment: "production"}
+	if cfg.ShouldApplyMigrations() {
+		t.Fatalf("should not apply migrations in production")
 	}
 
-	if _, ok := stats["error"]; ok {
-		t.Fatalf("expected error not to be present")
-	}
-
-	if stats["message"] != "It's healthy" {
-		t.Fatalf("expected message to be 'It's healthy', got %s", stats["message"])
+	cfg.Environment = "development"
+	if !cfg.ShouldApplyMigrations() {
+		t.Fatalf("should apply migrations outside production when enabled")
 	}
 }
 
-func TestClose(t *testing.T) {
-	srv := New()
+func TestClientPing(t *testing.T) {
+	cfg, cleanup := mustStartPostgresContainer(t)
+	defer cleanup()
 
-	if srv.Close() != nil {
-		t.Fatalf("expected Close() to return nil")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	logger := log.NewWithOptions(io.Discard, log.Options{})
+	client, err := NewWithConfig(ctx, cfg, logger)
+	if err != nil {
+		t.Fatalf("failed to create client: %v", err)
+	}
+	defer client.Close()
+
+	if err := client.Ping(ctx); err != nil {
+		t.Fatalf("expected ping to succeed, got %v", err)
 	}
 }

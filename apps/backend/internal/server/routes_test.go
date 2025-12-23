@@ -1,31 +1,98 @@
 package server
 
 import (
+	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestHandler(t *testing.T) {
+type fakeDB struct {
+	err error
+}
+
+func (f *fakeDB) Ping(ctx context.Context) error {
+	return f.err
+}
+
+func TestHelloWorldHandler(t *testing.T) {
 	s := &Server{}
-	server := httptest.NewServer(http.HandlerFunc(s.HelloWorldHandler))
-	defer server.Close()
-	resp, err := http.Get(server.URL)
-	if err != nil {
-		t.Fatalf("error making request to server. Err: %v", err)
-	}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	s.HelloWorldHandler(w, req)
+
+	resp := w.Result()
 	defer resp.Body.Close()
-	// Assertions
+
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("expected status OK; got %v", resp.Status)
+		t.Fatalf("expected status OK; got %v", resp.Status)
 	}
-	expected := "{\"message\":\"Hello World\"}"
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("error reading response body. Err: %v", err)
 	}
+
+	expected := `{"message":"Hello World"}` + "\n"
 	if expected != string(body) {
-		t.Errorf("expected response body to be %v; got %v", expected, string(body))
+		t.Fatalf("expected response body to be %v; got %v", expected, string(body))
+	}
+}
+
+func TestReadyHandler_Success(t *testing.T) {
+	s := &Server{db: &fakeDB{}}
+	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
+	w := httptest.NewRecorder()
+
+	s.readyHandler(w, req)
+
+	if w.Result().StatusCode != http.StatusOK {
+		t.Fatalf("expected status OK; got %v", w.Result().Status)
+	}
+
+	var payload map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&payload); err != nil {
+		t.Fatalf("failed decoding response: %v", err)
+	}
+
+	if payload["status"] != "ready" {
+		t.Fatalf("expected status ready, got %s", payload["status"])
+	}
+}
+
+func TestReadyHandler_Failure(t *testing.T) {
+	s := &Server{db: &fakeDB{err: context.DeadlineExceeded}}
+	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
+	w := httptest.NewRecorder()
+
+	s.readyHandler(w, req)
+
+	if w.Result().StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("expected status ServiceUnavailable; got %v", w.Result().Status)
+	}
+}
+
+func TestHealthHandler(t *testing.T) {
+	s := &Server{}
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	w := httptest.NewRecorder()
+
+	s.healthHandler(w, req)
+
+	if w.Result().StatusCode != http.StatusOK {
+		t.Fatalf("expected status OK; got %v", w.Result().Status)
+	}
+
+	body, err := io.ReadAll(w.Body)
+	if err != nil {
+		t.Fatalf("error reading response body. Err: %v", err)
+	}
+
+	expected := `{"status":"ok"}` + "\n"
+	if expected != string(body) {
+		t.Fatalf("expected response body to be %v; got %v", expected, string(body))
 	}
 }

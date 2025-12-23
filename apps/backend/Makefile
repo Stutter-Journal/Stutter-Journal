@@ -51,14 +51,13 @@ dev: db-up run
 # Run Atlas Migrations
 migrate:
 	@echo "Running migrations..."
-	@# Ensure variables are set to avoid empty connection string errors
-	@if [ -z "${BLUEPRINT_DB_USER}" ] || [ -z "${BLUEPRINT_DB_DATABASE}" ]; then \
-		echo "Error: Environment variables (DB_USER, DB_NAME, etc.) not found in .env"; \
-		exit 1; \
+	@if [ -z "${BLUEPRINT_DATABASE_URL}" ]; then \
+		if [ -z "${BLUEPRINT_DB_USERNAME}" ] || [ -z "${BLUEPRINT_DB_PASSWORD}" ] || [ -z "${BLUEPRINT_DB_HOST}" ] || [ -z "${BLUEPRINT_DB_DATABASE}" ]; then \
+			echo "Error: Database environment variables are missing. Check your .env file."; \
+			exit 1; \
+		fi; \
 	fi
-	@atlas migrate apply \
-		--url "postgres://${BLUEPRINT_DB_USERNAME}:${BLUEPRINT_DB_PASSWORD}@${BLUEPRINT_DB_HOST}:${BLUEPRINT_DB_PORT}/${BLUEPRINT_DB_DATABASE}?sslmode=disable" \
-		--dir "file://migrations"
+	@BLUEPRINT_DB_MIGRATION_DIR=${BLUEPRINT_DB_MIGRATION_DIR:-file://ent/migrate/migrations} ./scripts/migrate-dev.sh
 
 # Test the application
 test:

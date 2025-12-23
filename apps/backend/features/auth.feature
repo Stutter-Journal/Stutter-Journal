@@ -12,7 +12,7 @@ Feature: Doctor authentication with session cookies
     Then the response status should be 201
     And the response should match:
       | doctor.email | authdoc@example.com |
-      | doctor.name  | Auth Doc            |
+      | doctor.displayName  | Auth Doc            |
 
     # Login
     When I log in with:

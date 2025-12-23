@@ -83,6 +83,7 @@ func initAuthScenario(sc *godog.ScenarioContext, env *testEnv) {
 	sc.Step(`^the response status should be (\d+)$`, state.responseStatusShouldBe)
 	sc.Step(`^the doctor with email "([^"]+)" exists in the database$`, state.doctorExistsInDatabase)
 	sc.Step(`^the response JSON field "([^"]+)" should be "([^"]+)"$`, state.responseJsonFieldShouldBe)
+	sc.Step(`^the response field "([^"]+)" should be "([^"]+)"$`, state.responseJsonFieldShouldBe)
 
 	// NEW: Table-based response matching
 	sc.Step(`^the response should match:$`, state.responseFieldsShouldMatch)
@@ -146,24 +147,30 @@ func (a *authFeature) responseFieldsShouldMatch(table *godog.Table) error {
 	return nil
 }
 
-// Helper function to convert godog table to map
 func tableToMap(table *godog.Table) map[string]string {
 	data := make(map[string]string)
+	if table == nil || len(table.Rows) == 0 {
+		return data
+	}
 
-	// Assuming table format is:
-	// | field    | value |
-	// | email    | test@example.com |
-	// | password | secret |
+	start := 0
 
-	for i, row := range table.Rows {
-		if i == 0 {
-			continue // Skip header row
+	if len(table.Rows[0].Cells) >= 2 {
+		c0 := strings.ToLower(strings.TrimSpace(table.Rows[0].Cells[0].Value))
+		c1 := strings.ToLower(strings.TrimSpace(table.Rows[0].Cells[1].Value))
+		if (c0 == "field" || c0 == "key") && (c1 == "value" || c1 == "val") {
+			start = 1
 		}
-		if len(row.Cells) >= 2 {
-			key := row.Cells[0].Value
-			value := row.Cells[1].Value
-			data[key] = value
+	}
+
+	for i := start; i < len(table.Rows); i++ {
+		row := table.Rows[i]
+		if len(row.Cells) < 2 {
+			continue
 		}
+		key := strings.TrimSpace(row.Cells[0].Value)
+		value := strings.TrimSpace(row.Cells[1].Value)
+		data[key] = value
 	}
 
 	return data

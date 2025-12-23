@@ -2,12 +2,15 @@
   "version": "2.0.0",
   "tasks": [
     // ==========================================
-    // Backend Tasks (Python)
+    // Backend (Python)
     // ==========================================
     {
       "label": "Backend: Setup Virtual Environment",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && uv venv",
+      "command": "uv venv",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/backend"
+      },
       "problemMatcher": [],
       "presentation": {
         "echo": true,
@@ -16,13 +19,15 @@
         "panel": "shared",
         "showReuseMessage": true,
         "clear": false
-      },
-      "group": "none"
+      }
     },
     {
-      "label": "Backend: Install Dependencies",
+      "label": "Backend: Sync Dependencies",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv pip install -U setuptools setuptools_scm wheel && uv pip install -e . && uv sync",
+      "command": "source .venv/bin/activate && uv sync",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/backend"
+      },
       "problemMatcher": [],
       "presentation": {
         "echo": true,
@@ -32,120 +37,17 @@
         "showReuseMessage": true,
         "clear": false
       },
-      "group": "none",
       "dependsOn": [
         "Backend: Setup Virtual Environment"
       ]
     },
     {
-      "label": "Backend: Install Testing Dependencies",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv pip install -e '.[testing]'",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Backend: Build",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv build",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      }
-    },
-    {
-      "label": "Backend: Run Skeleton Example",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run -m eloquia.backend.skeleton 42",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Backend: Run Tests",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run pytest",
-      "problemMatcher": [
-        {
-          "owner": "python",
-          "pattern": [
-            {
-              "regexp": "^(.*):(\\d+):\\s+(.*)",
-              "file": 1,
-              "line": 2,
-              "message": 3
-            }
-          ]
-        }
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Backend: Run Tests with Coverage",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && source .venv/bin/activate && uv run pytest --cov=eloquia.backend --cov-report=html --cov-report=term-missing",
-      "problemMatcher": [
-        {
-          "owner": "python",
-          "pattern": [
-            {
-              "regexp": "^(.*):(\\d+):\\s+(.*)",
-              "file": 1,
-              "line": 2,
-              "message": 3
-            }
-          ]
-        }
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "test"
-    },
-    {
       "label": "Backend: Lint (Ruff Check)",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && uvx ruff check",
+      "command": "uvx ruff check",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/backend"
+      },
       "problemMatcher": [
         {
           "owner": "ruff",
@@ -169,13 +71,15 @@
         "panel": "shared",
         "showReuseMessage": true,
         "clear": false
-      },
-      "group": "none"
+      }
     },
     {
       "label": "Backend: Format (Ruff Format)",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && uvx ruff format",
+      "command": "uvx ruff format",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/backend"
+      },
       "problemMatcher": [],
       "presentation": {
         "echo": true,
@@ -184,8 +88,7 @@
         "panel": "shared",
         "showReuseMessage": true,
         "clear": false
-      },
-      "group": "none"
+      }
     },
     {
       "label": "Backend: Lint and Format",
@@ -193,62 +96,27 @@
         "Backend: Lint (Ruff Check)",
         "Backend: Format (Ruff Format)"
       ],
-      "problemMatcher": [],
-      "group": "none"
+      "problemMatcher": []
     },
     {
-      "label": "Backend: Install Pre-commit Hooks",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && pre-commit install",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Backend: Update Pre-commit Hooks",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && pre-commit autoupdate",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Backend: Run Pre-commit on All Files",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/backend && pre-commit run --all-files",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
+      "label": "Backend: Maintenance (Sync + Lint + Format)",
+      "dependsOn": [
+        "Backend: Sync Dependencies",
+        "Backend: Lint and Format"
+      ],
+      "problemMatcher": []
     },
     // ==========================================
-    // Mobile Tasks (Kotlin Multiplatform)
+    // Desktop (Nx Workspace)
     // ==========================================
     {
-      "label": "Mobile: Clean Build",
+      "label": "Desktop: Install Dependencies",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew clean",
-      "problemMatcher": "$gradle",
+      "command": "pnpm install",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
+      "problemMatcher": [],
       "presentation": {
         "echo": true,
         "reveal": "always",
@@ -256,140 +124,15 @@
         "panel": "shared",
         "showReuseMessage": true,
         "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Mobile: Build All",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew build",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": {
-        "kind": "build",
-        "isDefault": true
       }
     },
     {
-      "label": "Mobile: Build Android Debug APK",
+      "label": "Desktop: Serve Portal (Nx)",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew assembleDebug",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
+      "command": "pnpm nx serve portal",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
       },
-      "group": "build"
-    },
-    {
-      "label": "Mobile: Build Android Release APK",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew assembleRelease",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "build"
-    },
-    {
-      "label": "Mobile: Install Android Debug",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew installDebug",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Mobile: Run Android Tests",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew testDebugUnitTest",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "test"
-    },
-    {
-      "label": "Mobile: Run iOS Simulator",
-      "type": "shell",
-      "command": "open -a Simulator",
-      "problemMatcher": [],
-      "presentation": {
-        "echo": true,
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "group": "none",
-      "osx": {
-        "command": "open -a Simulator"
-      }
-    },
-    {
-      "label": "Mobile: Build iOS Framework",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew linkDebugFrameworkIosSimulatorArm64",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "build",
-      "osx": {}
-    },
-    {
-      "label": "Mobile: Gradle Sync",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew --refresh-dependencies",
-      "problemMatcher": "$gradle",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "group": "none"
-    },
-    {
-      "label": "Mobile: List All Tasks",
-      "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew tasks --all",
       "problemMatcher": [],
       "presentation": {
         "echo": true,
@@ -399,12 +142,17 @@
         "showReuseMessage": true,
         "clear": false
       },
-      "group": "none"
+      "dependsOn": [
+        "Desktop: Install Dependencies"
+      ]
     },
     {
-      "label": "Mobile: Check Dependencies",
+      "label": "Desktop: Serve Shop (Nx)",
       "type": "shell",
-      "command": "cd ${workspaceFolder}/apps/mobile && ./gradlew dependencies",
+      "command": "pnpm nx serve shop",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
       "problemMatcher": [],
       "presentation": {
         "echo": true,
@@ -414,47 +162,69 @@
         "showReuseMessage": true,
         "clear": false
       },
-      "group": "none"
-    },
-    // ==========================================
-    // Composite Tasks
-    // ==========================================
-    {
-      "label": "Full Setup: Backend and Mobile",
       "dependsOn": [
-        "Backend: Install Dependencies",
-        "Backend: Install Testing Dependencies",
-        "Backend: Install Pre-commit Hooks",
-        "Mobile: Gradle Sync"
-      ],
-      "problemMatcher": [],
-      "group": "none"
+        "Desktop: Install Dependencies"
+      ]
     },
     {
-      "label": "Build: All Projects",
-      "dependsOn": [
-        "Backend: Build",
-        "Mobile: Build All"
-      ],
+      "label": "Desktop: Serve API (Nx)",
+      "type": "shell",
+      "command": "pnpm nx serve api",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
       "problemMatcher": [],
-      "group": "build"
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "dependsOn": [
+        "Desktop: Install Dependencies"
+      ]
     },
     {
-      "label": "Test: All Projects",
-      "dependsOn": [
-        "Backend: Run Tests",
-        "Mobile: Run Android Tests"
-      ],
+      "label": "Desktop: Lint (Workspace)",
+      "type": "shell",
+      "command": "pnpm nx run-many -t lint",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
       "problemMatcher": [],
-      "group": "test"
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "dependsOn": [
+        "Desktop: Install Dependencies"
+      ]
     },
     {
-      "label": "Clean: All Projects",
-      "dependsOn": [
-        "Mobile: Clean Build"
-      ],
+      "label": "Desktop: Format (Nx format:write)",
+      "type": "shell",
+      "command": "pnpm nx format:write",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
       "problemMatcher": [],
-      "group": "none"
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "dependsOn": [
+        "Desktop: Install Dependencies"
+      ]
     }
   ]
 }

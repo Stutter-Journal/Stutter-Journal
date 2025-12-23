@@ -1,137 +1,47 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        // ==========================================
-        // Python Backend Debug Configurations
-        // ==========================================
-        {
-            "name": "Backend: Debug Skeleton Module",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "eloquia.backend.skeleton",
-            "args": [
-                "42"
-            ],
-            "cwd": "${workspaceFolder}/apps/backend",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
-            },
-            "preLaunchTask": "Backend: Install Dependencies"
-        },
-        {
-            "name": "Backend: Debug Current Python File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "cwd": "${workspaceFolder}/apps/backend",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
-            }
-        },
-        {
-            "name": "Backend: Debug Tests",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "-v",
-                "--cov=eloquia.backend",
-                "--cov-report=term-missing"
-            ],
-            "cwd": "${workspaceFolder}/apps/backend",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
-            },
-            "preLaunchTask": "Backend: Install Testing Dependencies"
-        },
-        {
-            "name": "Backend: Debug Current Test File",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "-v",
-                "${file}"
-            ],
-            "cwd": "${workspaceFolder}/apps/backend",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
-            }
-        },
-        {
-            "name": "Backend: Debug Specific Test",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": [
-                "-v",
-                "${workspaceFolder}/apps/backend/tests/test_skeleton.py::test_fib"
-            ],
-            "cwd": "${workspaceFolder}/apps/backend",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
-            }
-        },
-        // ==========================================
-        // Python Backend Attach Configuration
-        // ==========================================
-        {
-            "name": "Backend: Attach to Python Process",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5678
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/backend/src",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        // ==========================================
-        // Android Debug Configurations
-        // ==========================================
-        {
-            "name": "Mobile: Launch Android App",
-            "type": "kotlin",
-            "request": "launch",
-            "mainClass": "",
-            "projectRoot": "${workspaceFolder}/apps/mobile",
-            "preLaunchTask": "Mobile: Build Android Debug APK"
-        },
-        {
-            "name": "Mobile: Attach Android Debugger",
-            "type": "kotlin",
-            "request": "attach",
-            "hostName": "localhost",
-            "port": 5005,
-            "timeout": 30000
-        },
-        // ==========================================
-        // Compound Configurations
-        // ==========================================
-        {
-            "name": "Full Stack: Backend + Mobile",
-            "type": "compound",
-            "configurations": [
-                "Backend: Debug Skeleton Module",
-                "Mobile: Launch Android App"
-            ],
-            "stopAll": true,
-            "preLaunchTask": "Build: All Projects"
-        }
-    ],
-    "compounds": []
+  "version": "0.2.0",
+  "configurations": [
+    // ==========================================
+    // Python Backend
+    // ==========================================
+    {
+      "name": "Backend: Debug Current Python File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}/apps/backend",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/apps/backend/src"
+      }
+    },
+    // ==========================================
+    // Desktop (Nx Workspace)
+    // ==========================================
+    {
+      "name": "Desktop: Serve Portal (Nx)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm nx serve portal",
+      "cwd": "${workspaceFolder}/apps/desktop",
+      "preLaunchTask": "Desktop: Install Dependencies"
+    },
+    {
+      "name": "Desktop: Serve Shop (Nx)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm nx serve shop",
+      "cwd": "${workspaceFolder}/apps/desktop",
+      "preLaunchTask": "Desktop: Install Dependencies"
+    },
+    {
+      "name": "Desktop: Serve API (Nx)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm nx serve api",
+      "cwd": "${workspaceFolder}/apps/desktop",
+      "preLaunchTask": "Desktop: Install Dependencies"
+    }
+  ]
 }

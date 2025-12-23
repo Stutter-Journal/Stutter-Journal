@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,31 +10,55 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"backend/internal/database"
+	"github.com/charmbracelet/log"
 )
+
+const defaultPort = 8080
+
+type ReadyChecker interface {
+	Ping(ctx context.Context) error
+}
 
 type Server struct {
 	port int
 
-	db database.Service
+	db ReadyChecker
 }
 
-func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
-
-		db: database.New(),
+func NewServer(db ReadyChecker) *http.Server {
+	port := parsePort()
+	if db == nil {
+		log.Warn("server started without a database client; /ready will fail")
 	}
 
-	// Declare Server config
+	s := &Server{
+		port: port,
+		db:   db,
+	}
+
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+		Addr:         fmt.Sprintf(":%d", s.port),
+		Handler:      s.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
+	log.Infof("Server listening on :%d", s.port)
+
 	return server
+}
+
+func parsePort() int {
+	portVal := os.Getenv("PORT")
+	if portVal == "" {
+		return defaultPort
+	}
+
+	port, err := strconv.Atoi(portVal)
+	if err != nil {
+		log.Warnf("invalid PORT value %q, falling back to %d", portVal, defaultPort)
+		return defaultPort
+	}
+	return port
 }

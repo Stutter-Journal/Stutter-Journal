@@ -22,6 +22,16 @@ Run the application
 ```bash
 make run
 ```
+
+Database migrations (uses Atlas):
+```bash
+make migrate
+```
+Set `BLUEPRINT_DB_APPLY_MIGRATIONS=true` in non-production environments if you want migrations to run automatically on startup. The helper script expects the `BLUEPRINT_DB_*` variables or `BLUEPRINT_DATABASE_URL` to be set.
+
+Health endpoints:
+- `GET /health` basic liveness check
+- `GET /ready` pings the database connection
 Create DB container
 ```bash
 make docker-run

@@ -54,6 +54,7 @@
           </span>
         </button>
         <a
+          *ngIf="showOnboarding$ | async"
           routerLink="/onboarding"
           routerLinkActive="bg-neutral-900 text-white shadow-[var(--shadow-sm)]"
           class="flex min-w-[9rem] items-center justify-between rounded-xl px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"

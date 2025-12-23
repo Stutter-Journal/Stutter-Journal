@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
+import { OnboardingComponent } from './onboarding/onboarding.component';
 import { SectionPageComponent } from './pages/section-page.component';
 import { AppShellComponent } from './shell/app-shell.component';
 
@@ -44,8 +45,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'onboarding',
-        component: SectionPageComponent,
-        data: { title: 'Onboarding' },
+        component: OnboardingComponent,
       },
     ],
   },

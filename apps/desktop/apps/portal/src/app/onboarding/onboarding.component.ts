@@ -1,5 +1,5 @@
-import { NgIf } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
+import { Component, OnInit, inject, Input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonComponent, FormFieldComponent } from '@org/portal-ui';
@@ -18,13 +18,17 @@ interface ApiErrorPayload {
   imports: [
     ButtonComponent,
     FormFieldComponent,
+    NgFor,
     NgIf,
     ReactiveFormsModule,
   ],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
 })
-export class OnboardingComponent {
+export class OnboardingComponent implements OnInit {
+  @Input() autoStartTour = false;
+  @Input() initialTourStep = 0;
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly practiceApi = inject(PracticeApi);
@@ -42,6 +46,23 @@ export class OnboardingComponent {
 
   loading = false;
   formError = '';
+  tourVisible = false;
+  tourStep = 0;
+
+  readonly tourSteps = [
+    {
+      title: 'Invite your care team',
+      body: 'Send secure invites to clinicians and coordinators who collaborate on patients.',
+    },
+    {
+      title: 'Connect your patients',
+      body: 'Import active patients or start with pending link requests to keep context tidy.',
+    },
+    {
+      title: 'Review entries together',
+      body: 'Notes, assessments, and plans stay in one place with gentle highlights for updates.',
+    },
+  ];
 
   get nameError(): string {
     const control = this.form.controls.name;
@@ -70,6 +91,12 @@ export class OnboardingComponent {
     return 'onboarding-practice-logo-hint';
   }
 
+  ngOnInit(): void {
+    if (this.autoStartTour) {
+      this.startTour(this.initialTourStep);
+    }
+  }
+
   async onSubmit(): Promise<void> {
     this.formError = '';
 
@@ -91,12 +118,39 @@ export class OnboardingComponent {
         this.doctorContext.setPractice(response.practice);
       }
 
-      await this.router.navigate(['/patients']);
+      this.startTour(0);
     } catch (error) {
       this.formError = this.mapError(error);
     } finally {
       this.loading = false;
     }
+  }
+
+  startTour(step: number): void {
+    const safeStep = Math.min(
+      Math.max(step, 0),
+      Math.max(0, this.tourSteps.length - 1)
+    );
+    this.tourStep = safeStep;
+    this.tourVisible = true;
+  }
+
+  nextTour(): void {
+    if (this.tourStep >= this.tourSteps.length - 1) {
+      this.finishOnboarding();
+      return;
+    }
+    this.tourStep += 1;
+  }
+
+  skipTour(): void {
+    this.tourVisible = false;
+    void this.finishOnboarding();
+  }
+
+  finishOnboarding(): Promise<boolean> {
+    this.tourVisible = false;
+    return this.router.navigate(['/patients']);
   }
 
   private mapError(error: unknown): string {

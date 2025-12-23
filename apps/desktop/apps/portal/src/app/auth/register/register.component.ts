@@ -145,7 +145,7 @@ export class RegisterComponent {
         return;
       }
 
-      await this.router.navigate(['/patients']);
+      await this.router.navigate(['/onboarding']);
     } finally {
       this.loading = false;
     }

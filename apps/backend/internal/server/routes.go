@@ -27,6 +27,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/health", s.healthHandler)
 	r.Get("/ready", s.readyHandler)
 
+	s.registerDocsRoutes(r)
+
 	if s.auth == nil {
 		log.Warn("auth manager missing; authentication routes are disabled")
 	} else {

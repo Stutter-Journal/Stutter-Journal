@@ -57,6 +57,11 @@ Run the test suite:
 make test
 ```
 
+BDD-style integration tests (Docker required):
+```bash
+make bdd
+```
+
 Clean up binary from the last build:
 ```bash
 make clean

@@ -69,6 +69,10 @@ itest:
 	@echo "Running integration tests..."
 	@go test ./internal/database -v
 
+bdd:
+	@echo "Running BDD integration tests (requires Docker)..."
+	@go test ./internal/server -run TestAuthFeatures -v
+
 # Clean the binary
 clean:
 	@echo "Cleaning..."
@@ -91,4 +95,4 @@ watch:
             fi; \
         fi
 
-.PHONY: all build run test clean watch docker-run docker-down db-up dev migrate itest
+.PHONY: all build run test clean watch docker-run docker-down db-up dev migrate itest bdd

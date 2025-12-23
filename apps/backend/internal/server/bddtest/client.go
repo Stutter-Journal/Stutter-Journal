@@ -60,7 +60,9 @@ func (c *Client) Do(req *http.Request) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

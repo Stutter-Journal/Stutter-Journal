@@ -31,7 +31,9 @@ func TestHelloWorldHandler(t *testing.T) {
 	s.HelloWorldHandler(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("expected status OK; got %v", resp.Status)

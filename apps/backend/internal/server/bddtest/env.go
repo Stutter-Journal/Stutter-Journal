@@ -95,7 +95,7 @@ func NewEnv(t *testing.T, newHandler HandlerFactory) *Env {
 
 	h, err := newHandler(dbClient)
 	if err != nil {
-		dbClient.Close()
+		_ = dbClient.Close()
 		_ = container.Terminate(ctx)
 		t.Fatalf("build handler: %v", err)
 	}
@@ -111,7 +111,7 @@ func NewEnv(t *testing.T, newHandler HandlerFactory) *Env {
 
 	t.Cleanup(func() {
 		ts.Close()
-		dbClient.Close()
+		_ = dbClient.Close()
 		_ = container.Terminate(context.Background())
 	})
 

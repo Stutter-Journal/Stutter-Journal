@@ -123,7 +123,11 @@ func TestClientPing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create client: %v", err)
 	}
-	defer client.Close()
+	defer func() {
+		if err := client.Close(); err != nil {
+			t.Fatalf("failed to close client: %v", err)
+		}
+	}()
 
 	if err := client.Ping(ctx); err != nil {
 		t.Fatalf("expected ping to succeed, got %v", err)

@@ -1,0 +1,9 @@
+{
+  "name": "patients-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/patients/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:patients", "type:data-access"],
+  "// targets": "to see all targets run: nx show project patients-data-access --web",
+  "targets": {}
+}

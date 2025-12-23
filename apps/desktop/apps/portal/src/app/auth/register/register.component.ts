@@ -2,9 +2,8 @@ import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { RegisterRequestDto, RegisterResponseDto } from '@org/models';
 import { ButtonComponent, CardComponent, FormFieldComponent } from '@org/portal-ui';
-import { ApiClient, ApiError } from '@org/util';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'portal-register',
@@ -21,9 +20,9 @@ import { ApiClient, ApiError } from '@org/util';
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
-  private readonly api = new ApiClient();
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   readonly firstNameId = 'auth-register-first-name';
   readonly lastNameId = 'auth-register-last-name';
@@ -139,54 +138,16 @@ export class RegisterComponent {
     this.loading = true;
 
     try {
-      const payload: RegisterRequestDto = this.form.getRawValue();
-      await this.api.post<RegisterResponseDto, RegisterRequestDto>(
-        '/api/auth/register',
-        payload
-      );
+      const payload = this.form.getRawValue();
+      const errorMessage = await this.auth.register(payload);
+      if (errorMessage) {
+        this.formError = errorMessage;
+        return;
+      }
+
       await this.router.navigate(['/patients']);
-    } catch (error) {
-      this.formError = this.mapErrorMessage(error);
     } finally {
       this.loading = false;
     }
-  }
-
-  private mapErrorMessage(error: unknown): string {
-    if (error instanceof ApiError) {
-      const payloadMessage = this.readPayloadMessage(error.payload);
-      if (payloadMessage) {
-        return payloadMessage;
-      }
-
-      switch (error.status) {
-        case 400:
-          return 'Check the form details and try again.';
-        case 409:
-          return 'An account with that email already exists.';
-        default:
-          return 'We could not create your account. Please try again.';
-      }
-    }
-
-    return 'We could not create your account. Please try again.';
-  }
-
-  private readPayloadMessage(payload: unknown): string | null {
-    if (!payload || typeof payload !== 'object') {
-      return null;
-    }
-
-    const message = (payload as { message?: unknown }).message;
-    if (typeof message === 'string' && message.trim().length > 0) {
-      return message;
-    }
-
-    const error = (payload as { error?: unknown }).error;
-    if (typeof error === 'string' && error.trim().length > 0) {
-      return error;
-    }
-
-    return null;
   }
 }

@@ -1,4 +1,7 @@
 import express from 'express';
+import { betterAuth } from 'better-auth';
+import { memoryAdapter, type MemoryDB } from 'better-auth/adapters';
+import { toNodeHandler } from 'better-auth/node';
 import { ProductsService } from '@org/api/products';
 import { ApiResponse, Product, ProductFilter, PaginatedResponse } from '@org/models';
 
@@ -7,9 +10,21 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3333;
 
 const app = express();
 const productsService = new ProductsService();
-
-// Middleware
-app.use(express.json());
+const authDb: MemoryDB = {};
+const authSecret =
+  process.env.BETTER_AUTH_SECRET ??
+  'dev-eloquia-auth-secret-please-change-in-production';
+const auth = betterAuth({
+  appName: 'Eloquia Portal',
+  baseURL: process.env.BETTER_AUTH_URL ?? `http://${host}:${port}`,
+  basePath: '/api/auth',
+  secret: authSecret,
+  emailAndPassword: {
+    enabled: true,
+  },
+  database: memoryAdapter(authDb),
+});
+const authHandler = toNodeHandler(auth);
 
 // CORS configuration for Angular app
 app.use((req, res, next) => {
@@ -22,6 +37,17 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+app.all('/api/auth', (req, res, next) => {
+  authHandler(req, res).catch(next);
+});
+
+app.all('/api/auth/*', (req, res, next) => {
+  authHandler(req, res).catch(next);
+});
+
+// Middleware
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });

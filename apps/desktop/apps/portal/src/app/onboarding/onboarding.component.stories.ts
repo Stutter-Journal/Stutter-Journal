@@ -46,13 +46,22 @@ const meta: Meta<OnboardingComponent> = {
       ],
     }),
   ],
+  argTypes: {
+    autoStartTour: { control: 'boolean' },
+    initialTourStep: { control: 'number' },
+  },
 };
 
 export default meta;
 
 type Story = StoryObj<OnboardingComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    autoStartTour: false,
+    initialTourStep: 0,
+  },
+};
 
 export const ValidationError: Story = {
   play: async ({ canvasElement }) => {
@@ -62,6 +71,23 @@ export const ValidationError: Story = {
     );
     await expect(
       canvas.getByText(/practice name is required\./i)
+    ).toBeTruthy();
+  },
+};
+
+export const GuidedTour: Story = {
+  args: {
+    autoStartTour: true,
+    initialTourStep: 1,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText(/step 2 of/i)
+    ).toBeTruthy();
+    await userEvent.click(canvas.getByRole('button', { name: /next/i }));
+    await expect(
+      canvas.getByText(/finish & go to patients/i)
     ).toBeTruthy();
   },
 };

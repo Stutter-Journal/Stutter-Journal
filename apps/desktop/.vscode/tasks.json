@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Serve portal (mocks)",
+      "type": "shell",
+      "command": "nx serve portal",
+      "options": {
+        "env": {
+          "USE_MOCKS": "true"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Storybook portal (mocks)",
+      "type": "shell",
+      "command": "nx storybook portal",
+      "options": {
+        "env": {
+          "USE_MOCKS": "true"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

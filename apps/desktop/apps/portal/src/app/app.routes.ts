@@ -7,6 +7,11 @@ import { AppShellComponent } from './shell/app-shell.component';
 
 export const appRoutes: Route[] = [
   {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'auth',
+  },
+  {
     path: 'auth',
     children: [
       {

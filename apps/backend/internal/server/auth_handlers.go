@@ -59,13 +59,13 @@ func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hash, err := s.auth.HashPassword(req.Password)
+	hash, err := s.Auth.HashPassword(req.Password)
 	if err != nil {
 		s.writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	doc, err := s.db.Ent().Doctor.
+	doc, err := s.Db.Ent().Doctor.
 		Create().
 		SetEmail(req.Email).
 		SetDisplayName(req.DisplayName).
@@ -81,7 +81,7 @@ func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.auth.IssueSession(w, doc.ID); err != nil {
+	if err := s.Auth.IssueSession(w, doc.ID); err != nil {
 		log.Error("failed to set session cookie", "err", err)
 		s.writeError(w, http.StatusInternalServerError, "could not create session")
 		return
@@ -108,7 +108,7 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	doc, err := s.db.Ent().Doctor.Query().
+	doc, err := s.Db.Ent().Doctor.Query().
 		Where(doctor.EmailEQ(req.Email)).
 		Only(r.Context())
 	if err != nil {
@@ -121,12 +121,12 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.auth.VerifyPassword(doc.PasswordHash, req.Password); err != nil {
+	if err := s.Auth.VerifyPassword(doc.PasswordHash, req.Password); err != nil {
 		s.writeError(w, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
 
-	if err := s.auth.IssueSession(w, doc.ID); err != nil {
+	if err := s.Auth.IssueSession(w, doc.ID); err != nil {
 		log.Error("failed to set session cookie", "err", err)
 		s.writeError(w, http.StatusInternalServerError, "could not create session")
 		return
@@ -150,7 +150,7 @@ func (s *Server) doctorMeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) doctorLogoutHandler(w http.ResponseWriter, r *http.Request) {
-	s.auth.ClearSession(w)
+	s.Auth.ClearSession(w)
 	s.writeJSON(w, http.StatusOK, map[string]string{"status": "logged out"})
 }
 
@@ -160,19 +160,19 @@ func (s *Server) requireDoctor(next http.Handler) http.Handler {
 			return
 		}
 
-		claims, err := s.auth.ReadSession(r)
+		claims, err := s.Auth.ReadSession(r)
 		if err != nil {
 			if errors.Is(err, auth.ErrExpiredSession) || errors.Is(err, auth.ErrInvalidSession) {
-				s.auth.ClearSession(w)
+				s.Auth.ClearSession(w)
 			}
 			s.writeError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
-		doc, err := s.db.Ent().Doctor.Get(r.Context(), claims.DoctorID)
+		doc, err := s.Db.Ent().Doctor.Get(r.Context(), claims.DoctorID)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				s.auth.ClearSession(w)
+				s.Auth.ClearSession(w)
 				s.writeError(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
@@ -187,7 +187,7 @@ func (s *Server) requireDoctor(next http.Handler) http.Handler {
 }
 
 func (s *Server) ensureAuthReady(w http.ResponseWriter) bool {
-	if s.auth == nil || s.db == nil || s.db.Ent() == nil {
+	if s.Auth == nil || s.Db == nil || s.Db.Ent() == nil {
 		s.writeError(w, http.StatusInternalServerError, "authentication not configured")
 		return false
 	}

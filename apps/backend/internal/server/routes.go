@@ -29,7 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	s.registerDocsRoutes(r)
 
-	if s.auth == nil {
+	if s.Auth == nil {
 		log.Warn("auth manager missing; authentication routes are disabled")
 	} else {
 		s.registerDoctorRoutes(r)
@@ -60,12 +60,12 @@ func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
-	if s.db == nil {
+	if s.Db == nil {
 		s.writeJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "unavailable", "reason": "database not configured"})
 		return
 	}
 
-	if err := s.db.Ping(r.Context()); err != nil {
+	if err := s.Db.Ping(r.Context()); err != nil {
 		log.Warn("database ping failed", "err", err)
 		s.writeJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "unavailable"})
 		return

@@ -23,10 +23,10 @@ type Database interface {
 }
 
 type Server struct {
-	port int
+	Port int
 
-	db   Database
-	auth *auth.Manager
+	Db   Database
+	Auth *auth.Manager
 }
 
 func NewServer(db Database) *http.Server {
@@ -46,20 +46,20 @@ func NewServer(db Database) *http.Server {
 	}
 
 	s := &Server{
-		port: port,
-		db:   db,
-		auth: authManager,
+		Port: port,
+		Db:   db,
+		Auth: authManager,
 	}
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", s.port),
+		Addr:         fmt.Sprintf(":%d", s.Port),
 		Handler:      s.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	log.Infof("Server listening on :%d", s.port)
+	log.Infof("Server listening on :%d", s.Port)
 
 	return server
 }

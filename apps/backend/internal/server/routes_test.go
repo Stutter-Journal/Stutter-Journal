@@ -49,7 +49,7 @@ func TestHelloWorldHandler(t *testing.T) {
 }
 
 func TestReadyHandler_Success(t *testing.T) {
-	s := &Server{db: &fakeDB{}}
+	s := &Server{Db: &fakeDB{}}
 	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
 	w := httptest.NewRecorder()
 
@@ -70,7 +70,7 @@ func TestReadyHandler_Success(t *testing.T) {
 }
 
 func TestReadyHandler_Failure(t *testing.T) {
-	s := &Server{db: &fakeDB{err: context.DeadlineExceeded}}
+	s := &Server{Db: &fakeDB{err: context.DeadlineExceeded}}
 	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
 	w := httptest.NewRecorder()
 

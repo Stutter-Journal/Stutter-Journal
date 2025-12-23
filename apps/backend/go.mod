@@ -3,6 +3,7 @@ module backend
 go 1.25.5
 
 require (
+	entgo.io/ent v0.14.5
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/cors v1.2.2
 	github.com/jackc/pgx/v5 v5.7.6

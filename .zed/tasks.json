@@ -7,7 +7,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🐍 Analyzer: Sync Dependencies",
@@ -17,7 +17,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🧹 Analyzer: Lint (Ruff Check)",
@@ -27,7 +27,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🎨 Analyzer: Format (Ruff Format)",
@@ -37,7 +37,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🛠 Analyzer: Maintenance (Sync + Lint + Format)",
@@ -47,7 +47,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🖥️ Desktop: Install Dependencies",
@@ -57,17 +57,20 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
-        "label": "🖥️ Desktop: Serve Portal (Nx)",
+        "label": "🖥️ Desktop: Serve Portal (Nx dev)",
         "command": "pnpm",
-        "args": ["nx", "serve", "portal"],
+        "args": ["nx", "run", "portal:serve:development"],
         "cwd": "$ZED_WORKTREE_ROOT/apps/desktop",
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
+        "env": {
+            "NX_API_BASE_URL": "http://localhost:8080",
+        },
     },
     {
         "label": "🖥️ Desktop: Serve Shop (Nx)",
@@ -77,7 +80,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🖥️ Desktop: Serve API (Nx)",
@@ -87,7 +90,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🖥️ Desktop: Lint (Workspace)",
@@ -97,7 +100,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🖥️ Desktop: Format (Nx format:write)",
@@ -107,7 +110,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️ Backend: Run Linter",
@@ -117,7 +120,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️ Backend: Run Formatter",
@@ -127,7 +130,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️ Backend: Make all",
@@ -137,7 +140,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️ Backend: Make run",
@@ -147,7 +150,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️ Backend: Sping up docker container (database)",
@@ -157,7 +160,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️🧪 Backend: Run integration tests",
@@ -167,7 +170,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️🧪 Backend: Run BDD tests",
@@ -177,7 +180,7 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
+        "hide": "never",
     },
     {
         "label": "🏃‍♂️🧪 Backend: Run Watcher",
@@ -187,6 +190,6 @@
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
-        "hide": "never"
-    }
+        "hide": "never",
+    },
 ]

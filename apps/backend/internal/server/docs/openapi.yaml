@@ -153,6 +153,186 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /links/invite:
+    post:
+      summary: Invite a patient to link with the doctor
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkInviteRequest"
+      responses:
+        "201":
+          description: Link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Link already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /links/request:
+    post:
+      summary: Patient-side link request (placeholder)
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkInviteRequest"
+      responses:
+        "201":
+          description: Link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Link already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /links/{id}/approve:
+    post:
+      summary: Approve a pending doctor-patient link
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Link ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Link approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkApproveResponse"
+        "400":
+          description: Invalid link id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Link not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /patients:
+    get:
+      summary: List patients and pending links for the current doctor
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Patients and pending links
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientsResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /patients/{id}/entries:
+    get:
+      summary: List patient entries (doctor must have approved link)
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Patient ID
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          description: ISO timestamp (RFC3339) lower bound
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          description: ISO timestamp (RFC3339) upper bound
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Entries for the patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntriesResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No approved link for this patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     sessionCookie:
@@ -246,6 +426,131 @@ components:
         doctor:
           $ref: "#/components/schemas/Doctor"
       required: [practice, doctor]
+    Link:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        doctorId:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [Pending, Approved, Denied, Revoked]
+        requestedAt:
+          type: string
+          format: date-time
+        approvedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, doctorId, patientId, status, requestedAt]
+    LinkInviteRequest:
+      type: object
+      properties:
+        patientId:
+          type: string
+          format: uuid
+        patientEmail:
+          type: string
+          format: email
+        patientCode:
+          type: string
+        displayName:
+          type: string
+      description: Provide at least one patient identifier (id, email, or code)
+    LinkResponse:
+      type: object
+      properties:
+        link:
+          $ref: "#/components/schemas/Link"
+        patient:
+          $ref: "#/components/schemas/Patient"
+      required: [link, patient]
+    LinkApproveResponse:
+      type: object
+      properties:
+        link:
+          $ref: "#/components/schemas/Link"
+        patient:
+          $ref: "#/components/schemas/Patient"
+      required: [link, patient]
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        patientCode:
+          type: string
+          nullable: true
+      required: [id, displayName]
+    PatientsResponse:
+      type: object
+      properties:
+        patients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        pendingLinks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Link"
+      required: [patients, pendingLinks]
+    Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        happenedAt:
+          type: string
+          format: date-time
+        situation:
+          type: string
+          nullable: true
+        emotions:
+          description: Arbitrary JSON emotions payload
+        triggers:
+          description: Arbitrary JSON triggers payload
+        techniques:
+          description: Arbitrary JSON techniques payload
+        stutterFrequency:
+          type: integer
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        tags:
+          description: Arbitrary JSON tags payload
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, patientId, happenedAt, createdAt, updatedAt]
+    EntriesResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Entry"
+      required: [entries]
     ErrorResponse:
       type: object
       properties:

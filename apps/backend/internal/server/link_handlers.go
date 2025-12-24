@@ -1,0 +1,273 @@
+package server
+
+import (
+	"context"
+	"net/http"
+	"strings"
+	"time"
+
+	"backend/ent"
+	"backend/ent/doctorpatientlink"
+	"backend/ent/patient"
+
+	"github.com/charmbracelet/log"
+	"github.com/google/uuid"
+)
+
+type linkInviteRequest struct {
+	PatientID    *string `json:"patientId,omitempty"`
+	PatientEmail *string `json:"patientEmail,omitempty"`
+	PatientCode  *string `json:"patientCode,omitempty"`
+	DisplayName  *string `json:"displayName,omitempty"`
+}
+
+type linkApproveResponse struct {
+	Link    linkDTO    `json:"link"`
+	Patient patientDTO `json:"patient"`
+}
+
+type linkDTO struct {
+	ID          string     `json:"id"`
+	DoctorID    string     `json:"doctorId"`
+	PatientID   string     `json:"patientId"`
+	Status      string     `json:"status"`
+	RequestedAt time.Time  `json:"requestedAt"`
+	ApprovedAt  *time.Time `json:"approvedAt,omitempty"`
+}
+
+type patientDTO struct {
+	ID          string  `json:"id"`
+	DisplayName string  `json:"displayName"`
+	Email       *string `json:"email,omitempty"`
+	Code        *string `json:"patientCode,omitempty"`
+}
+
+type patientsListResponse struct {
+	Patients     []patientDTO `json:"patients"`
+	PendingLinks []linkDTO    `json:"pendingLinks"`
+}
+
+func (s *Server) inviteLinkHandler(w http.ResponseWriter, r *http.Request) {
+	doc, ok := currentDoctor(r.Context())
+	if !ok {
+		s.writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var req linkInviteRequest
+	if !s.decodeJSON(w, r, &req) {
+		return
+	}
+
+	p, err := s.resolveOrCreatePatient(r.Context(), req)
+	if err != nil {
+		s.writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	link, err := s.Db.Ent().DoctorPatientLink.
+		Create().
+		SetDoctorID(doc.ID).
+		SetPatientID(p.ID).
+		Save(r.Context())
+	if ent.IsConstraintError(err) {
+		s.writeError(w, http.StatusConflict, "link already exists")
+		return
+	} else if err != nil {
+		log.Error("failed to create link", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not create link")
+		return
+	}
+
+	s.writeJSON(w, http.StatusCreated, map[string]any{
+		"link":    buildLinkDTO(link),
+		"patient": buildPatientDTO(p),
+	})
+}
+
+func (s *Server) requestLinkHandler(w http.ResponseWriter, r *http.Request) {
+	// For now reuse invite semantics but keep endpoint available.
+	s.inviteLinkHandler(w, r)
+}
+
+func (s *Server) approveLinkHandler(w http.ResponseWriter, r *http.Request) {
+	doc, ok := currentDoctor(r.Context())
+	if !ok {
+		s.writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	linkID := strings.TrimPrefix(r.URL.Path, "/links/")
+	linkID = strings.TrimSuffix(linkID, "/approve")
+	if linkID == "" {
+		s.writeError(w, http.StatusBadRequest, "link id is required")
+		return
+	}
+
+	id, err := uuid.Parse(linkID)
+	if err != nil {
+		s.writeError(w, http.StatusBadRequest, "invalid link id")
+		return
+	}
+
+	now := time.Now()
+	link, err := s.Db.Ent().DoctorPatientLink.
+		UpdateOneID(id).
+		SetStatus(doctorpatientlink.StatusApproved).
+		SetApprovedAt(now).
+		SetApprovedByDoctorID(doc.ID).
+		Save(r.Context())
+	if ent.IsNotFound(err) {
+		s.writeError(w, http.StatusNotFound, "link not found")
+		return
+	} else if err != nil {
+		log.Error("failed to approve link", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not approve link")
+		return
+	}
+
+	p, err := s.Db.Ent().Patient.Get(r.Context(), link.PatientID)
+	if err != nil {
+		log.Error("failed to load patient", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not load patient")
+		return
+	}
+
+	s.writeJSON(w, http.StatusOK, linkApproveResponse{
+		Link:    buildLinkDTO(link),
+		Patient: buildPatientDTO(p),
+	})
+}
+
+func (s *Server) listPatientsHandler(w http.ResponseWriter, r *http.Request) {
+	doc, ok := currentDoctor(r.Context())
+	if !ok {
+		s.writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	ctx := r.Context()
+
+	approvedLinks, err := s.Db.Ent().DoctorPatientLink.Query().
+		Where(
+			doctorpatientlink.DoctorIDEQ(doc.ID),
+			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+		).
+		WithPatient().
+		All(ctx)
+	if err != nil {
+		log.Error("failed to list approved links", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not list patients")
+		return
+	}
+
+	pendingLinks, err := s.Db.Ent().DoctorPatientLink.Query().
+		Where(
+			doctorpatientlink.DoctorIDEQ(doc.ID),
+			doctorpatientlink.StatusEQ(doctorpatientlink.StatusPending),
+		).
+		WithPatient().
+		All(ctx)
+	if err != nil {
+		log.Error("failed to list pending links", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not list patients")
+		return
+	}
+
+	resp := patientsListResponse{
+		Patients:     []patientDTO{},
+		PendingLinks: []linkDTO{},
+	}
+
+	for _, l := range approvedLinks {
+		resp.Patients = append(resp.Patients, buildPatientDTO(l.Edges.Patient))
+	}
+	for _, l := range pendingLinks {
+		resp.PendingLinks = append(resp.PendingLinks, buildLinkDTO(l))
+	}
+
+	s.writeJSON(w, http.StatusOK, resp)
+}
+
+func (s *Server) resolveOrCreatePatient(ctx context.Context, req linkInviteRequest) (*ent.Patient, error) {
+	q := s.Db.Ent().Patient.Query()
+
+	switch {
+	case req.PatientID != nil:
+		id, err := uuid.Parse(strings.TrimSpace(*req.PatientID))
+		if err != nil {
+			return nil, err
+		}
+		return s.Db.Ent().Patient.Get(ctx, id)
+	case req.PatientEmail != nil && strings.TrimSpace(*req.PatientEmail) != "":
+		email := strings.ToLower(strings.TrimSpace(*req.PatientEmail))
+		existing, err := q.Where(patient.EmailEQ(email)).Only(ctx)
+		if err == nil {
+			return existing, nil
+		}
+		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
+		return s.Db.Ent().Patient.Create().
+			SetEmail(email).
+			SetDisplayName(name).
+			Save(ctx)
+	case req.PatientCode != nil && strings.TrimSpace(*req.PatientCode) != "":
+		code := strings.TrimSpace(*req.PatientCode)
+		existing, err := q.Where(patient.PatientCodeEQ(code)).Only(ctx)
+		if err == nil {
+			return existing, nil
+		}
+		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
+		return s.Db.Ent().Patient.Create().
+			SetPatientCode(code).
+			SetDisplayName(name).
+			Save(ctx)
+	default:
+		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
+		return s.Db.Ent().Patient.Create().
+			SetDisplayName(name).
+			Save(ctx)
+	}
+}
+
+func buildLinkDTO(l *ent.DoctorPatientLink) linkDTO {
+	var approvedAt *time.Time
+	if l.ApprovedAt != nil {
+		approvedAt = l.ApprovedAt
+	}
+	return linkDTO{
+		ID:          l.ID.String(),
+		DoctorID:    l.DoctorID.String(),
+		PatientID:   l.PatientID.String(),
+		Status:      l.Status.String(),
+		RequestedAt: l.RequestedAt,
+		ApprovedAt:  approvedAt,
+	}
+}
+
+func buildPatientDTO(p *ent.Patient) patientDTO {
+	var email, code *string
+	if p.Email != nil {
+		val := strings.TrimSpace(*p.Email)
+		email = &val
+	}
+	if p.PatientCode != nil {
+		val := strings.TrimSpace(*p.PatientCode)
+		code = &val
+	}
+	return patientDTO{
+		ID:          p.ID.String(),
+		DisplayName: p.DisplayName,
+		Email:       email,
+		Code:        code,
+	}
+}
+
+func valOrDefault(val *string, fallback string) string {
+	if val == nil {
+		return fallback
+	}
+	if strings.TrimSpace(*val) == "" {
+		return fallback
+	}
+	return *val
+}

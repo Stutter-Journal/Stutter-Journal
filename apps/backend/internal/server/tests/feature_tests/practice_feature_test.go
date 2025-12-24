@@ -25,7 +25,7 @@ import (
 func TestPracticeFeatures(t *testing.T) {
 	env := bddtest.NewEnv(t, func(db *database.Client) (http.Handler, error) {
 		logger := log.NewWithOptions(io.Discard, log.Options{})
-		_ = os.Setenv("AUTH_COOKIE_SECRET", "integration-secret")
+		_ = os.Setenv("AUTH_COOKIE_SECRET", "super-secrect-integration-secret-if-isg-wouldn't-suck")
 
 		authCfg, err := auth.LoadConfig(logger)
 		if err != nil {
@@ -50,7 +50,7 @@ func TestPracticeFeatures(t *testing.T) {
 	opts := &godog.Options{
 		Format:   "pretty",
 		Strict:   true,
-		Paths:    []string{filepath.Join("..", "..", "features", "practice.feature")},
+		Paths:    []string{filepath.Join("..", "..", "..", "..", "features", "practice.feature")},
 		TestingT: t,
 	}
 

@@ -72,19 +72,28 @@ const config: StorybookConfig = {
           continue;
         }
         const hasPostcss = use.some(
-          (entry) => typeof entry === 'object' && entry?.loader?.includes('postcss-loader')
+          (entry) =>
+            typeof entry === 'object' &&
+            entry?.loader?.includes('postcss-loader'),
         );
         if (hasPostcss) {
           continue;
         }
         const resolveIndex = use.findIndex(
-          (entry) => typeof entry === 'object' && entry?.loader?.includes('resolve-url-loader')
+          (entry) =>
+            typeof entry === 'object' &&
+            entry?.loader?.includes('resolve-url-loader'),
         );
         const sassIndex = use.findIndex(
-          (entry) => typeof entry === 'object' && entry?.loader?.includes('sass-loader')
+          (entry) =>
+            typeof entry === 'object' && entry?.loader?.includes('sass-loader'),
         );
         const insertIndex =
-          resolveIndex !== -1 ? resolveIndex : sassIndex !== -1 ? sassIndex : use.length;
+          resolveIndex !== -1
+            ? resolveIndex
+            : sassIndex !== -1
+              ? sassIndex
+              : use.length;
         use.splice(insertIndex, 0, postcssLoader);
       }
     }

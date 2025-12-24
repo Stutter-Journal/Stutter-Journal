@@ -26,10 +26,7 @@ export const endOfDayIso = (input: DateInput): string => {
   return date.toISOString();
 };
 
-export const formatShortDate = (
-  input: DateInput,
-  locale = 'en-US'
-): string => {
+export const formatShortDate = (input: DateInput, locale = 'en-US'): string => {
   const date = new Date(input);
   if (Number.isNaN(date.getTime())) {
     throw new Error('Invalid date input');

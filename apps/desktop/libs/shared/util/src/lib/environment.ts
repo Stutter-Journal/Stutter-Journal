@@ -23,8 +23,12 @@ export const resolveUseMocksFlag = (): boolean => {
 
   const importMetaFlag =
     typeof import.meta !== 'undefined'
-      ? (import.meta as { env?: Record<string, unknown> }).env?.['USE_MOCKS'] ??
-        (import.meta as { env?: Record<string, unknown> }).env?.['NX_USE_MOCKS']
+      ? ((import.meta as { env?: Record<string, unknown> }).env?.[
+          'USE_MOCKS'
+        ] ??
+        (import.meta as { env?: Record<string, unknown> }).env?.[
+          'NX_USE_MOCKS'
+        ])
       : undefined;
 
   let storedFlag: string | null = null;
@@ -38,6 +42,6 @@ export const resolveUseMocksFlag = (): boolean => {
   }
 
   return [globalFlag, processFlag, importMetaFlag, storedFlag].some((value) =>
-    normalizeFlag(value)
+    normalizeFlag(value),
   );
 };

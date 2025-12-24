@@ -1,15 +1,11 @@
-import { Entry, EntryStatus } from '../domain/entry.model';
-import { Id, PageInfo } from '../types';
+import { Entry } from '../domain/entry.model';
+import { IsoDateString } from '../types';
 
 export interface GetEntriesRequestDto {
-  patientId?: Id;
-  authorId?: Id;
-  status?: EntryStatus;
-  page?: number;
-  pageSize?: number;
+  from?: IsoDateString;
+  to?: IsoDateString;
 }
 
 export interface GetEntriesResponseDto {
   entries: Entry[];
-  pageInfo: PageInfo;
 }

@@ -18,7 +18,9 @@ import { map } from 'rxjs';
       </p>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl border border-neutral-200/70 bg-neutral-50 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500"
+          >
             Next step
           </p>
           <p class="mt-2 text-sm text-neutral-700">
@@ -26,7 +28,9 @@ import { map } from 'rxjs';
           </p>
         </div>
         <div class="rounded-2xl border border-neutral-200/70 bg-neutral-50 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500"
+          >
             Team note
           </p>
           <p class="mt-2 text-sm text-neutral-700">
@@ -41,6 +45,6 @@ export class SectionPageComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly title$ = this.route.data.pipe(
-    map((data) => (data['title'] as string) ?? 'Section')
+    map((data) => (data['title'] as string) ?? 'Section'),
   );
 }

@@ -129,7 +129,7 @@ export class OnboardingComponent implements OnInit {
   startTour(step: number): void {
     const safeStep = Math.min(
       Math.max(step, 0),
-      Math.max(0, this.tourSteps.length - 1)
+      Math.max(0, this.tourSteps.length - 1),
     );
     this.tourStep = safeStep;
     this.tourVisible = true;

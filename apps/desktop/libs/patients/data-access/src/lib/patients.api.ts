@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import {
-  ApproveDoctorPatientLinkResponseDto,
+  AnalyticsRange,
   GetEntriesRequestDto,
   GetEntriesResponseDto,
-  GetPatientsRequestDto,
   GetPatientsResponseDto,
   GetAnalyticsResponseDto,
   Id,
-  IsoDateString,
+  LinkApproveResponseDto,
 } from '@org/models';
 import { ApiClient, environment } from '@org/util';
 import {
@@ -17,41 +16,31 @@ import {
   getMockPatients,
 } from './mocks';
 
-export type EntriesQuery = Omit<GetEntriesRequestDto, 'patientId'>;
-
-export interface AnalyticsRange {
-  from: IsoDateString;
-  to: IsoDateString;
-}
+export type EntriesQuery = GetEntriesRequestDto;
 
 @Injectable({ providedIn: 'root' })
 export class PatientsApi {
   private readonly client = new ApiClient();
 
-  async getPatients(
-    query?: GetPatientsRequestDto
-  ): Promise<GetPatientsResponseDto> {
+  async getPatients(): Promise<GetPatientsResponseDto> {
     if (environment.useMocks) {
-      return getMockPatients(query);
+      return getMockPatients();
     }
 
-    return this.client.get<GetPatientsResponseDto>('/patients', query);
+    return this.client.get<GetPatientsResponseDto>('/patients');
   }
 
-  async approveLink(id: Id): Promise<ApproveDoctorPatientLinkResponseDto> {
+  async approveLink(id: Id): Promise<LinkApproveResponseDto> {
     if (environment.useMocks) {
       return approveMockLink(id);
     }
 
-    return this.client.post<ApproveDoctorPatientLinkResponseDto, { linkId: Id }>(
-      `/patients/links/${id}/approve`,
-      { linkId: id }
-    );
+    return this.client.post<LinkApproveResponseDto>(`/links/${id}/approve`);
   }
 
   async getEntries(
     patientId: Id,
-    query?: EntriesQuery
+    query?: EntriesQuery,
   ): Promise<GetEntriesResponseDto> {
     if (environment.useMocks) {
       return getMockEntries(patientId, query);
@@ -59,13 +48,13 @@ export class PatientsApi {
 
     return this.client.get<GetEntriesResponseDto>(
       `/patients/${patientId}/entries`,
-      query
+      query,
     );
   }
 
   async getAnalytics(
     patientId: Id,
-    range: AnalyticsRange
+    range?: AnalyticsRange,
   ): Promise<GetAnalyticsResponseDto> {
     if (environment.useMocks) {
       return getMockAnalytics(patientId, range);
@@ -73,7 +62,7 @@ export class PatientsApi {
 
     return this.client.get<GetAnalyticsResponseDto>(
       `/patients/${patientId}/analytics`,
-      range
+      range ? { range } : undefined,
     );
   }
 }

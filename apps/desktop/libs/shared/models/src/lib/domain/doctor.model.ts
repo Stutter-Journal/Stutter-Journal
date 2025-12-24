@@ -1,16 +1,11 @@
-import { Id, IsoDateString } from '../types';
+import { Id } from '../types';
 
-export type DoctorRole = 'owner' | 'admin' | 'member';
-export type DoctorStatus = 'active' | 'inactive' | 'invited';
+export type DoctorRole = 'Owner' | 'Staff';
 
 export interface Doctor {
   id: Id;
-  practiceId: Id;
-  firstName: string;
-  lastName: string;
   email: string;
+  displayName: string;
   role: DoctorRole;
-  status: DoctorStatus;
-  createdAt: IsoDateString;
-  updatedAt: IsoDateString;
+  practiceId?: Id | null;
 }

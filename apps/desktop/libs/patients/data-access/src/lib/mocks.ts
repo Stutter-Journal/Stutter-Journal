@@ -1,6 +1,5 @@
 import {
-  ApproveDoctorPatientLinkResponseDto,
-  DoctorPatientLink,
+  AnalyticsRange,
   Entry,
   GetAnalyticsResponseDto,
   GetEntriesRequestDto,
@@ -9,8 +8,10 @@ import {
   GetPatientsResponseDto,
   Id,
   IsoDateString,
-  PageInfo,
+  Link,
+  LinkApproveResponseDto,
   Patient,
+  TrendPoint,
 } from '@org/models';
 
 const MOCK_NOW: IsoDateString = '2025-02-01T09:00:00.000Z';
@@ -18,59 +19,40 @@ const MOCK_NOW: IsoDateString = '2025-02-01T09:00:00.000Z';
 const mockPatients: Patient[] = [
   {
     id: 'patient-1',
-    practiceId: 'practice-1',
-    firstName: 'Lena',
-    lastName: 'Hart',
-    dateOfBirth: '1992-03-08',
-    status: 'active',
-    primaryDoctorId: 'doctor-1',
-    createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
+    displayName: 'Lena Hart',
+    email: 'lena.hart@example.com',
+    patientCode: 'LENA-1',
   },
   {
     id: 'patient-2',
-    practiceId: 'practice-1',
-    firstName: 'Micah',
-    lastName: 'Voss',
-    dateOfBirth: '1985-11-22',
-    status: 'active',
-    primaryDoctorId: 'doctor-1',
-    createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
+    displayName: 'Micah Voss',
+    email: 'micah.voss@example.com',
+    patientCode: 'MICAH-2',
   },
   {
     id: 'patient-3',
-    practiceId: 'practice-1',
-    firstName: 'Noor',
-    lastName: 'Patel',
-    dateOfBirth: '1978-07-14',
-    status: 'inactive',
-    primaryDoctorId: 'doctor-1',
-    createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
+    displayName: 'Noor Patel',
+    email: 'noor.patel@example.com',
+    patientCode: 'NOOR-3',
   },
 ];
 
-const mockLinks: DoctorPatientLink[] = [
+const mockLinks: Link[] = [
   {
     id: 'link-1',
     doctorId: 'doctor-1',
     patientId: 'patient-2',
-    type: 'invite',
-    status: 'invited',
-    requestedById: 'doctor-1',
-    createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
+    status: 'Pending',
+    requestedAt: MOCK_NOW,
+    approvedAt: null,
   },
   {
     id: 'link-2',
     doctorId: 'doctor-2',
     patientId: 'patient-3',
-    type: 'request',
-    status: 'requested',
-    requestedById: 'doctor-2',
-    createdAt: MOCK_NOW,
-    updatedAt: MOCK_NOW,
+    status: 'Approved',
+    requestedAt: MOCK_NOW,
+    approvedAt: MOCK_NOW,
   },
 ];
 
@@ -78,149 +60,191 @@ const mockEntries: Entry[] = [
   {
     id: 'entry-1',
     patientId: 'patient-1',
-    authorId: 'doctor-1',
-    type: 'note',
-    status: 'final',
-    title: 'Intake summary',
-    summary: 'Patient onboarding complete with baseline vitals.',
+    happenedAt: '2025-01-30T10:00:00.000Z',
+    situation: 'Team meeting',
+    emotions: ['anxious', 'tense'],
+    triggers: ['public speaking'],
+    techniques: ['breathing'],
+    stutterFrequency: 4,
+    notes: 'Used breathing exercises to slow pace.',
+    tags: ['work'],
     createdAt: MOCK_NOW,
     updatedAt: MOCK_NOW,
   },
   {
     id: 'entry-2',
     patientId: 'patient-1',
-    authorId: 'doctor-1',
-    type: 'plan',
-    status: 'draft',
-    title: 'Care plan draft',
-    summary: 'Working on a 90-day recovery plan.',
+    happenedAt: '2025-01-25T14:30:00.000Z',
+    situation: 'Cafe order',
+    emotions: ['calm'],
+    triggers: ['ordering'],
+    techniques: ['pausing'],
+    stutterFrequency: 1,
+    notes: 'Felt more relaxed after warm-up.',
+    tags: ['daily'],
     createdAt: MOCK_NOW,
     updatedAt: MOCK_NOW,
   },
   {
     id: 'entry-3',
     patientId: 'patient-2',
-    authorId: 'doctor-1',
-    type: 'assessment',
-    status: 'final',
-    title: 'Follow-up assessment',
-    summary: 'Symptoms improving with therapy adjustments.',
+    happenedAt: '2025-01-28T18:00:00.000Z',
+    situation: 'Video call with friend',
+    emotions: ['comfortable'],
+    triggers: ['video call'],
+    techniques: ['slow rate'],
+    stutterFrequency: 2,
+    notes: 'Minor blocks; techniques helped.',
+    tags: ['social'],
     createdAt: MOCK_NOW,
     updatedAt: MOCK_NOW,
   },
 ];
 
-const buildPageInfo = (
-  total: number,
-  page: number,
-  pageSize: number
-): PageInfo => ({
-  page,
-  pageSize,
-  total,
-  totalPages: Math.max(1, Math.ceil(total / pageSize)),
-});
+const toStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item));
+  }
+  if (typeof value === 'string') {
+    return [value];
+  }
+  return [];
+};
 
-const matchesSearch = (patient: Patient, search: string): boolean => {
-  const term = search.toLowerCase();
-  return (
-    patient.firstName.toLowerCase().includes(term) ||
-    patient.lastName.toLowerCase().includes(term)
-  );
+const isWithinBounds = (
+  dateString: IsoDateString,
+  from?: IsoDateString,
+  to?: IsoDateString,
+): boolean => {
+  const value = new Date(dateString).getTime();
+
+  if (Number.isNaN(value)) {
+    return false;
+  }
+
+  if (from && value < new Date(from).getTime()) {
+    return false;
+  }
+
+  if (to && value > new Date(to).getTime()) {
+    return false;
+  }
+
+  return true;
+};
+
+const buildDistributions = (entries: Entry[]) => {
+  const distributions = {
+    emotions: {} as Record<string, number>,
+    triggers: {} as Record<string, number>,
+    techniques: {} as Record<string, number>,
+  };
+
+  const incrementCounts = (
+    target: Record<string, number>,
+    values: string[],
+  ) => {
+    for (const value of values) {
+      target[value] = (target[value] ?? 0) + 1;
+    }
+  };
+
+  for (const entry of entries) {
+    incrementCounts(distributions.emotions, toStringArray(entry.emotions));
+    incrementCounts(distributions.triggers, toStringArray(entry.triggers));
+    incrementCounts(distributions.techniques, toStringArray(entry.techniques));
+  }
+
+  return distributions;
+};
+
+const buildTrend = (entries: Entry[]): TrendPoint[] => {
+  const buckets = new Map<string, number[]>();
+
+  for (const entry of entries) {
+    const date = entry.happenedAt.slice(0, 10);
+    const frequencies = buckets.get(date) ?? [];
+    frequencies.push(entry.stutterFrequency ?? 0);
+    buckets.set(date, frequencies);
+  }
+
+  return Array.from(buckets.entries())
+    .sort(([a], [b]) => (a > b ? 1 : -1))
+    .map(([date, frequencies]) => {
+      const count = frequencies.length;
+      const total = frequencies.reduce((sum, value) => sum + value, 0);
+      const avg = count === 0 ? 0 : Number((total / count).toFixed(2));
+      return { date, avgStutterFrequency: avg, count };
+    });
 };
 
 export const getMockPatients = (
-  query?: GetPatientsRequestDto
+  _query?: GetPatientsRequestDto,
 ): GetPatientsResponseDto => {
-  const page = query?.page ?? 1;
-  const pageSize = query?.pageSize ?? 10;
-
-  let result = [...mockPatients];
-
-  if (query?.status) {
-    result = result.filter((patient) => patient.status === query.status);
-  }
-
-  if (query?.search) {
-    result = result.filter((patient) => matchesSearch(patient, query.search));
-  }
-
-  const start = Math.max(0, (page - 1) * pageSize);
-  const paged = result.slice(start, start + pageSize);
-
-  return {
-    patients: paged,
-    pageInfo: buildPageInfo(result.length, page, pageSize),
-  };
+  const pendingLinks = mockLinks.filter((link) => link.status === 'Pending');
+  return { patients: mockPatients, pendingLinks };
 };
 
 export const getMockEntries = (
   patientId: Id,
-  query?: Omit<GetEntriesRequestDto, 'patientId'>
+  query?: GetEntriesRequestDto,
 ): GetEntriesResponseDto => {
-  const page = query?.page ?? 1;
-  const pageSize = query?.pageSize ?? 10;
+  const entries = mockEntries.filter(
+    (entry) =>
+      entry.patientId === patientId &&
+      isWithinBounds(entry.happenedAt, query?.from, query?.to),
+  );
 
-  let result = mockEntries.filter((entry) => entry.patientId === patientId);
-
-  if (query?.status) {
-    result = result.filter((entry) => entry.status === query.status);
-  }
-
-  const start = Math.max(0, (page - 1) * pageSize);
-  const paged = result.slice(start, start + pageSize);
-
-  return {
-    entries: paged,
-    pageInfo: buildPageInfo(result.length, page, pageSize),
-  };
+  return { entries };
 };
 
 export const getMockAnalytics = (
   patientId: Id,
-  range: { from: IsoDateString; to: IsoDateString }
+  range?: AnalyticsRange,
 ): GetAnalyticsResponseDto => {
-  const patientEntries = mockEntries.filter(
-    (entry) => entry.patientId === patientId
-  ).length;
-  const pendingLinks = mockLinks.filter(
-    (link) => link.patientId === patientId && link.status !== 'approved'
-  ).length;
-  const activePatients = mockPatients.filter(
-    (patient) => patient.status === 'active'
-  ).length;
+  const rangeDays = range ? Number(range) : 7;
+
+  const end = new Date(MOCK_NOW);
+  const start = new Date(end);
+  start.setDate(end.getDate() - rangeDays + 1);
+
+  const filtered = mockEntries.filter(
+    (entry) =>
+      entry.patientId === patientId &&
+      isWithinBounds(
+        entry.happenedAt,
+        start.toISOString() as IsoDateString,
+        end.toISOString() as IsoDateString,
+      ),
+  );
 
   return {
-    metrics: {
-      totalPatients: mockPatients.length,
-      activePatients,
-      totalEntries: mockEntries.length,
-      entriesInRange: patientEntries,
-      pendingLinks,
-    },
-    generatedAt: range.to || MOCK_NOW,
+    rangeDays,
+    distributions: buildDistributions(filtered),
+    trend: buildTrend(filtered),
   };
 };
 
-export const approveMockLink = (id: Id): ApproveDoctorPatientLinkResponseDto => {
-  const link =
+export const approveMockLink = (id: Id): LinkApproveResponseDto => {
+  const existing =
     mockLinks.find((item) => item.id === id) ??
-    mockLinks[0] ?? {
+    ({
       id,
       doctorId: 'doctor-1',
-      patientId: 'patient-1',
-      type: 'invite',
-      status: 'invited',
-      requestedById: 'doctor-1',
-      createdAt: MOCK_NOW,
-      updatedAt: MOCK_NOW,
-    };
+      patientId: mockPatients[0]?.id ?? 'patient-unknown',
+      status: 'Pending',
+      requestedAt: MOCK_NOW,
+      approvedAt: null,
+    } satisfies Link);
 
-  return {
-    link: {
-      ...link,
-      status: 'approved',
-      updatedAt: MOCK_NOW,
-    },
+  const link: Link = {
+    ...existing,
+    status: 'Approved',
+    approvedAt: MOCK_NOW,
   };
+
+  const patient =
+    mockPatients.find((item) => item.id === link.patientId) ?? mockPatients[0];
+
+  return { link, patient };
 };

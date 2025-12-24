@@ -123,6 +123,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /practice:
+    post:
+      summary: Create a practice and assign the current doctor
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeCreateRequest"
+      responses:
+        "201":
+          description: Practice created and doctor assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeCreateResponse"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     sessionCookie:
@@ -179,6 +209,43 @@ components:
         doctor:
           $ref: "#/components/schemas/Doctor"
       required: [doctor]
+    Practice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+      required: [id, name]
+    PracticeCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+      required: [name]
+    PracticeCreateResponse:
+      type: object
+      properties:
+        practice:
+          $ref: "#/components/schemas/Practice"
+        doctor:
+          $ref: "#/components/schemas/Doctor"
+      required: [practice, doctor]
     ErrorResponse:
       type: object
       properties:

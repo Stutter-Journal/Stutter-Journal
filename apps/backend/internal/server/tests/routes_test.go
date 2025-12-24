@@ -1,4 +1,4 @@
-package server
+package tests
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"backend/ent"
+	"backend/internal/server"
 )
 
 type fakeDB struct {
@@ -24,7 +25,7 @@ func (f *fakeDB) Ent() *ent.Client {
 }
 
 func TestHelloWorldHandler(t *testing.T) {
-	s := &Server{}
+	s := &server.Server{}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -51,11 +52,11 @@ func TestHelloWorldHandler(t *testing.T) {
 }
 
 func TestReadyHandler_Success(t *testing.T) {
-	s := &Server{Db: &fakeDB{}}
+	s := &server.Server{Db: &fakeDB{}}
 	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
 	w := httptest.NewRecorder()
 
-	s.readyHandler(w, req)
+	s.ReadyHandler(w, req)
 
 	if w.Result().StatusCode != http.StatusOK {
 		t.Fatalf("expected status OK; got %v", w.Result().Status)
@@ -72,11 +73,11 @@ func TestReadyHandler_Success(t *testing.T) {
 }
 
 func TestReadyHandler_Failure(t *testing.T) {
-	s := &Server{Db: &fakeDB{err: context.DeadlineExceeded}}
+	s := &server.Server{Db: &fakeDB{err: context.DeadlineExceeded}}
 	req := httptest.NewRequest(http.MethodGet, "/ready", nil)
 	w := httptest.NewRecorder()
 
-	s.readyHandler(w, req)
+	s.ReadyHandler(w, req)
 
 	if w.Result().StatusCode != http.StatusServiceUnavailable {
 		t.Fatalf("expected status ServiceUnavailable; got %v", w.Result().Status)
@@ -84,11 +85,11 @@ func TestReadyHandler_Failure(t *testing.T) {
 }
 
 func TestHealthHandler(t *testing.T) {
-	s := &Server{}
+	s := &server.Server{}
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
 
-	s.healthHandler(w, req)
+	s.HealthHandler(w, req)
 
 	if w.Result().StatusCode != http.StatusOK {
 		t.Fatalf("expected status OK; got %v", w.Result().Status)

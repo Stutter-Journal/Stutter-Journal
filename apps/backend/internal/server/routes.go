@@ -24,8 +24,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Get("/", s.HelloWorldHandler)
 
-	r.Get("/health", s.healthHandler)
-	r.Get("/ready", s.readyHandler)
+	r.Get("/health", s.HealthHandler)
+	r.Get("/ready", s.ReadyHandler)
 
 	s.registerDocsRoutes(r)
 
@@ -33,33 +33,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 		log.Warn("auth manager missing; authentication routes are disabled")
 	} else {
 		s.registerDoctorRoutes(r)
+		s.registerPracticeRoutes(r)
 	}
 
 	return r
-}
-
-func (s *Server) registerDoctorRoutes(r chi.Router) {
-	r.Route("/doctor", func(r chi.Router) {
-		r.Post("/register", s.doctorRegisterHandler)
-		r.Post("/login", s.doctorLoginHandler)
-
-		r.Group(func(r chi.Router) {
-			r.Use(s.requireDoctor)
-			r.Get("/me", s.doctorMeHandler)
-			r.Post("/logout", s.doctorLogoutHandler)
-		})
-	})
 }
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, map[string]string{"message": "Hello World"})
 }
 
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
-func (s *Server) readyHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ReadyHandler(w http.ResponseWriter, r *http.Request) {
 	if s.Db == nil {
 		s.writeJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "unavailable", "reason": "database not configured"})
 		return
@@ -85,4 +73,24 @@ func (s *Server) writeJSON(w http.ResponseWriter, status int, payload any) {
 
 func (s *Server) writeError(w http.ResponseWriter, status int, message string) {
 	s.writeJSON(w, status, map[string]string{"error": message})
+}
+
+func (s *Server) registerDoctorRoutes(r chi.Router) {
+	r.Route("/doctor", func(r chi.Router) {
+		r.Post("/register", s.doctorRegisterHandler)
+		r.Post("/login", s.doctorLoginHandler)
+
+		r.Group(func(r chi.Router) {
+			r.Use(s.requireDoctor)
+			r.Get("/me", s.doctorMeHandler)
+			r.Post("/logout", s.doctorLogoutHandler)
+		})
+	})
+}
+
+func (s *Server) registerPracticeRoutes(r chi.Router) {
+	r.Group(func(r chi.Router) {
+		r.Use(s.requireDoctor)
+		r.Post("/practice", s.practiceCreateHandler)
+	})
 }

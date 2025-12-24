@@ -1,4 +1,4 @@
-package server
+package tests
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"backend/ent/doctor"
 	"backend/internal/auth"
 	"backend/internal/database"
+	"backend/internal/server"
 	"backend/internal/server/bddtest"
 
 	"github.com/charmbracelet/log"
@@ -40,7 +41,7 @@ func TestAuthFeatures(t *testing.T) {
 			return nil, err
 		}
 
-		s := &Server{
+		s := &server.Server{
 			Db:   db,
 			Auth: authManager,
 		}

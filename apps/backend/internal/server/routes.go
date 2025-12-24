@@ -104,5 +104,6 @@ func (s *Server) registerLinkRoutes(r chi.Router) {
 		r.Post("/links/{id}/approve", s.approveLinkHandler)
 		r.Get("/patients", s.listPatientsHandler)
 		r.Get("/patients/{id}/entries", s.patientEntriesHandler)
+		r.Get("/patients/{id}/analytics", s.analyticsHandler)
 	})
 }

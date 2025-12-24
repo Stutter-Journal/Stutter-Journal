@@ -1,14 +1,14 @@
 {
   "name": "api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "services/api/src",
   "projectType": "application",
-  "tags": ["scope:api"],
   "release": {
     "docker": {
       "repositoryName": "org/angular-template-api"
     }
   },
+  "tags": ["scope:api"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -16,12 +16,12 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "apps/api/dist",
+        "outputPath": "services/api/dist",
         "format": ["cjs"],
         "bundle": false,
-        "main": "apps/api/src/main.ts",
-        "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": ["apps/api/src/assets"],
+        "main": "services/api/src/main.ts",
+        "tsConfig": "services/api/tsconfig.app.json",
+        "assets": ["services/api/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,

@@ -1,12 +1,21 @@
 [
-  {
-    "label": "🐍 Backend: Debug Current Python File",
-    "adapter": "Debugpy",
-    "request": "launch",
-    "program": "$ZED_FILE",
-    "cwd": "$ZED_WORKTREE_ROOT/apps/backend",
-    "env": {
-      "PYTHONPATH": "$ZED_WORKTREE_ROOT/apps/backend/src"
-    }
-  }
+    {
+        "label": "🐍 Backend: Debug Current Python File",
+        "adapter": "Debugpy",
+        "request": "launch",
+        "program": "$ZED_FILE",
+        "cwd": "$ZED_WORKTREE_ROOT/apps/backend",
+        "env": {
+            "PYTHONPATH": "$ZED_WORKTREE_ROOT/apps/backend/src",
+        },
+    },
+    {
+        "adapter": "JavaScript",
+        "label": "🌐 Portal: Debug in Chrome",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:4200",
+        "webRoot": "$ZED_WORKTREE_ROOT/apps/desktop",
+        "sourceMaps": true,
+    },
 ]

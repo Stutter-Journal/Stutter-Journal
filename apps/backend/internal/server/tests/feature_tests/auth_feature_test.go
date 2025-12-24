@@ -48,10 +48,11 @@ func TestAuthFeatures(t *testing.T) {
 		return s.RegisterRoutes(), nil
 	})
 
+	// TODO: This is crap, I have no idea from which directory the go tests are being executed and what current working directory we're operating from, so I don't want to rely on relative paths, but rather absolute paths... This also applies to other feature tests
 	opts := &godog.Options{
 		Format:   "pretty",
 		Strict:   true,
-		Paths:    []string{filepath.Join("..", "..", "features", "auth.feature")},
+		Paths:    []string{filepath.Join("..", "..", "..", "..", "features", "auth.feature")},
 		TestingT: t,
 	}
 

@@ -71,7 +71,7 @@ itest:
 
 bdd:
 	@echo "Running BDD integration tests (requires Docker)..."
-	@go test ./internal/server -run TestAuthFeatures -v
+	@go test ./internal/server/tests/feature_tests -v
 
 # Clean the binary
 clean:

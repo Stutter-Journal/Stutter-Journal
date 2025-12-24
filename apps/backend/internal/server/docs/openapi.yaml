@@ -333,6 +333,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /patients/{id}/analytics:
+    get:
+      summary: Patient analytics (distributions and stutter trend)
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Patient ID
+          schema:
+            type: string
+            format: uuid
+        - name: range
+          in: query
+          required: false
+          description: Range in days (7, 30, or 90). Defaults to 7.
+          schema:
+            type: string
+            enum: ["7", "30", "90"]
+      responses:
+        "200":
+          description: Analytics for the patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No approved link for this patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     sessionCookie:
@@ -551,6 +590,42 @@ components:
           items:
             $ref: "#/components/schemas/Entry"
       required: [entries]
+    AnalyticsResponse:
+      type: object
+      properties:
+        rangeDays:
+          type: integer
+        distributions:
+          type: object
+          properties:
+            emotions:
+              type: object
+              additionalProperties:
+                type: integer
+            triggers:
+              type: object
+              additionalProperties:
+                type: integer
+            techniques:
+              type: object
+              additionalProperties:
+                type: integer
+        trend:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendPoint"
+      required: [rangeDays, distributions, trend]
+    TrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        avgStutterFrequency:
+          type: number
+        count:
+          type: integer
+      required: [date, avgStutterFrequency, count]
     ErrorResponse:
       type: object
       properties:

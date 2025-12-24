@@ -12,6 +12,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/server"
 
+	"github.com/charmbracelet/lipgloss"
 	log "github.com/charmbracelet/log"
 )
 
@@ -47,6 +48,27 @@ func gracefulShutdown(apiServer *http.Server, db *database.Client, done chan boo
 }
 
 func main() {
+
+	titleStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(lipgloss.Color("#7D56F4")).
+		PaddingTop(1).PaddingBottom(1).
+		PaddingLeft(2).PaddingRight(2).
+		Align(lipgloss.Center)
+
+	subtitleStyle := lipgloss.NewStyle().
+		Italic(true).
+		Foreground(lipgloss.Color("#CCCCCC")).
+		PaddingTop(0).PaddingBottom(1).
+		Align(lipgloss.Center)
+
+	title := titleStyle.Render("My Awesome App")
+	subtitle := subtitleStyle.Render("A tiny TUI powered by Lip Gloss")
+
+	fmt.Println(title)
+	fmt.Println(subtitle)
+
 	logger := log.NewWithOptions(os.Stdout, log.Options{ReportTimestamp: true})
 	log.SetDefault(logger)
 

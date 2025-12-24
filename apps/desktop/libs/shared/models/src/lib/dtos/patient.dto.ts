@@ -1,15 +1,9 @@
-import { Patient, PatientStatus } from '../domain/patient.model';
-import { Id, PageInfo } from '../types';
+import { Link } from '../domain/doctor-patient-link.model';
+import { Patient } from '../domain/patient.model';
 
-export interface GetPatientsRequestDto {
-  practiceId?: Id;
-  search?: string;
-  status?: PatientStatus;
-  page?: number;
-  pageSize?: number;
-}
+export type GetPatientsRequestDto = Record<string, never>;
 
 export interface GetPatientsResponseDto {
   patients: Patient[];
-  pageInfo: PageInfo;
+  pendingLinks: Link[];
 }

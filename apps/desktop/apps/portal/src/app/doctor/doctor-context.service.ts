@@ -6,7 +6,9 @@ export type DoctorContextState = Partial<Doctor> | null;
 
 @Injectable({ providedIn: 'root' })
 export class DoctorContextService {
-  private readonly doctorSubject = new BehaviorSubject<DoctorContextState>(null);
+  private readonly doctorSubject = new BehaviorSubject<DoctorContextState>(
+    null,
+  );
 
   readonly doctor$ = this.doctorSubject.asObservable();
 

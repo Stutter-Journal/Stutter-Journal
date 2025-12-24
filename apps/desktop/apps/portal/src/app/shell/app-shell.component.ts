@@ -15,6 +15,6 @@ export class AppShellComponent {
   private readonly doctorContext = inject(DoctorContextService);
 
   readonly showOnboarding$ = this.doctorContext.doctor$.pipe(
-    map((doctor) => !doctor?.practiceId)
+    map((doctor) => !doctor?.practiceId),
   );
 }

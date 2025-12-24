@@ -10,11 +10,11 @@ export class PracticeApi {
   private readonly client = new ApiClient();
 
   createPractice(
-    payload: CreatePracticeRequestDto
+    payload: CreatePracticeRequestDto,
   ): Promise<CreatePracticeResponseDto> {
-    return this.client.post<CreatePracticeResponseDto, CreatePracticeRequestDto>(
-      '/practice',
-      payload
-    );
+    return this.client.post<
+      CreatePracticeResponseDto,
+      CreatePracticeRequestDto
+    >('/practice', payload);
   }
 }

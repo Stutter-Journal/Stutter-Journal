@@ -1,13 +1,8 @@
-import { Id, IsoDateString } from '../types';
-
-export type PracticeStatus = 'active' | 'inactive';
+import { Id } from '../types';
 
 export interface Practice {
   id: Id;
   name: string;
-  slug: string;
-  timezone: string;
-  status: PracticeStatus;
-  createdAt: IsoDateString;
-  updatedAt: IsoDateString;
+  address?: string | null;
+  logoUrl?: string | null;
 }

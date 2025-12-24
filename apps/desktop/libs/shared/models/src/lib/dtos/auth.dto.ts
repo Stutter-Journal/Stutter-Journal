@@ -1,27 +1,20 @@
 import { Doctor } from '../domain/doctor.model';
-import { Id } from '../types';
 
-export interface RegisterRequestDto {
+export interface DoctorRegisterRequestDto {
   email: string;
+  displayName: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  practiceId?: Id;
 }
 
-export interface RegisterResponseDto {
-  doctor: Doctor;
-  accessToken: string;
-  refreshToken?: string;
-}
-
-export interface LoginRequestDto {
+export interface DoctorLoginRequestDto {
   email: string;
   password: string;
 }
 
-export interface LoginResponseDto {
+export interface DoctorResponseDto {
   doctor: Doctor;
-  accessToken: string;
-  refreshToken?: string;
+}
+
+export interface StatusResponseDto {
+  status: string;
 }

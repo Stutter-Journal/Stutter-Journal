@@ -1,25 +1,24 @@
-import {
-  DoctorPatientLink,
-  DoctorPatientLinkType,
-} from '../domain/doctor-patient-link.model';
+import { Link } from '../domain/doctor-patient-link.model';
+import { Patient } from '../domain/patient.model';
 import { Id } from '../types';
 
-export interface CreateDoctorPatientLinkRequestDto {
-  type: DoctorPatientLinkType;
-  doctorId: Id;
-  patientId: Id;
-  message?: string;
+export interface LinkInviteRequestDto {
+  patientId?: Id;
+  patientEmail?: string;
+  patientCode?: string;
+  displayName?: string;
 }
 
-export interface CreateDoctorPatientLinkResponseDto {
-  link: DoctorPatientLink;
+export type LinkRequestDto = LinkInviteRequestDto;
+
+export type LinkApproveRequestDto = void;
+
+export interface LinkResponseDto {
+  link: Link;
+  patient: Patient;
 }
 
-export interface ApproveDoctorPatientLinkRequestDto {
-  linkId: Id;
-  approvedById: Id;
-}
-
-export interface ApproveDoctorPatientLinkResponseDto {
-  link: DoctorPatientLink;
+export interface LinkApproveResponseDto {
+  link: Link;
+  patient: Patient;
 }

@@ -6,26 +6,18 @@ import { Doctor, Practice } from '@org/models';
 import { PracticeApi } from '@org/practice/data-access';
 import { OnboardingComponent } from './onboarding.component';
 
-const now = new Date().toISOString();
 const mockPractice: Practice = {
   id: 'practice-1',
   name: 'Eloquia Family Clinic',
-  slug: 'eloquia-family-clinic',
-  timezone: 'UTC',
-  status: 'active',
-  createdAt: now,
-  updatedAt: now,
+  address: '123 Main St',
+  logoUrl: null,
 };
 const mockDoctor: Doctor = {
   id: 'doctor-1',
   practiceId: mockPractice.id,
-  firstName: 'Avery',
-  lastName: 'Reyes',
+  displayName: 'Avery Reyes',
   email: 'avery@clinic.com',
-  role: 'owner',
-  status: 'active',
-  createdAt: now,
-  updatedAt: now,
+  role: 'Owner',
 };
 
 const mockPracticeApi: Pick<PracticeApi, 'createPractice'> = {
@@ -67,11 +59,9 @@ export const ValidationError: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      canvas.getByRole('button', { name: /create practice/i })
+      canvas.getByRole('button', { name: /create practice/i }),
     );
-    await expect(
-      canvas.getByText(/practice name is required\./i)
-    ).toBeTruthy();
+    await expect(canvas.getByText(/practice name is required\./i)).toBeTruthy();
   },
 };
 
@@ -82,12 +72,8 @@ export const GuidedTour: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByText(/step 2 of/i)
-    ).toBeTruthy();
+    await expect(canvas.getByText(/step 2 of/i)).toBeTruthy();
     await userEvent.click(canvas.getByRole('button', { name: /next/i }));
-    await expect(
-      canvas.getByText(/finish & go to patients/i)
-    ).toBeTruthy();
+    await expect(canvas.getByText(/finish & go to patients/i)).toBeTruthy();
   },
 };

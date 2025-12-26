@@ -256,6 +256,7 @@ class NewEntryViewModel(
     }
 
     private fun buildTags(state: NewEntryUiState): List<String> = buildList {
+        add("date:${state.date}")
         add("intensity:${state.intensity}")
         tagsFromSelection(state.triggers, state.selectedTriggerIds, "trigger").forEach(::add)
         tagsFromSelection(state.methods, state.selectedMethodIds, "method").forEach(::add)
@@ -284,9 +285,19 @@ class NewEntryViewModel(
         val triggerOptions = (defaultTriggers + customTriggerOptions).deduplicate()
         val methodOptions = (defaultMethods + customMethodOptions).deduplicate()
 
+        val storedDate = tags.firstNotNullOfOrNull { tag ->
+            if (tag.startsWith("date:", ignoreCase = true)) {
+                try {
+                    kotlinx.datetime.LocalDate.parse(tag.substringAfter(":").trim())
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+        } ?: this.createdAt.date
+        
         return NewEntryFormState(
             entryId = this.id,
-            date = this.createdAt.date,
+            date = storedDate,
             intensity = intensity,
             intensityRange = INTENSITY_RANGE,
             triggers = triggerOptions,

@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 class ProgressViewModel(
     observeEntriesUseCase: ObserveJournalEntriesUseCase,
@@ -68,7 +68,7 @@ class ProgressViewModel(
             .sortedBy { it.date }
         
         // Filter by time range
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val today = currentLocalDate()
         val cutoffDate = range.days?.let { days -> today.minus(DatePeriod(days = days)) }
         val filteredData = if (cutoffDate != null) {
             println("Filtering: range=${range.label}, today=$today, cutoffDate=$cutoffDate, before=${dailyAverages.size}")
@@ -102,6 +102,13 @@ class ProgressViewModel(
     fun setTimeRange(range: TimeRange) {
         println("ProgressViewModel: Setting time range to ${range.label}")
         _timeRange.value = range
+    }
+
+    private fun currentLocalDate(): LocalDate {
+        return Clock.System
+            .now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
     }
 
     private fun fillMissingDays(

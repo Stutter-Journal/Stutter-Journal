@@ -428,11 +428,11 @@ private fun formatWeekLabel(date: LocalDate): String {
     val dayNames = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     val dayIndex = date.dayOfWeek.ordinal
     val dayName = dayNames.getOrElse(dayIndex) { date.dayOfWeek.name.take(3) }
-    return "$dayName ${date.dayOfMonth}"
+    return "$dayName ${date.day}"
 }
 
 private fun formatMonthDayLabel(date: LocalDate): String {
-    return "${monthNames[date.month.ordinal]} ${date.dayOfMonth}"
+    return "${monthNames[date.month.ordinal]} ${date.day}"
 }
 
 private fun formatMonthYearLabel(date: LocalDate): String {

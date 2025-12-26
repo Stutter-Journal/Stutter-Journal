@@ -2,6 +2,7 @@ package at.isg.eloquia.kmpapp.di
 
 import at.isg.eloquia.core.domain.entries.di.entriesDomainModule
 import at.isg.eloquia.features.entries.di.entriesFeatureModule
+import at.isg.eloquia.features.progress.di.progressFeatureModule
 import at.isg.eloquia.kmpapp.data.InMemoryMuseumStorage
 import at.isg.eloquia.kmpapp.data.KtorMuseumApi
 import at.isg.eloquia.kmpapp.data.MuseumApi
@@ -55,6 +56,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
             viewModelModule,
             entriesDomainModule,
             entriesFeatureModule,
+            progressFeatureModule,
         )
         modules(platformModules())
     }

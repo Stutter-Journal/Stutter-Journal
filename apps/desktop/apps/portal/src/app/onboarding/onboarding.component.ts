@@ -15,13 +15,7 @@ interface ApiErrorPayload {
 @Component({
   selector: 'portal-onboarding',
   standalone: true,
-  imports: [
-    ButtonComponent,
-    FormFieldComponent,
-    NgFor,
-    NgIf,
-    ReactiveFormsModule,
-  ],
+  imports: [ButtonComponent, FormFieldComponent, ReactiveFormsModule],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
 })

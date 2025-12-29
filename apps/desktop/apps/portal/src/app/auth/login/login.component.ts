@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,7 +15,6 @@ import { AuthService } from '../auth.service';
     ButtonComponent,
     CardComponent,
     FormFieldComponent,
-    NgIf,
     ReactiveFormsModule,
     RouterLink,
   ],

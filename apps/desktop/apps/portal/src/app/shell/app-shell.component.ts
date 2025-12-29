@@ -7,7 +7,7 @@ import { DoctorContextService } from '../doctor/doctor-context.service';
 @Component({
   selector: 'portal-app-shell',
   standalone: true,
-  imports: [AsyncPipe, NgIf, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [AsyncPipe, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })

@@ -11,77 +11,78 @@
     </p>
   </div>
 
-  <form class="space-y-5" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" class="space-y-5">
     <lib-form-field
-      [label]="'Practice name'"
-      [hint]="'Displayed on patient communications.'"
       [error]="nameError"
       [fieldId]="nameId"
+      [hint]="'Displayed on patient communications.'"
+      [label]="'Practice name'"
       [required]="true"
     >
       <input
-        formFieldControl
-        type="text"
-        autocomplete="organization"
-        [id]="nameId"
         [attr.aria-describedby]="nameDescribedBy"
+        [id]="nameId"
+        autocomplete="organization"
+        class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
         formControlName="name"
-        class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+        formFieldControl
         placeholder="Eloquia Family Clinic"
-      />
-    </lib-form-field>
-
-    <lib-form-field
-      [label]="'Practice address'"
-      [hint]="'Optional, helpful for patient reminders.'"
-      [fieldId]="addressId"
-    >
-      <input
-        formFieldControl
         type="text"
-        autocomplete="street-address"
-        [id]="addressId"
-        [attr.aria-describedby]="addressDescribedBy"
-        formControlName="address"
-        class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
-        placeholder="123 Calm Street, Suite 4"
       />
     </lib-form-field>
 
     <lib-form-field
-      [label]="'Logo URL'"
-      [hint]="'Optional, you can upload later.'"
-      [fieldId]="logoId"
+      [fieldId]="addressId"
+      [hint]="'Optional, helpful for patient reminders.'"
+      [label]="'Practice address'"
     >
       <input
-        formFieldControl
-        type="url"
-        autocomplete="url"
-        [id]="logoId"
-        [attr.aria-describedby]="logoDescribedBy"
-        formControlName="logoUrl"
+        [attr.aria-describedby]="addressDescribedBy"
+        [id]="addressId"
+        autocomplete="street-address"
         class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
-        placeholder="https://clinic.com/logo.png"
+        formControlName="address"
+        formFieldControl
+        placeholder="123 Calm Street, Suite 4"
+        type="text"
       />
     </lib-form-field>
 
-    <div
-      *ngIf="formError"
-      class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-      role="alert"
+    <lib-form-field
+      [fieldId]="logoId"
+      [hint]="'Optional, you can upload later.'"
+      [label]="'Logo URL'"
     >
-      {{ formError }}
-    </div>
+      <input
+        [attr.aria-describedby]="logoDescribedBy"
+        [id]="logoId"
+        autocomplete="url"
+        class="w-full bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+        formControlName="logoUrl"
+        formFieldControl
+        placeholder="https://clinic.com/logo.png"
+        type="url"
+      />
+    </lib-form-field>
+
+    @if (formError) {
+      <div
+        class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+        role="alert"
+      >
+        {{ formError }}
+      </div>
+    }
 
     <div
       class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     >
       <lib-button
+        [disabled]="loading"
+        [loading]="loading"
+        [size]="'lg'"
         [type]="'submit'"
         [variant]="'primary'"
-        [size]="'lg'"
-        [loading]="loading"
-        [disabled]="loading"
         class="w-full sm:w-auto"
       >
         Create practice
@@ -101,10 +102,10 @@
         </p>
       </div>
       <lib-button
+        (click)="startTour(tourStep)"
+        size="sm"
         type="button"
         variant="ghost"
-        size="sm"
-        (click)="startTour(tourStep)"
       >
         Preview tour
       </lib-button>
@@ -112,73 +113,69 @@
   </form>
 </section>
 
-<section
-  *ngIf="tourVisible"
-  class="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm"
-  aria-label="Onboarding tour"
->
-  <div class="flex min-h-full items-center justify-center px-4">
-    <div
-      class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-[var(--shadow-md)] ring-1 ring-neutral-200/70"
-    >
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs uppercase tracking-[0.3em] text-neutral-400">
-            Step {{ tourStep + 1 }} of {{ tourSteps.length }}
-          </p>
-          <h2 class="mt-2 text-lg font-semibold text-neutral-900">
-            {{ tourSteps[tourStep].title }}
-          </h2>
-          <p class="mt-2 text-sm text-neutral-600">
-            {{ tourSteps[tourStep].body }}
-          </p>
-        </div>
-        <button
-          type="button"
-          class="text-sm text-neutral-500 hover:text-neutral-800"
-          (click)="skipTour()"
-        >
-          Skip
-        </button>
-      </div>
-
+@if (tourVisible) {
+  <section
+    aria-label="Onboarding tour"
+    class="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm"
+  >
+    <div class="flex min-h-full items-center justify-center px-4">
       <div
-        class="mt-4 grid gap-2"
-        aria-hidden="true"
-        [style.gridTemplateColumns]="
-          'repeat(' + tourSteps.length + ', minmax(0,1fr))'
-        "
+        class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-[var(--shadow-md)] ring-1 ring-neutral-200/70"
       >
-        <div
-          *ngFor="let step of tourSteps; let idx = index"
-          class="h-1 rounded-full"
-          [class.bg-neutral-900]="idx <= tourStep"
-          [class.bg-neutral-200]="idx > tourStep"
-        ></div>
-      </div>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-neutral-400">
+              Step {{ tourStep + 1 }} of {{ tourSteps.length }}
+            </p>
+            <h2 class="mt-2 text-lg font-semibold text-neutral-900">
+              {{ tourSteps[tourStep].title }}
+            </h2>
+            <p class="mt-2 text-sm text-neutral-600">
+              {{ tourSteps[tourStep].body }}
+            </p>
+          </div>
+          <button
+            (click)="skipTour()"
+            class="text-sm text-neutral-500 hover:text-neutral-800"
+            type="button"
+          >
+            Skip
+          </button>
+        </div>
 
-      <div class="mt-6 flex items-center justify-end gap-3">
-        <lib-button
-          type="button"
-          variant="ghost"
-          size="sm"
-          (click)="skipTour()"
-        >
-          Skip tour
-        </lib-button>
-        <lib-button
-          type="button"
-          variant="primary"
-          size="sm"
-          (click)="nextTour()"
-        >
-          {{
-            tourStep === tourSteps.length - 1
-              ? 'Finish & go to patients'
-              : 'Next'
-          }}
-        </lib-button>
+        <div aria-hidden="true" class="mt-4 grid gap-2">
+          @for (step of tourSteps; track $index; let idx = $index) {
+            <div
+              [class.bg-neutral-200]="idx > tourStep"
+              [class.bg-neutral-900]="idx <= tourStep"
+              class="h-1 rounded-full"
+            ></div>
+          }
+        </div>
+
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <lib-button
+            (click)="skipTour()"
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            Skip tour
+          </lib-button>
+          <lib-button
+            (click)="nextTour()"
+            size="sm"
+            type="button"
+            variant="primary"
+          >
+            {{
+              tourStep === tourSteps.length - 1
+                ? 'Finish & go to patients'
+                : 'Next'
+            }}
+          </lib-button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+}

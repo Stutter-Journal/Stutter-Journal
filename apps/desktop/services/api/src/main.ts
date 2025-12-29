@@ -1,14 +1,14 @@
 import express from 'express';
 import { betterAuth } from 'better-auth';
-import { memoryAdapter, type MemoryDB } from 'better-auth/adapters';
 import { toNodeHandler } from 'better-auth/node';
 import { ProductsService } from '@org/api/products';
 import {
   ApiResponse,
+  PaginatedResponse,
   Product,
   ProductFilter,
-  PaginatedResponse,
 } from '@org/models';
+import { memoryAdapter, MemoryDB } from 'better-auth/adapters/memory';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3333;

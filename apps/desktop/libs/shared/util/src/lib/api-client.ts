@@ -9,6 +9,7 @@ export interface ApiClientOptions {
   dropEmptyStringParams?: boolean;
 }
 
+// TODO: Extremely ugly hack, I don't think we even need the metaEnv bundlers
 function readEnv(name: string): string | undefined {
   // Vite / modern bundlers
   const metaEnv =
@@ -34,7 +35,7 @@ function normalizeBaseUrl(url: string): string {
   const trimmed = url.trim();
   const withScheme = /^https?:\/\//i.test(trimmed)
     ? trimmed
-    : `http://${trimmed}`;
+    : `https://${trimmed}`;
   return withScheme.replace(/\/+$/, '');
 }
 

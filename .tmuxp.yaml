@@ -6,7 +6,7 @@ start_directory: .
 windows:
   - window_name: editor
     panes:
-      - nvim
+      - nv
 
   - window_name: git
     panes:

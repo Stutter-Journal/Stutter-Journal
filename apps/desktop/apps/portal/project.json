@@ -4,11 +4,15 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": ["scope:portal"],
+  "tags": [
+    "scope:portal"
+  ],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/portal",
         "browser": "apps/portal/src/main.ts",
@@ -19,7 +23,9 @@
             "input": "apps/portal/public"
           }
         ],
-        "styles": ["apps/portal/src/styles.css"],
+        "styles": [
+          "apps/portal/src/styles.css"
+        ],
         "server": "apps/portal/src/main.server.ts",
         "ssr": {
           "entry": "apps/portal/src/server.ts"
@@ -61,7 +67,13 @@
           "buildTarget": "portal:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "dependsOn": [
+        "api:serve"
+      ],
+      "options": {
+        "proxyConfig": "apps/portal/proxy.conf.json"
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"

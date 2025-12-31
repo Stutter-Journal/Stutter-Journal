@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "bff",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/bff/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,70 +9,55 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "webpack-cli build",
-        "args": [
-          "--node-env=production"
-        ],
-        "cwd": "apps/api"
+        "args": ["--node-env=production"],
+        "cwd": "apps/bff"
       },
       "configurations": {
         "development": {
-          "args": [
-            "--node-env=development"
-          ]
+          "args": ["--node-env=development"]
         }
       }
     },
     "prune-lockfile": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
       "executor": "@nx/js:prune-lockfile",
       "outputs": [
-        "{workspaceRoot}/dist/apps/api/package.json",
-        "{workspaceRoot}/dist/apps/api/pnpm-lock.yaml"
+        "{workspaceRoot}/dist/apps/bff/package.json",
+        "{workspaceRoot}/dist/apps/bff/pnpm-lock.yaml"
       ],
       "options": {
         "buildTarget": "build"
       }
     },
     "copy-workspace-modules": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
-      "outputs": [
-        "{workspaceRoot}/dist/apps/api/workspace_modules"
-      ],
+      "outputs": ["{workspaceRoot}/dist/apps/bff/workspace_modules"],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
         "buildTarget": "build"
       }
     },
     "prune": {
-      "dependsOn": [
-        "prune-lockfile",
-        "copy-workspace-modules"
-      ],
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "options": {
-        "buildTarget": "api:build",
+        "buildTarget": "bff:build",
         "runBuildTargetDependencies": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "api:build:development"
+          "buildTarget": "bff:build:development"
         },
         "production": {
-          "buildTarget": "api:build:production"
+          "buildTarget": "bff:build:production"
         }
       }
     },

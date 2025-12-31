@@ -18,7 +18,8 @@
       "@org/portal-shared-ui": ["libs/portal/shared-ui/src/index.ts"],
       "@org/ui": ["libs/shared/ui/src/index.ts"],
       "@org/util": ["libs/shared/util/src/index.ts"],
-      "@org/models": ["libs/shared/models/src/index.ts"]
+      "@org/models": ["libs/shared/models/src/index.ts"],
+      "@org/contracts": ["libs/shared/api/contracts/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

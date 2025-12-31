@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
@@ -44,12 +45,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import at.isg.eloquia.features.progress.presentation.model.IntensityDataPoint
 import at.isg.eloquia.features.progress.presentation.model.ProgressUiState
 import at.isg.eloquia.features.progress.presentation.model.TimeRange
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.math.max
-import kotlinx.datetime.LocalDate
+import kotlin.math.min
+import kotlin.math.round
 
 @Composable
 fun ProgressScreen(
@@ -119,6 +121,8 @@ private fun ProgressScreenContent(
     }
 }
 
+private val values = PaddingValues(horizontal = 16.dp, vertical = 24.dp)
+
 @Composable
 private fun ProgressContent(
     dataPoints: List<IntensityDataPoint>,
@@ -160,7 +164,7 @@ private fun ProgressContent(
         item {
             IntensityLineChart(
                 dataPoints = dataPoints,
-                timeRange = timeRange,
+                showEmptyDays = showEmptyDays,
                 modifier = Modifier.fillMaxWidth().height(280.dp),
             )
         }
@@ -195,7 +199,7 @@ private fun TimeRangeSelector(
 @Composable
 private fun IntensityLineChart(
     dataPoints: List<IntensityDataPoint>,
-    timeRange: TimeRange,
+    showEmptyDays: Boolean,
     modifier: Modifier = Modifier,
 ) {
     if (dataPoints.isEmpty()) return
@@ -241,203 +245,149 @@ private fun IntensityLineChart(
                 }
             }
 
-            // Custom Canvas-based line chart
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .padding(vertical = 16.dp)
+            // Chart with proper axes
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
             ) {
-                val width = size.width
-                val height = size.height
-                val padding = 40f
-                
-                val chartWidth = width - padding * 2
-                val chartHeight = height - padding * 2
-                
-                // Find max intensity for scaling
-                val maxIntensity = dataPoints.maxOfOrNull { it.intensity } ?: 10f
-                val minIntensity = 0f
-                val intensityRange = max(maxIntensity - minIntensity, 1f)
-                
-                // Draw grid lines
-                for (i in 0..5) {
-                    val y = padding + (chartHeight / 5f) * i
-                    drawLine(
-                        color = surfaceVariant,
-                        start = Offset(padding, y),
-                        end = Offset(width - padding, y),
-                        strokeWidth = 1f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
-                    )
-                }
-                
-                // Draw axes
-                drawLine(
-                    color = onSurface.copy(alpha = 0.3f),
-                    start = Offset(padding, padding),
-                    end = Offset(padding, height - padding),
-                    strokeWidth = 2f
-                )
-                drawLine(
-                    color = onSurface.copy(alpha = 0.3f),
-                    start = Offset(padding, height - padding),
-                    end = Offset(width - padding, height - padding),
-                    strokeWidth = 2f
-                )
-                
-                // Draw line chart
-                val path = Path()
-                val stepX = if (dataPoints.size > 1) {
-                    chartWidth / (dataPoints.size - 1)
-                } else {
-                    chartWidth / 2f // Center single point
-                }
-                
-                dataPoints.forEachIndexed { index, point ->
-                    val x = padding + stepX * index
-                    val normalizedIntensity = (point.intensity - minIntensity) / intensityRange
-                    val y = height - padding - (normalizedIntensity * chartHeight)
-                    
-                    if (index == 0) {
-                        path.moveTo(x, y)
-                    } else {
-                        path.lineTo(x, y)
+                // Y-axis labels (0-10 scale)
+                Column(
+                    modifier = Modifier.width(28.dp).height(220.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    for (i in 10 downTo 0 step 2) {
+                        Text(
+                            text = i.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = onSurface.copy(alpha = 0.6f),
+                            fontSize = 10.sp,
+                        )
                     }
                 }
                 
-                // Draw the line (only if there are multiple points)
-                if (dataPoints.size > 1) {
-                    drawPath(
-                        path = path,
-                        color = primaryColor,
-                        style = Stroke(
-                            width = 4f,
-                            cap = StrokeCap.Round
-                        )
-                    )
-                }
+                Spacer(modifier = Modifier.width(8.dp))
                 
-                // Draw points
-                dataPoints.forEachIndexed { index, point ->
-                    val x = padding + stepX * index
-                    val normalizedIntensity = (point.intensity - minIntensity) / intensityRange
-                    val y = height - padding - (normalizedIntensity * chartHeight)
-                    
-                    drawCircle(
-                        color = primaryColor,
-                        radius = 6f,
-                        center = Offset(x, y)
-                    )
-                    drawCircle(
-                        color = Color.White,
-                        radius = 3f,
-                        center = Offset(x, y)
-                    )
-                }
-            }
-            
-            // Date range and period info
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                // Date labels adapted to the selected range
-                val axisLabels = buildAxisLabels(dataPoints, timeRange)
-                if (axisLabels.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                // Chart canvas
+                Column(modifier = Modifier.weight(1f)) {
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
                     ) {
-                        axisLabels.forEach { label ->
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = onSurface.copy(alpha = 0.6f),
+                        val width = size.width
+                        val height = size.height
+                        val paddingTop = 8f
+                        val paddingBottom = 8f
+                        val paddingRight = 8f
+                        
+                        val chartWidth = width - paddingRight
+                        val chartHeight = height - paddingTop - paddingBottom
+                        
+                        // Y-axis: Always 0 to 10
+                        val minY = 0f
+                        val maxY = 10f
+                        val yRange = maxY - minY
+                        
+                        // Draw horizontal grid lines (for Y-axis values 0, 2, 4, 6, 8, 10)
+                        for (i in 0..5) {
+                            val yValue = i * 2f
+                            val y = paddingTop + chartHeight - ((yValue - minY) / yRange * chartHeight)
+                            drawLine(
+                                color = surfaceVariant,
+                                start = Offset(0f, y),
+                                end = Offset(chartWidth, y),
+                                strokeWidth = 1f,
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                             )
+                        }
+                        
+                        // Calculate X positions for all data points
+                        val stepX = if (dataPoints.size > 1) {
+                            chartWidth / (dataPoints.size - 1)
+                        } else {
+                            chartWidth / 2f
+                        }
+                        
+                        // Draw vertical grid lines for ALL data points (all ticks visible)
+                        dataPoints.forEachIndexed { index, _ ->
+                            val x = stepX * index
+                            drawLine(
+                                color = surfaceVariant.copy(alpha = 0.3f),
+                                start = Offset(x, paddingTop),
+                                end = Offset(x, height - paddingBottom),
+                                strokeWidth = 1f,
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))
+                            )
+                        }
+                        
+                        // Draw line chart path
+                        val path = Path()
+                        var started = false
+                        dataPoints.forEachIndexed { index, point ->
+                            val hasValue = point.intensity > 0f
+                            if (!showEmptyDays && !hasValue) return@forEachIndexed
+
+                            val x = stepX * index
+                            val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
+                            val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
+                            
+                            if (!started) {
+                                path.moveTo(x, y)
+                                started = true
+                            } else {
+                                path.lineTo(x, y)
+                            }
+                        }
+                        
+                        // Draw the line (only if there are multiple points)
+                        if (dataPoints.size > 1) {
+                            drawPath(
+                                path = path,
+                                color = primaryColor,
+                                style = Stroke(
+                                    width = 3f,
+                                    cap = StrokeCap.Round
+                                )
+                            )
+                        }
+                        
+                        // Draw data points
+                        dataPoints.forEachIndexed { index, point ->
+                            val hasValue = point.intensity > 0f
+                            val x = stepX * index
+                            val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
+                            val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
+                            
+                            // Respect toggle: draw only real data when hiding empty days
+                            if (showEmptyDays || hasValue) {
+                                drawCircle(
+                                    color = primaryColor,
+                                    radius = 5f,
+                                    center = Offset(x, y)
+                                )
+                                drawCircle(
+                                    color = Color.White,
+                                    radius = 2.5f,
+                                    center = Offset(x, y)
+                                )
+                            }
                         }
                     }
                 }
-                
-                // Intensity scale indicator
-                Text(
-                    text = "Intensity: 0 (low) to 10 (high)",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
             }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            // Intensity scale indicator
+            Text(
+                text = "Intensity: 0 (low) to 10 (high)",
+                style = MaterialTheme.typography.labelSmall,
+                color = onSurface.copy(alpha = 0.5f),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
         }
     }
-}
-
-private val monthNames = listOf(
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-)
-
-private fun buildAxisLabels(
-    dataPoints: List<IntensityDataPoint>,
-    timeRange: TimeRange,
-): List<String> {
-    if (dataPoints.isEmpty()) return emptyList()
-
-    return when (timeRange) {
-        TimeRange.WEEK -> dataPoints.map { formatWeekLabel(it.date) }
-        TimeRange.MONTH -> dataPoints.withIndex()
-            .filter { (index, _) -> index % 4 == 0 || index == dataPoints.lastIndex }
-            .map { formatMonthDayLabel(it.value.date) }
-        TimeRange.YEAR -> buildYearLabels(dataPoints)
-        TimeRange.MAX -> buildMaxLabels(dataPoints)
-    }
-}
-
-private fun buildYearLabels(dataPoints: List<IntensityDataPoint>): List<String> {
-    val labels = mutableListOf<String>()
-    val firstMonthIndex = dataPoints.first().date.year * 12 + dataPoints.first().date.month.ordinal
-
-    dataPoints.forEachIndexed { index, point ->
-        val monthIndex = point.date.year * 12 + point.date.month.ordinal
-        val include = (monthIndex - firstMonthIndex) % 3 == 0
-        if (include || index == dataPoints.lastIndex) {
-            val text = formatMonthYearLabel(point.date)
-            if (labels.lastOrNull() != text) labels.add(text)
-        }
-    }
-
-    return labels
-}
-
-private fun buildMaxLabels(dataPoints: List<IntensityDataPoint>): List<String> {
-    val labels = mutableListOf<String>()
-    labels.add(formatMonthDayLabel(dataPoints.first().date))
-
-    if (dataPoints.size > 2) {
-        labels.add(formatMonthDayLabel(dataPoints[dataPoints.size / 2].date))
-    }
-
-    if (dataPoints.size > 1) {
-        val lastLabel = formatMonthDayLabel(dataPoints.last().date)
-        if (labels.lastOrNull() != lastLabel) labels.add(lastLabel)
-    }
-
-    return labels
-}
-
-private fun formatWeekLabel(date: LocalDate): String {
-    val dayNames = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    val dayIndex = date.dayOfWeek.ordinal
-    val dayName = dayNames.getOrElse(dayIndex) { date.dayOfWeek.name.take(3) }
-    return "$dayName ${date.day}"
-}
-
-private fun formatMonthDayLabel(date: LocalDate): String {
-    return "${monthNames[date.month.ordinal]} ${date.day}"
-}
-
-private fun formatMonthYearLabel(date: LocalDate): String {
-    val yearShort = (date.year % 100).toString().padStart(2, '0')
-    return "${monthNames[date.month.ordinal]} '$yearShort"
 }
 
 @Composable
@@ -478,12 +428,12 @@ private fun StatisticsCards(
         ) {
             StatCard(
                 title = "Average",
-                value = String.format("%.1f", average),
+                value = oneDecimal(average),
                 modifier = Modifier.weight(1f),
             )
             StatCard(
                 title = "Min",
-                value = String.format("%.1f", min),
+                value = oneDecimal(min),
                 modifier = Modifier.weight(1f),
             )
         }
@@ -494,7 +444,7 @@ private fun StatisticsCards(
         ) {
             StatCard(
                 title = "Max",
-                value = String.format("%.1f", max),
+                value = oneDecimal(max),
                 modifier = Modifier.weight(1f),
             )
             TrendCard(
@@ -535,6 +485,11 @@ private fun StatCard(
             )
         }
     }
+}
+
+private fun oneDecimal(value: Float): String {
+    val rounded = round(value * 10f) / 10f
+    return if (rounded % 1f == 0f) "${rounded.toInt()}.0" else rounded.toString()
 }
 
 @Composable

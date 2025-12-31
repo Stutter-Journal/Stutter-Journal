@@ -32,8 +32,7 @@ class ProgressViewModel(
     val state: StateFlow<ProgressUiState> = combine(
         observeEntriesUseCase(),
         _timeRange,
-        _showEmptyDays
-    ) { entries, range, showEmpty ->
+    ) { entries, range ->
         // Parse intensity and date from tags
         val dataPoints = entries.mapNotNull { entry ->
             val intensity = entry.tags
@@ -67,25 +66,29 @@ class ProgressViewModel(
             }
             .sortedBy { it.date }
         
-        // Filter by time range
+        // Determine rolling window boundaries
         val today = currentLocalDate()
-        val cutoffDate = range.days?.let { days -> today.minus(DatePeriod(days = days)) }
-        val filteredData = if (cutoffDate != null) {
-            println("Filtering: range=${range.label}, today=$today, cutoffDate=$cutoffDate, before=${dailyAverages.size}")
-            val filtered = dailyAverages.filter { it.date >= cutoffDate }
-            println("Filtering: after=${filtered.size}")
-            filtered
-        } else {
-            println("Filtering: No filter (MAX), showing all ${dailyAverages.size}")
-            dailyAverages
+        val startDate = when {
+            range.days != null -> today.minus(DatePeriod(days = range.days - 1))
+            range.months != null -> today.minus(DatePeriod(months = range.months))
+            dailyAverages.isNotEmpty() -> dailyAverages.first().date
+            else -> null
         }
-        
-        // Fill missing days if needed
-        val finalData = if (showEmpty && filteredData.isNotEmpty()) {
-            val startDate = cutoffDate ?: filteredData.first().date
-            val endDate = if (cutoffDate != null) today else filteredData.last().date
+
+        if (startDate == null) return@combine ProgressUiState.Empty
+
+        val endDate = when (range) {
+            TimeRange.MAX -> dailyAverages.lastOrNull()?.date ?: today
+            else -> today
+        }
+
+        // Keep daily granularity; no aggregation
+        val filteredData = dailyAverages.filter { it.date >= startDate && it.date <= endDate }
+
+        // Always fill the full time window to keep a continuous time axis
+        val finalData = if (filteredData.isNotEmpty()) {
             fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
-        } else filteredData
+        } else emptyList()
         
         // Return UI state
         if (finalData.isEmpty()) ProgressUiState.Empty else ProgressUiState.Success(finalData)
@@ -139,4 +142,5 @@ class ProgressViewModel(
         
         return result
     }
+
 }

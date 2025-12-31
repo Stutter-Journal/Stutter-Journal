@@ -10,11 +10,11 @@ data class IntensityDataPoint(
     val entryId: String,
 )
 
-enum class TimeRange(val label: String, val days: Int?) {
-    WEEK("Week", 7),
-    MONTH("Month", 30),
-    YEAR("Year", 365),
-    MAX("Max", null)
+enum class TimeRange(val label: String, val days: Int?, val months: Int?) {
+    WEEK("Week", 7, null),
+    MONTH("Month", 30, null),
+    YEAR("Year", null, 12),
+    MAX("Max", null, null)
 }
 
 sealed interface ProgressUiState {

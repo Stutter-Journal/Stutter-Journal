@@ -40,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
+import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
 import kotlinx.serialization.Serializable
 
@@ -191,9 +192,7 @@ fun MainScreen() {
                 )
             }
             composable<ProgressDestination> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Progress Screen")
-                }
+                ProgressScreen()
             }
             composable<SupportDestination> {
                 val uriHandler = LocalUriHandler.current

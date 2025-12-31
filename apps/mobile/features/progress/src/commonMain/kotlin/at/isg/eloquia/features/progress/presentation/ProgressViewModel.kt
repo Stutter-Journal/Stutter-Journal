@@ -61,7 +61,7 @@ class ProgressViewModel(
                 IntensityDataPoint(
                     date = date,
                     intensity = points.map { it.intensity }.average().toFloat(),
-                    entryId = "",
+                    entryId = null,
                 )
             }
             .sortedBy { it.date }
@@ -83,7 +83,7 @@ class ProgressViewModel(
         }
 
         // Keep daily granularity; no aggregation
-        val filteredData = dailyAverages.filter { it.date >= startDate && it.date <= endDate }
+        val filteredData = dailyAverages.filter { it.date in startDate..endDate }
 
         // Always fill the full time window to keep a continuous time axis
         val finalData = if (filteredData.isNotEmpty()) {
@@ -103,7 +103,6 @@ class ProgressViewModel(
     }
 
     fun setTimeRange(range: TimeRange) {
-        println("ProgressViewModel: Setting time range to ${range.label}")
         _timeRange.value = range
     }
 
@@ -134,7 +133,7 @@ class ProgressViewModel(
                 pointsMap[currentDate] ?: IntensityDataPoint(
                     date = currentDate,
                     intensity = 0f,
-                    entryId = "",
+                    entryId = null,
                 )
             )
             currentDate = currentDate.plus(DatePeriod(days = 1))

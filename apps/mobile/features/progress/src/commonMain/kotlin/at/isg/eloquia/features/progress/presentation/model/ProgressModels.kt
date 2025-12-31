@@ -7,7 +7,7 @@ import kotlinx.datetime.LocalDate
 data class IntensityDataPoint(
     val date: LocalDate,
     val intensity: Float,
-    val entryId: String,
+    val entryId: String?,
 )
 
 enum class TimeRange(val label: String, val days: Int?, val months: Int?) {

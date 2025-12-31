@@ -121,8 +121,6 @@ private fun ProgressScreenContent(
     }
 }
 
-private val values = PaddingValues(horizontal = 16.dp, vertical = 24.dp)
-
 @Composable
 private fun ProgressContent(
     dataPoints: List<IntensityDataPoint>,
@@ -303,15 +301,20 @@ private fun IntensityLineChart(
                         }
                         
                         // Calculate X positions for all data points
+                        val singlePointX = chartWidth / 2f
                         val stepX = if (dataPoints.size > 1) {
                             chartWidth / (dataPoints.size - 1)
                         } else {
-                            chartWidth / 2f
+                            singlePointX
                         }
                         
                         // Draw vertical grid lines for ALL data points (all ticks visible)
                         dataPoints.forEachIndexed { index, _ ->
-                            val x = stepX * index
+                            val x = if (dataPoints.size > 1) {
+                                stepX * index
+                            } else {
+                                singlePointX
+                            }
                             drawLine(
                                 color = surfaceVariant.copy(alpha = 0.3f),
                                 start = Offset(x, paddingTop),
@@ -323,18 +326,19 @@ private fun IntensityLineChart(
                         
                         // Draw line chart path
                         val path = Path()
-                        var started = false
                         dataPoints.forEachIndexed { index, point ->
-                            val hasValue = point.intensity > 0f
-                            if (!showEmptyDays && !hasValue) return@forEachIndexed
+                            // val hasValue = point.intensity > 0f
 
-                            val x = stepX * index
+                            val x = if (dataPoints.size > 1) {
+                                stepX * index
+                            } else {
+                                singlePointX
+                            }
                             val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
                             val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
                             
-                            if (!started) {
+                            if (index == 0) {
                                 path.moveTo(x, y)
-                                started = true
                             } else {
                                 path.lineTo(x, y)
                             }
@@ -355,7 +359,11 @@ private fun IntensityLineChart(
                         // Draw data points
                         dataPoints.forEachIndexed { index, point ->
                             val hasValue = point.intensity > 0f
-                            val x = stepX * index
+                            val x = if (dataPoints.size > 1) {
+                                stepX * index
+                            } else {
+                                singlePointX
+                            }
                             val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
                             val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
                             
@@ -492,18 +500,25 @@ private fun oneDecimal(value: Float): String {
     return if (rounded % 1f == 0f) "${rounded.toInt()}.0" else rounded.toString()
 }
 
+/**
+ * Minimum absolute trend value required to classify a trend as clearly
+ * "Rising" or "Falling". Trends in the range [-TREND_THRESHOLD, TREND_THRESHOLD]
+ * are treated as "Stable" to avoid marking small fluctuations as significant.
+ */
+private const val TREND_THRESHOLD = 0.5f
+
 @Composable
 private fun TrendCard(
     trend: Float,
     modifier: Modifier = Modifier,
 ) {
     val (icon, color, text) = when {
-        trend > 0.5 -> Triple(
+        trend > TREND_THRESHOLD -> Triple(
             Icons.AutoMirrored.Filled.TrendingUp,
             MaterialTheme.colorScheme.error,
             "Rising"
         )
-        trend < -0.5 -> Triple(
+        trend < -TREND_THRESHOLD -> Triple(
             Icons.AutoMirrored.Filled.TrendingDown,
             MaterialTheme.colorScheme.tertiary,
             "Falling"

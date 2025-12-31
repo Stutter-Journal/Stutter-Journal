@@ -15,19 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@org/api/products": ["libs/api/products/src/index.ts"],
-      "@org/models": ["libs/shared/models/src/index.ts"],
-      "@org/util": ["libs/shared/util/src/index.ts"],
-      "@org/shop/data": ["libs/shop/data/src/index.ts"],
-      "@org/shop/feature-product-detail": [
-        "libs/shop/feature-product-detail/src/index.ts"
-      ],
-      "@org/shop/feature-products": ["libs/shop/feature-products/src/index.ts"],
-      "@org/shop/shared-ui": ["libs/shop/shared-ui/src/index.ts"],
       "@org/portal-shared-ui": ["libs/portal/shared-ui/src/index.ts"],
-      "@org/portal-ui": ["libs/portal/portal-ui/src/index.ts"],
-      "@org/practice/data-access": ["libs/practice/data-access/src/index.ts"],
-      "@org/patients/data-access": ["libs/patients/data-access/src/index.ts"]
+      "@org/portal-ui": ["libs/portal/portal-ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,9 +1,0 @@
-{
-  "name": "practice-data-access",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/practice/data-access/src",
-  "projectType": "library",
-  "tags": ["scope:practice", "type:data-access"],
-  "// targets": "to see all targets run: nx show project practice-data-access --web",
-  "targets": {}
-}

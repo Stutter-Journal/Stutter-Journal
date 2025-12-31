@@ -1,0 +1,13 @@
+{
+  "name": "feat-register",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/auth/feat-register/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:auth", "type:feature"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

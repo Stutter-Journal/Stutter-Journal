@@ -19,7 +19,10 @@
       "@org/ui": ["libs/shared/ui/src/index.ts"],
       "@org/util": ["libs/shared/util/src/index.ts"],
       "@org/models": ["libs/shared/models/src/index.ts"],
-      "@org/contracts": ["libs/shared/api/contracts/src/index.ts"]
+      "@org/contracts": ["libs/shared/api/contracts/src/index.ts"],
+      "@org/data-access": ["libs/auth/data-access/src/index.ts"],
+      "@org/feat-login": ["libs/auth/feat-login/src/index.ts"],
+      "@org/feat-register": ["libs/auth/feat-register/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

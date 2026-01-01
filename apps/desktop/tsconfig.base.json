@@ -22,7 +22,11 @@
       "@org/contracts": ["libs/shared/api/contracts/src/index.ts"],
       "@org/feat-login": ["libs/auth/feat-login/src/index.ts"],
       "@org/feat-register": ["libs/auth/feat-register/src/index.ts"],
-      "@org/auth-data-access": ["libs/auth/data-access/src/index.ts"]
+      "@org/auth-data-access": ["libs/auth/data-access/src/index.ts"],
+      "@org/practice-data-access": ["libs/practice/data-access/src/index.ts"],
+      "@org/feat-practice-setup": [
+        "libs/practice/feat-practice-setup/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

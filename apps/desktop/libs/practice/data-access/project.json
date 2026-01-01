@@ -1,0 +1,13 @@
+{
+  "name": "practice-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/practice/data-access/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:practice", "type:data-access"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

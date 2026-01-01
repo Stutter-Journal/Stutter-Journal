@@ -37,7 +37,11 @@
         "libs/patients/feat-patient-list/src/index.ts"
       ],
       "@org/data-access": ["libs/entries/entries-data-access/src/index.ts"],
-      "@org/feat-entry-list": ["libs/entries/feat-entry-list/src/index.ts"]
+      "@org/feat-entry-list": ["libs/entries/feat-entry-list/src/index.ts"],
+      "@org/analytics-data-access": ["libs/analytics/data-access/src/index.ts"],
+      "@org/feat-patient-analytics": [
+        "libs/analytics/feat-patient-analytics/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

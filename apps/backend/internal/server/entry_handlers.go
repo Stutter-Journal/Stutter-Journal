@@ -33,6 +33,19 @@ type entriesResponse struct {
 	Entries []entryDTO `json:"entries"`
 }
 
+// patientEntriesHandler lists patient entries with optional time range filtering.
+// @Summary List patient entries (doctor must have approved link)
+// @Tags Entries
+// @Produce json
+// @Security SessionCookie
+// @Param id path string true "Patient ID"
+// @Param from query string false "ISO timestamp (RFC3339) lower bound"
+// @Param to query string false "ISO timestamp (RFC3339) upper bound"
+// @Success 200 {object} EntriesResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Router /patients/{id}/entries [get]
 func (s *Server) patientEntriesHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {

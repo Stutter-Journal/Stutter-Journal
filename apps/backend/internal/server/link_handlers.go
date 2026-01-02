@@ -47,6 +47,18 @@ type patientsListResponse struct {
 	PendingLinks []linkDTO    `json:"pendingLinks"`
 }
 
+// inviteLinkHandler invites or creates a patient and establishes a pending link.
+// @Summary Invite a patient to link with the doctor
+// @Tags Links
+// @Accept json
+// @Produce json
+// @Security SessionCookie
+// @Param request body LinkInviteRequest true "Invite payload"
+// @Success 201 {object} LinkResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Router /links/invite [post]
 func (s *Server) inviteLinkHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {
@@ -85,11 +97,34 @@ func (s *Server) inviteLinkHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// requestLinkHandler proxies patient-side link request.
+// @Summary Patient-side link request (placeholder)
+// @Tags Links
+// @Accept json
+// @Produce json
+// @Security SessionCookie
+// @Param request body LinkInviteRequest true "Invite payload"
+// @Success 201 {object} LinkResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Router /links/request [post]
 func (s *Server) requestLinkHandler(w http.ResponseWriter, r *http.Request) {
 	// For now reuse invite semantics but keep endpoint available.
 	s.inviteLinkHandler(w, r)
 }
 
+// approveLinkHandler approves a pending link by ID.
+// @Summary Approve a pending doctor-patient link
+// @Tags Links
+// @Produce json
+// @Security SessionCookie
+// @Param id path string true "Link ID"
+// @Success 200 {object} LinkApproveResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /links/{id}/approve [post]
 func (s *Server) approveLinkHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {
@@ -139,6 +174,14 @@ func (s *Server) approveLinkHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// listPatientsHandler returns linked and pending patients for the doctor.
+// @Summary List patients and pending links for the current doctor
+// @Tags Patients
+// @Produce json
+// @Security SessionCookie
+// @Success 200 {object} PatientsResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /patients [get]
 func (s *Server) listPatientsHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {

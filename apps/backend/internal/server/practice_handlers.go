@@ -23,6 +23,17 @@ type practiceResponse struct {
 	LogoURL *string `json:"logoUrl,omitempty"`
 }
 
+// practiceCreateHandler creates a practice and assigns the current doctor.
+// @Summary Create a practice and assign the current doctor
+// @Tags Practice
+// @Accept json
+// @Produce json
+// @Security SessionCookie
+// @Param request body PracticeCreateRequest true "Practice create payload"
+// @Success 201 {object} PracticeCreateResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /practice [post]
 func (s *Server) practiceCreateHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {

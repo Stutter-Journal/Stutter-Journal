@@ -21,6 +21,7 @@
     "better-auth": "^1.4.9",
     "express": "^4.22.1",
     "intro.js": "^8.3.2",
+    "orval": "^7.17.2",
     "reflect-metadata": "^0.1.14",
     "rxjs": "~7.8.2",
     "zone.js": "0.16.0"

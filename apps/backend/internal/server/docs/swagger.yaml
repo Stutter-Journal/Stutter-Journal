@@ -1,0 +1,551 @@
+definitions:
+  server.AnalyticsResponse:
+    properties:
+      distributions:
+        $ref: '#/definitions/server.analyticsDistributions'
+      rangeDays:
+        type: integer
+      trend:
+        items:
+          $ref: '#/definitions/server.trendPoint'
+        type: array
+    type: object
+  server.DoctorLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.DoctorRegisterRequest:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.DoctorResponse:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      practiceId:
+        type: string
+      role:
+        type: string
+    type: object
+  server.EntriesResponse:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/server.entryDTO'
+        type: array
+    type: object
+  server.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  server.LinkApproveResponse:
+    properties:
+      link:
+        $ref: '#/definitions/server.linkDTO'
+      patient:
+        $ref: '#/definitions/server.patientDTO'
+    type: object
+  server.LinkInviteRequest:
+    properties:
+      displayName:
+        type: string
+      patientCode:
+        type: string
+      patientEmail:
+        type: string
+      patientId:
+        type: string
+    type: object
+  server.LinkResponse:
+    properties:
+      link:
+        $ref: '#/definitions/server.linkDTO'
+      patient:
+        $ref: '#/definitions/server.patientDTO'
+    type: object
+  server.PatientsResponse:
+    properties:
+      patients:
+        items:
+          $ref: '#/definitions/server.patientDTO'
+        type: array
+      pendingLinks:
+        items:
+          $ref: '#/definitions/server.linkDTO'
+        type: array
+    type: object
+  server.PracticeCreateRequest:
+    properties:
+      address:
+        type: string
+      logoUrl:
+        type: string
+      name:
+        type: string
+    type: object
+  server.PracticeCreateResponse:
+    properties:
+      doctor:
+        $ref: '#/definitions/server.DoctorResponse'
+      practice:
+        $ref: '#/definitions/server.PracticeResponse'
+    type: object
+  server.PracticeResponse:
+    properties:
+      address:
+        type: string
+      id:
+        type: string
+      logoUrl:
+        type: string
+      name:
+        type: string
+    type: object
+  server.StatusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  server.analyticsDistributions:
+    properties:
+      emotions:
+        additionalProperties:
+          type: integer
+        type: object
+      techniques:
+        additionalProperties:
+          type: integer
+        type: object
+      triggers:
+        additionalProperties:
+          type: integer
+        type: object
+    type: object
+  server.entryDTO:
+    properties:
+      createdAt:
+        type: string
+      emotions:
+        type: any
+      happenedAt:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      patientId:
+        type: string
+      situation:
+        type: string
+      stutterFrequency:
+        type: integer
+      tags:
+        type: any
+      techniques:
+        type: any
+      triggers:
+        type: any
+      updatedAt:
+        type: string
+    type: object
+  server.linkDTO:
+    properties:
+      approvedAt:
+        type: string
+      doctorId:
+        type: string
+      id:
+        type: string
+      patientId:
+        type: string
+      requestedAt:
+        type: string
+      status:
+        type: string
+    type: object
+  server.patientDTO:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      patientCode:
+        type: string
+    type: object
+  server.trendPoint:
+    properties:
+      avgStutterFrequency:
+        type: number
+      count:
+        type: integer
+      date:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /doctor/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Doctor login payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.DoctorLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.DoctorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Authenticate a doctor
+      tags:
+      - Doctor
+  /doctor/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Terminate the current session
+      tags:
+      - Doctor
+  /doctor/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.DoctorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Fetch the current doctor
+      tags:
+      - Doctor
+  /doctor/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Doctor registration payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.DoctorRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.DoctorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Register a doctor account
+      tags:
+      - Doctor
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+      summary: Liveness probe
+      tags:
+      - System
+  /links/{id}/approve:
+    post:
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.LinkApproveResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Approve a pending doctor-patient link
+      tags:
+      - Links
+  /links/invite:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Invite payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.LinkInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.LinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Invite a patient to link with the doctor
+      tags:
+      - Links
+  /links/request:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Invite payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.LinkInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.LinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Patient-side link request (placeholder)
+      tags:
+      - Links
+  /patients:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PatientsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: List patients and pending links for the current doctor
+      tags:
+      - Patients
+  /patients/{id}/analytics:
+    get:
+      parameters:
+      - description: Patient ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Range in days (7, 30, or 90). Defaults to 7.
+        in: query
+        name: range
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.AnalyticsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Patient analytics (distributions and stutter trend)
+      tags:
+      - Analytics
+  /patients/{id}/entries:
+    get:
+      parameters:
+      - description: Patient ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ISO timestamp (RFC3339) lower bound
+        in: query
+        name: from
+        type: string
+      - description: ISO timestamp (RFC3339) upper bound
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.EntriesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: List patient entries (doctor must have approved link)
+      tags:
+      - Entries
+  /practice:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Practice create payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PracticeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.PracticeCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Create a practice and assign the current doctor
+      tags:
+      - Practice
+  /ready:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+      summary: Readiness probe
+      tags:
+      - System
+swagger: "2.0"

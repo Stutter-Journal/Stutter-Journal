@@ -44,10 +44,23 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, map[string]string{"message": "Hello World"})
 }
 
+// HealthHandler reports liveness.
+// @Summary Liveness probe
+// @Tags System
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /health [get]
 func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
+// ReadyHandler reports readiness including database health.
+// @Summary Readiness probe
+// @Tags System
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Failure 503 {object} StatusResponse
+// @Router /ready [get]
 func (s *Server) ReadyHandler(w http.ResponseWriter, r *http.Request) {
 	if s.Db == nil {
 		s.writeJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "unavailable", "reason": "database not configured"})

@@ -1,16 +1,11 @@
 package server
 
 import (
-	_ "embed"
 	"net/http"
 
+	docs "backend/internal/server/docs"
 	"github.com/go-chi/chi/v5"
 )
-
-// openAPISpec holds the embedded OpenAPI definition.
-//
-//go:embed docs/openapi.yaml
-var openAPISpec []byte
 
 const redocPage = `<!doctype html>
 <html lang="en">
@@ -27,7 +22,7 @@ const redocPage = `<!doctype html>
   <div id="redoc-container"></div>
   <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
   <script>
-    Redoc.init('/docs/openapi.yaml', {
+    Redoc.init('/docs/doc.json', {
       hideLoading: true,
       expandResponses: '200,201',
       scrollYOffset: 24
@@ -37,15 +32,17 @@ const redocPage = `<!doctype html>
 </html>`
 
 func (s *Server) registerDocsRoutes(r chi.Router) {
-	r.Route("/docs", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			_, _ = w.Write([]byte(redocPage))
-		})
+	r.Get("/docs/doc.json", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+	})
 
-		r.Get("/openapi.yaml", func(w http.ResponseWriter, _ *http.Request) {
-			w.Header().Set("Content-Type", "application/yaml; charset=utf-8")
-			_, _ = w.Write(openAPISpec)
-		})
+	r.Get("/docs", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte(redocPage))
+	})
+
+	r.Get("/docs/", func(w http.ResponseWriter, req *http.Request) {
+		http.Redirect(w, req, "/docs", http.StatusPermanentRedirect)
 	})
 }

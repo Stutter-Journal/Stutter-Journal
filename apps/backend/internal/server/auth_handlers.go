@@ -36,6 +36,16 @@ type doctorResponse struct {
 	PracticeID  *string `json:"practiceId,omitempty"`
 }
 
+// doctorRegisterHandler registers a new doctor account.
+// @Summary Register a doctor account
+// @Tags Doctor
+// @Accept json
+// @Produce json
+// @Param request body DoctorRegisterRequest true "Doctor registration payload"
+// @Success 201 {object} DoctorResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 409 {object} ErrorResponse
+// @Router /doctor/register [post]
 func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if !s.ensureAuthReady(w) {
 		return
@@ -92,6 +102,16 @@ func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// doctorLoginHandler authenticates a doctor and issues a session cookie.
+// @Summary Authenticate a doctor
+// @Tags Doctor
+// @Accept json
+// @Produce json
+// @Param request body DoctorLoginRequest true "Doctor login payload"
+// @Success 200 {object} DoctorResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /doctor/login [post]
 func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 	if !s.ensureAuthReady(w) {
 		return
@@ -137,6 +157,14 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// doctorMeHandler returns the current doctor profile.
+// @Summary Fetch the current doctor
+// @Tags Doctor
+// @Produce json
+// @Security SessionCookie
+// @Success 200 {object} DoctorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /doctor/me [get]
 func (s *Server) doctorMeHandler(w http.ResponseWriter, r *http.Request) {
 	doctor, ok := currentDoctor(r.Context())
 	if !ok {
@@ -149,6 +177,14 @@ func (s *Server) doctorMeHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// doctorLogoutHandler clears the session cookie.
+// @Summary Terminate the current session
+// @Tags Doctor
+// @Produce json
+// @Security SessionCookie
+// @Success 200 {object} StatusResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /doctor/logout [post]
 func (s *Server) doctorLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	s.Auth.ClearSession(w)
 	s.writeJSON(w, http.StatusOK, map[string]string{"status": "logged out"})

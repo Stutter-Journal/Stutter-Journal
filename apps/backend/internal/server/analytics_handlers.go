@@ -30,6 +30,18 @@ type trendPoint struct {
 	Count            int     `json:"count"`
 }
 
+// analyticsHandler computes distributions and stutter trend for a patient.
+// @Summary Patient analytics (distributions and stutter trend)
+// @Tags Analytics
+// @Produce json
+// @Security SessionCookie
+// @Param id path string true "Patient ID"
+// @Param range query string false "Range in days (7, 30, or 90). Defaults to 7."
+// @Success 200 {object} AnalyticsResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 403 {object} ErrorResponse
+// @Router /patients/{id}/analytics [get]
 func (s *Server) analyticsHandler(w http.ResponseWriter, r *http.Request) {
 	doc, ok := currentDoctor(r.Context())
 	if !ok {

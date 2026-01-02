@@ -7,12 +7,20 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
+      "dependsOn": ["gen"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/api/contracts",
         "main": "libs/shared/api/contracts/src/index.ts",
         "tsConfig": "libs/shared/api/contracts/tsconfig.lib.json",
         "assets": ["libs/shared/api/contracts/*.md"]
+      }
+    },
+    "gen": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/generated"],
+      "options": {
+        "command": "pnpm exec orval --config tools/openapi/orval.config.cjs"
       }
     }
   }

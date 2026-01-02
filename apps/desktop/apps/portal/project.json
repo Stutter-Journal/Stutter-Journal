@@ -69,7 +69,7 @@
       },
       "defaultConfiguration": "development",
       "dependsOn": [
-        "api:serve"
+        "bff:serve"
       ],
       "options": {
         "proxyConfig": "apps/portal/proxy.conf.json"

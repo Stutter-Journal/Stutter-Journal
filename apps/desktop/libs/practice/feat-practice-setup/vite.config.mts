@@ -23,6 +23,7 @@ export default defineConfig(() => ({
     coverage: {
       reportsDirectory: '../../../coverage/libs/practice/feat-practice-setup',
       provider: 'v8' as const,
+      include: ['src/**/*.{ts,tsx}'],
     },
   },
 }));

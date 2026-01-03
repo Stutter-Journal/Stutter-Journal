@@ -24,6 +24,7 @@ export default defineConfig(() => ({
       reportsDirectory:
         '../../../coverage/libs/analytics/feat-patient-analytics',
       provider: 'v8' as const,
+      include: ['src/**/*.{ts,tsx}'],
     },
   },
 }));

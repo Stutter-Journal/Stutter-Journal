@@ -24,6 +24,7 @@
     "orval": "^7.17.2",
     "reflect-metadata": "^0.1.14",
     "rxjs": "~7.8.2",
+    "zod": "^4.3.4",
     "zone.js": "0.16.0"
   },
   "devDependencies": {

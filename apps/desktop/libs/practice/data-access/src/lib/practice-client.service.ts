@@ -2,17 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface PracticeInfo {
-  id: string;
-  name: string;
-  timezone?: string;
-}
-
-export interface PracticeSetupRequest {
-  name: string;
-  timezone?: string;
-}
+import {
+  ServerPracticeCreateRequest,
+  ServerPracticeCreateResponse,
+  ServerPracticeResponse,
+} from '@org/contracts';
 
 @Injectable({ providedIn: 'root' })
 export class PracticeClientService {
@@ -28,15 +22,15 @@ export class PracticeClientService {
     this.errorSig.set(null);
   }
 
-  async getPractice(): Promise<PracticeInfo> {
+  async getPractice(): Promise<ServerPracticeResponse> {
     return this.execute(() =>
-      this.http.get<PracticeInfo>('/bff/practice', { withCredentials: true })
+      this.http.get<ServerPracticeResponse>('/practice', { withCredentials: true })
     );
   }
 
-  async setupPractice(payload: PracticeSetupRequest): Promise<PracticeInfo> {
+  async setupPractice(payload: ServerPracticeCreateRequest): Promise<ServerPracticeCreateResponse> {
     return this.execute(() =>
-      this.http.post<PracticeInfo>('/bff/practice', payload, { withCredentials: true })
+      this.http.post<ServerPracticeCreateResponse>('/practice', payload, { withCredentials: true })
     );
   }
 

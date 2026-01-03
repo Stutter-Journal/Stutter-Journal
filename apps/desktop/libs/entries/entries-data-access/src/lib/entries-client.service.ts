@@ -2,19 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface EntryFilters {
-  from?: string;
-  to?: string;
-}
-
-export interface Entry {
-  id: string;
-  patientId: string;
-  createdAt: string;
-  author?: string;
-  summary?: string;
-}
+import {
+  GetPatientsIdEntriesParams,
+  ServerEntriesResponse,
+  ServerEntryDTO,
+} from '@org/contracts';
 
 @Injectable({ providedIn: 'root' })
 export class EntriesClientService {
@@ -30,21 +22,21 @@ export class EntriesClientService {
     this.errorSig.set(null);
   }
 
-  async getEntries(patientId: string, filters?: EntryFilters): Promise<Entry[]> {
+  async getEntries(patientId: string, filters?: GetPatientsIdEntriesParams): Promise<ServerEntryDTO[]> {
     const params = new HttpParams({
       fromObject: {
-        patientId,
         from: filters?.from ?? '',
         to: filters?.to ?? '',
       },
     });
 
-    return this.execute(() =>
-      this.http.get<Entry[]>('/bff/entries', {
+    const response = await this.execute(() =>
+      this.http.get<ServerEntriesResponse>(`/patients/${patientId}/entries`, {
         params,
         withCredentials: true,
       })
     );
+    return response.entries ?? [];
   }
 
   private async execute<T>(request: () => Observable<T>): Promise<T> {

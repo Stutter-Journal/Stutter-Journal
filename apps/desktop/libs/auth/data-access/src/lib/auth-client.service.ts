@@ -2,22 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest extends LoginRequest {
-  name?: string;
-}
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  name?: string;
-  role?: string;
-}
+import {
+  ServerDoctorLoginRequest,
+  ServerDoctorRegisterRequest,
+  ServerDoctorResponse,
+} from '@org/contracts';
 
 function isErrorResponse(value: unknown): value is ErrorResponse {
   return Boolean(value && typeof value === 'object' && 'status' in value && 'message' in value);
@@ -27,7 +16,7 @@ function isErrorResponse(value: unknown): value is ErrorResponse {
 export class AuthClientService {
   private readonly http = inject(HttpClient);
 
-  private readonly userSig = signal<AuthUser | null>(null);
+  private readonly userSig = signal<ServerDoctorResponse | null>(null);
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
 
@@ -40,26 +29,26 @@ export class AuthClientService {
     this.errorSig.set(null);
   }
 
-  async login(payload: LoginRequest): Promise<AuthUser> {
+  async login(payload: ServerDoctorLoginRequest): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<AuthUser>('/bff/auth/login', payload, { withCredentials: true })
+      this.http.post<ServerDoctorResponse>('/doctor/login', payload, { withCredentials: true })
     );
     this.userSig.set(user);
     return user;
   }
 
-  async register(payload: RegisterRequest): Promise<AuthUser> {
+  async register(payload: ServerDoctorRegisterRequest): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<AuthUser>('/bff/auth/register', payload, { withCredentials: true })
+      this.http.post<ServerDoctorResponse>('/doctor/register', payload, { withCredentials: true })
     );
     this.userSig.set(user);
     return user;
   }
 
-  async me(): Promise<AuthUser | null> {
+  async me(): Promise<ServerDoctorResponse | null> {
     try {
       const user = await this.execute(() =>
-        this.http.get<AuthUser>('/bff/auth/me', { withCredentials: true })
+        this.http.get<ServerDoctorResponse>('/doctor/me', { withCredentials: true })
       );
       this.userSig.set(user);
       return user;
@@ -73,7 +62,7 @@ export class AuthClientService {
   }
 
   async logout(): Promise<void> {
-    await this.execute(() => this.http.post<void>('/bff/auth/logout', {}, { withCredentials: true }));
+    await this.execute(() => this.http.post<void>('/doctor/logout', {}, { withCredentials: true }));
     this.userSig.set(null);
   }
 

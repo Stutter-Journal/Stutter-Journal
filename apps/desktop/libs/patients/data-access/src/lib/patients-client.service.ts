@@ -23,12 +23,14 @@ export class PatientsClientService {
   }
 
   async getPatients(filters?: PatientFilters): Promise<ServerPatientDTO[]> {
-    const params = new HttpParams({ fromObject: { search: filters?.search ?? '' } });
+    const params = new HttpParams({
+      fromObject: { search: filters?.search ?? '' },
+    });
     const response = await this.execute(() =>
       this.http.get<ServerPatientsResponse>('/patients', {
         params,
         withCredentials: true,
-      })
+      }),
     );
     return response.patients ?? [];
   }

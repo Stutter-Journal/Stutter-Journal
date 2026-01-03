@@ -25,12 +25,17 @@ export class AnalyticsClientService {
     patientId: string,
     params?: GetPatientsIdAnalyticsParams,
   ): Promise<ServerAnalyticsResponse> {
-    const httpParams = new HttpParams({ fromObject: { range: params?.range ?? '7' } });
+    const httpParams = new HttpParams({
+      fromObject: { range: params?.range ?? '7' },
+    });
     return this.execute(() =>
-      this.http.get<ServerAnalyticsResponse>(`/patients/${patientId}/analytics`, {
-        params: httpParams,
-        withCredentials: true,
-      })
+      this.http.get<ServerAnalyticsResponse>(
+        `/patients/${patientId}/analytics`,
+        {
+          params: httpParams,
+          withCredentials: true,
+        },
+      ),
     );
   }
 

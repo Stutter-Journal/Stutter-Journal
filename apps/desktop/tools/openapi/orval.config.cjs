@@ -8,7 +8,11 @@ const input =
  */
 const path = require('path');
 
-const target = path.resolve(__dirname, '../..', 'libs/shared/api/contracts/src/generated/index.ts');
+const target = path.resolve(
+  __dirname,
+  '../..',
+  'libs/shared/api/contracts/src/generated/index.ts',
+);
 
 module.exports = {
   eloquia: {

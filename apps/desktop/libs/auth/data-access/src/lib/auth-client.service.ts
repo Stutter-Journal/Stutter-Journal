@@ -9,7 +9,12 @@ import {
 } from '@org/contracts';
 
 function isErrorResponse(value: unknown): value is ErrorResponse {
-  return Boolean(value && typeof value === 'object' && 'status' in value && 'message' in value);
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'status' in value &&
+      'message' in value,
+  );
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,17 +34,25 @@ export class AuthClientService {
     this.errorSig.set(null);
   }
 
-  async login(payload: ServerDoctorLoginRequest): Promise<ServerDoctorResponse> {
+  async login(
+    payload: ServerDoctorLoginRequest,
+  ): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/login', payload, { withCredentials: true })
+      this.http.post<ServerDoctorResponse>('/doctor/login', payload, {
+        withCredentials: true,
+      }),
     );
     this.userSig.set(user);
     return user;
   }
 
-  async register(payload: ServerDoctorRegisterRequest): Promise<ServerDoctorResponse> {
+  async register(
+    payload: ServerDoctorRegisterRequest,
+  ): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/register', payload, { withCredentials: true })
+      this.http.post<ServerDoctorResponse>('/doctor/register', payload, {
+        withCredentials: true,
+      }),
     );
     this.userSig.set(user);
     return user;
@@ -48,7 +61,9 @@ export class AuthClientService {
   async me(): Promise<ServerDoctorResponse | null> {
     try {
       const user = await this.execute(() =>
-        this.http.get<ServerDoctorResponse>('/doctor/me', { withCredentials: true })
+        this.http.get<ServerDoctorResponse>('/doctor/me', {
+          withCredentials: true,
+        }),
       );
       this.userSig.set(user);
       return user;
@@ -62,7 +77,9 @@ export class AuthClientService {
   }
 
   async logout(): Promise<void> {
-    await this.execute(() => this.http.post<void>('/doctor/logout', {}, { withCredentials: true }));
+    await this.execute(() =>
+      this.http.post<void>('/doctor/logout', {}, { withCredentials: true }),
+    );
     this.userSig.set(null);
   }
 

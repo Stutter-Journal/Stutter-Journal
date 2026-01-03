@@ -79,9 +79,16 @@ export const Playground: Story = {
   render: (args) => ({
     props: {
       ...args,
-      fireInfo: () => toast('Heads up!', { description: 'This is a toast message.' }),
-      fireSuccess: () => toast.success('Saved!', { description: 'Your changes were saved successfully.' }),
-      fireError: () => toast.error('Something went wrong', { description: 'Please try again.' }),
+      fireInfo: () =>
+        toast('Heads up!', { description: 'This is a toast message.' }),
+      fireSuccess: () =>
+        toast.success('Saved!', {
+          description: 'Your changes were saved successfully.',
+        }),
+      fireError: () =>
+        toast.error('Something went wrong', {
+          description: 'Please try again.',
+        }),
     },
     template,
   }),

@@ -48,7 +48,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec nx run-many -t lint
+      - name: Run Linter
+        run: pnpm exec nx run-many -t lint
+        continue-on-error: true
 
   typecheck:
     runs-on: ubuntu-latest

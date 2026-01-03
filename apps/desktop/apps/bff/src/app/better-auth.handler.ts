@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
-import { toNodeHandler } from 'better-auth/integrations/node';
-import type { BetterAuthOptions } from '@better-auth/core';
+import { toNodeHandler } from 'better-auth/node';
+import type { BetterAuthOptions } from 'better-auth';
 
 /**
  * Create the Better Auth handler for Nest/Express. Provide a database adapter
@@ -12,11 +12,14 @@ export function createBetterAuthHandler() {
     // Set to the mount path minus the global "api" prefix (we mount at /api/auth)
     basePath: '/auth',
     baseURL: process.env.BETTER_AUTH_BASE_URL,
+
     // TODO: Provide your database adapter, e.g. drizzleAdapter(db, { provider: 'pg' })
     // or prismaAdapter(prisma). Leaving this undefined will throw at startup.
     database: undefined as unknown as BetterAuthOptions['database'],
-    cookies: {
-      secure: process.env.NODE_ENV === 'production',
+
+    // Cookie configuration goes inside 'advanced'
+    advanced: {
+      useSecureCookies: process.env.NODE_ENV === 'production',
     },
   };
 

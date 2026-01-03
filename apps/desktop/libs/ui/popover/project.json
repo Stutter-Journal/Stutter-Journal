@@ -4,7 +4,7 @@
   "sourceRoot": "libs/ui/popover/src",
   "prefix": "hlm",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:ui", "scope:shared"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",

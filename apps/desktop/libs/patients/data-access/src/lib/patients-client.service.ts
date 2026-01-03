@@ -1,15 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface PatientSummary {
-  id: string;
-  name: string;
-  email?: string;
-  createdAt?: string;
-}
+import { ServerPatientDTO, ServerPatientsResponse } from '@org/contracts';
 
 export interface PatientFilters {
   search?: string;
@@ -29,14 +22,15 @@ export class PatientsClientService {
     this.errorSig.set(null);
   }
 
-  async getPatients(filters?: PatientFilters): Promise<PatientSummary[]> {
+  async getPatients(filters?: PatientFilters): Promise<ServerPatientDTO[]> {
     const params = new HttpParams({ fromObject: { search: filters?.search ?? '' } });
-    return this.execute(() =>
-      this.http.get<PatientSummary[]>('/bff/patients', {
+    const response = await this.execute(() =>
+      this.http.get<ServerPatientsResponse>('/patients', {
         params,
         withCredentials: true,
       })
     );
+    return response.patients ?? [];
   }
 
   private async execute<T>(request: () => Observable<T>): Promise<T> {

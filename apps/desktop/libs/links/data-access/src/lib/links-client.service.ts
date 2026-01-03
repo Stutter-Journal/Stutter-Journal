@@ -2,21 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface InvitePatientRequest {
-  email: string;
-  name?: string;
-  patientId?: string;
-}
-
-export interface InvitePatientResponse {
-  linkToken: string;
-  expiresAt?: string;
-}
-
-export interface ApproveLinkRequest {
-  token: string;
-}
+import {
+  ServerLinkApproveResponse,
+  ServerLinkInviteRequest,
+  ServerLinkInviteRequestBody,
+  ServerLinkResponse,
+} from '@org/contracts';
 
 @Injectable({ providedIn: 'root' })
 export class LinksClientService {
@@ -32,17 +23,23 @@ export class LinksClientService {
     this.errorSig.set(null);
   }
 
-  async invitePatient(payload: InvitePatientRequest): Promise<InvitePatientResponse> {
+  async invitePatient(payload: ServerLinkInviteRequest): Promise<ServerLinkResponse> {
     return this.execute(() =>
-      this.http.post<InvitePatientResponse>('/bff/links/invite', payload, {
+      this.http.post<ServerLinkResponse>('/links/invite', payload, {
         withCredentials: true,
       })
     );
   }
 
-  async approveLink(request: ApproveLinkRequest): Promise<void> {
-    await this.execute(() =>
-      this.http.post<void>('/bff/links/approve', request, { withCredentials: true })
+  async requestLink(payload: ServerLinkInviteRequestBody): Promise<ServerLinkResponse> {
+    return this.execute(() =>
+      this.http.post<ServerLinkResponse>('/links/request', payload, { withCredentials: true })
+    );
+  }
+
+  async approveLink(linkId: string): Promise<ServerLinkApproveResponse> {
+    return this.execute(() =>
+      this.http.post<ServerLinkApproveResponse>(`/links/${linkId}/approve`, {}, { withCredentials: true })
     );
   }
 

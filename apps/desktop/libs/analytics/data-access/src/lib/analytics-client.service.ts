@@ -2,16 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-
-export interface AnalyticsRange {
-  from: string;
-  to: string;
-}
-
-export interface AnalyticsResponse {
-  patientId: string;
-  metrics: Record<string, number>;
-}
+import {
+  GetPatientsIdAnalyticsParams,
+  ServerAnalyticsResponse,
+} from '@org/contracts';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsClientService {
@@ -27,11 +21,14 @@ export class AnalyticsClientService {
     this.errorSig.set(null);
   }
 
-  async getAnalytics(patientId: string, range: AnalyticsRange): Promise<AnalyticsResponse> {
-    const params = new HttpParams({ fromObject: { patientId, from: range.from, to: range.to } });
+  async getAnalytics(
+    patientId: string,
+    params?: GetPatientsIdAnalyticsParams,
+  ): Promise<ServerAnalyticsResponse> {
+    const httpParams = new HttpParams({ fromObject: { range: params?.range ?? '7' } });
     return this.execute(() =>
-      this.http.get<AnalyticsResponse>('/bff/analytics', {
-        params,
+      this.http.get<ServerAnalyticsResponse>(`/patients/${patientId}/analytics`, {
+        params: httpParams,
         withCredentials: true,
       })
     );

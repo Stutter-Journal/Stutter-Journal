@@ -6,16 +6,11 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { createBetterAuthHandler } from './app/better-auth.handler';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-
-  // Mount Better Auth under /api/auth
-  const authHandler = createBetterAuthHandler();
-  app.use('/api/auth', authHandler);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

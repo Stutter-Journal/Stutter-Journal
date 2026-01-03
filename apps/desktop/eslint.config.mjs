@@ -80,6 +80,13 @@ export default [
     },
   },
   {
+    files: ['libs/ui/**/*.ts'],
+    rules: {
+      '@angular-eslint/directive-selector': 'off',
+      '@angular-eslint/component-selector': 'off',
+    },
+  },
+  {
     files: [
       '**/*.ts',
       '**/*.tsx',

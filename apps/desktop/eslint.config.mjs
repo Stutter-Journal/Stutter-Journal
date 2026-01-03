@@ -36,6 +36,26 @@ export default [
               sourceTag: 'type:data',
               onlyDependOnLibsWithTags: ['type:data'],
             },
+            {
+              sourceTag: 'type:data-access',
+              onlyDependOnLibsWithTags: ['type:data-access', 'type:util', 'type:model'],
+            },
+            {
+              sourceTag: 'type:feature',
+              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:ui', 'type:util', 'type:model'],
+            },
+            {
+              sourceTag: 'type:ui',
+              onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:model'],
+            },
+            {
+              sourceTag: 'type:model',
+              onlyDependOnLibsWithTags: ['type:model', 'type:util'],
+            },
+            {
+              sourceTag: 'type:util',
+              onlyDependOnLibsWithTags: ['type:util', 'type:model'],
+            },
           ],
         },
       ],

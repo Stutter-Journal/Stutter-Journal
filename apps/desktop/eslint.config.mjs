@@ -38,11 +38,21 @@ export default [
             },
             {
               sourceTag: 'type:data-access',
-              onlyDependOnLibsWithTags: ['type:data-access', 'type:util', 'type:model'],
+              onlyDependOnLibsWithTags: [
+                'type:data-access',
+                'type:util',
+                'type:model',
+              ],
             },
             {
               sourceTag: 'type:feature',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:ui', 'type:util', 'type:model'],
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:data-access',
+                'type:ui',
+                'type:util',
+                'type:model',
+              ],
             },
             {
               sourceTag: 'type:ui',

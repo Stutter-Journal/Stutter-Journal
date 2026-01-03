@@ -7,5 +7,7 @@ import { normalizeError } from '@org/util';
  */
 export const bffAuthInterceptor: HttpInterceptorFn = (req, next) => {
   const withCreds = req.clone({ withCredentials: true });
-  return next(withCreds).pipe(catchError((err) => throwError(() => normalizeError(err))));
+  return next(withCreds).pipe(
+    catchError((err) => throwError(() => normalizeError(err))),
+  );
 };

@@ -24,13 +24,19 @@ export class PracticeClientService {
 
   async getPractice(): Promise<ServerPracticeResponse> {
     return this.execute(() =>
-      this.http.get<ServerPracticeResponse>('/practice', { withCredentials: true })
+      this.http.get<ServerPracticeResponse>('/practice', {
+        withCredentials: true,
+      }),
     );
   }
 
-  async setupPractice(payload: ServerPracticeCreateRequest): Promise<ServerPracticeCreateResponse> {
+  async setupPractice(
+    payload: ServerPracticeCreateRequest,
+  ): Promise<ServerPracticeCreateResponse> {
     return this.execute(() =>
-      this.http.post<ServerPracticeCreateResponse>('/practice', payload, { withCredentials: true })
+      this.http.post<ServerPracticeCreateResponse>('/practice', payload, {
+        withCredentials: true,
+      }),
     );
   }
 

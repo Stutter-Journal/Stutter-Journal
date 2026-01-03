@@ -22,7 +22,10 @@ export class EntriesClientService {
     this.errorSig.set(null);
   }
 
-  async getEntries(patientId: string, filters?: GetPatientsIdEntriesParams): Promise<ServerEntryDTO[]> {
+  async getEntries(
+    patientId: string,
+    filters?: GetPatientsIdEntriesParams,
+  ): Promise<ServerEntryDTO[]> {
     const params = new HttpParams({
       fromObject: {
         from: filters?.from ?? '',
@@ -34,7 +37,7 @@ export class EntriesClientService {
       this.http.get<ServerEntriesResponse>(`/patients/${patientId}/entries`, {
         params,
         withCredentials: true,
-      })
+      }),
     );
     return response.entries ?? [];
   }

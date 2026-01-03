@@ -23,23 +23,33 @@ export class LinksClientService {
     this.errorSig.set(null);
   }
 
-  async invitePatient(payload: ServerLinkInviteRequest): Promise<ServerLinkResponse> {
+  async invitePatient(
+    payload: ServerLinkInviteRequest,
+  ): Promise<ServerLinkResponse> {
     return this.execute(() =>
       this.http.post<ServerLinkResponse>('/links/invite', payload, {
         withCredentials: true,
-      })
+      }),
     );
   }
 
-  async requestLink(payload: ServerLinkInviteRequestBody): Promise<ServerLinkResponse> {
+  async requestLink(
+    payload: ServerLinkInviteRequestBody,
+  ): Promise<ServerLinkResponse> {
     return this.execute(() =>
-      this.http.post<ServerLinkResponse>('/links/request', payload, { withCredentials: true })
+      this.http.post<ServerLinkResponse>('/links/request', payload, {
+        withCredentials: true,
+      }),
     );
   }
 
   async approveLink(linkId: string): Promise<ServerLinkApproveResponse> {
     return this.execute(() =>
-      this.http.post<ServerLinkApproveResponse>(`/links/${linkId}/approve`, {}, { withCredentials: true })
+      this.http.post<ServerLinkApproveResponse>(
+        `/links/${linkId}/approve`,
+        {},
+        { withCredentials: true },
+      ),
     );
   }
 

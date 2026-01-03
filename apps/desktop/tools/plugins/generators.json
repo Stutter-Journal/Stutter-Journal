@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "tag-ui-libs": {
+      "factory": "./src/generators/tag-ui-libs/tag-ui-libs",
+      "schema": "./src/generators/tag-ui-libs/schema.json",
+      "description": "tag-ui-libs generator"
+    }
+  }
+}

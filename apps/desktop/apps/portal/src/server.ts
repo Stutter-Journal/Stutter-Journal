@@ -39,8 +39,9 @@ app.use(
 
 /**
  * Handle all other requests by rendering the Angular application.
+ * INFO: The replacement from ** to /*path is mainly due to how express operates from v5 onwards
  */
-app.use('/**', (req, res, next) => {
+app.use('/*path', (req, res, next) => {
   angularApp
     .handle(req)
     .then((response) =>

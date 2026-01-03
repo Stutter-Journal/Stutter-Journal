@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { z, ZodSchema } from 'zod';
+import { z } from 'zod';
 import { Request, Response } from 'express';
 
 const BASE_URL = process.env.ELOQUIA_API_BASE_URL || 'http://localhost:8080';
@@ -10,7 +10,7 @@ interface ForwardOptions<TBody = unknown> {
   path: string;
   method: 'GET' | 'POST';
   body?: TBody;
-  schema?: ZodSchema | null;
+  schema?: z.ZodTypeAny | null;
 }
 
 @Injectable()
@@ -28,12 +28,10 @@ export class BffService {
     schema,
   }: ForwardOptions<TBody>): Promise<void> {
     const url = `${BASE_URL}${path}`;
-
     const headers: Record<string, string> = {
       'content-type': 'application/json',
     };
 
-    // Forward client cookies if present
     if (req.headers.cookie) {
       headers.cookie = req.headers.cookie;
     }
@@ -49,8 +47,7 @@ export class BffService {
 
     const text = await upstream.text();
     const json = text ? JSON.parse(text) : undefined;
-
-    const validated = schema ? (schema as ZodSchema).parse(json) : json;
+    const validated = schema ? schema.parse(json) : json;
 
     res.status(upstream.status).json(validated ?? null);
   }

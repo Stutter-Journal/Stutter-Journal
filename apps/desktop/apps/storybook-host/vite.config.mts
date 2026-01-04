@@ -8,9 +8,13 @@ import { join } from '@angular/compiler-cli';
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/storybook-host',
-  plugins: [angular({
-    tsconfig: join(__dirname, "tsconfig.spec.json")
-  }), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  plugins: [
+    angular({
+      tsconfig: join(__dirname, 'tsconfig.spec.json'),
+    }),
+    nxViteTsPaths(),
+    nxCopyAssetsPlugin(['*.md']),
+  ],
   // Uncomment this if you are using workers.
   // worker: {
   //   plugins: () => [ nxViteTsPaths() ],

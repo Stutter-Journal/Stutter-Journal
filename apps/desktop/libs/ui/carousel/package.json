@@ -9,7 +9,7 @@
     "@spartan-ng/helm/button": "0.0.1",
     "@spartan-ng/helm/icon": "0.0.1",
     "clsx": "^2.1.1",
-    "embla-carousel-angular": "^20.0.0"
+    "embla-carousel-angular": "^21.0.0"
   },
   "sideEffects": false
 }

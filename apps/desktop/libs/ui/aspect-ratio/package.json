@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/core": "^21.0.0",
-    "@angular/cdk": "21.0.0",
+    "@angular/cdk": "21.0.5",
     "@spartan-ng/helm/utils": "0.0.1"
   },
   "sideEffects": false

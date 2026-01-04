@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { dirname } from "node:path";
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import type { StorybookConfig } from '@storybook/angular';
 
 const config: StorybookConfig = {
@@ -10,7 +10,7 @@ const config: StorybookConfig = {
   ],
   addons: [],
   framework: {
-    name: getAbsolutePath("@storybook/angular"),
+    name: getAbsolutePath('@storybook/angular'),
     options: {
       builder: {
         viteConfigPath: 'apps/storybook-host/vite.config.mts',

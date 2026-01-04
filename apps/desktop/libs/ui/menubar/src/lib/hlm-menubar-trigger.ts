@@ -65,10 +65,9 @@ export class HlmMenubarTrigger {
       setTimeout(
         () =>
           // eslint-disable-next-line
-          ((this._cdkTrigger as any)._spartanLastPosition =  
-            (
-              this._cdkTrigger as any
-            ).overlayRef._positionStrategy._lastPosition),
+          ((this._cdkTrigger as any)._spartanLastPosition = (
+            this._cdkTrigger as any
+          ).overlayRef._positionStrategy._lastPosition),
       ),
     );
 

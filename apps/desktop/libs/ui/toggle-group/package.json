@@ -6,7 +6,7 @@
     "@spartan-ng/brain": "0.0.1-alpha.594",
     "@spartan-ng/helm/toggle": "0.0.1",
     "@spartan-ng/helm/utils": "0.0.1",
-    "@angular/cdk": "21.0.0"
+    "@angular/cdk": "21.0.5"
   },
   "sideEffects": false
 }

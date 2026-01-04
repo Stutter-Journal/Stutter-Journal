@@ -10,7 +10,7 @@
     "@ng-icons/lucide": ">=32.0.0 <34.0.0",
     "@spartan-ng/helm/icon": "0.0.1",
     "clsx": "^2.1.1",
-    "@angular/cdk": "21.0.0"
+    "@angular/cdk": "21.0.5"
   },
   "sideEffects": false
 }

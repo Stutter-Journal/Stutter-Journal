@@ -26,7 +26,7 @@ import { classes } from '@spartan-ng/helm/utils';
     } @else {
       <hlm-skeleton
         data-sidebar="menu-skeleton-text"
-        class="h-4 max-w-[var(--skeleton-width)] flex-1"
+        class="h-4 max-w-(--skeleton-width) flex-1"
       />
     }
   `,

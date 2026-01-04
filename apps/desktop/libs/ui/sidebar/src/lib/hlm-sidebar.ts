@@ -43,7 +43,7 @@ import { injectHlmSidebarConfig } from './hlm-sidebar.token';
           data-slot="sidebar"
           data-sidebar="sidebar"
           data-mobile="true"
-          class="bg-sidebar text-sidebar-foreground h-screen w-[var(--sidebar-width)] p-0 [&>button]:hidden"
+          class="bg-sidebar text-sidebar-foreground h-screen w-(--sidebar-width) p-0 [&>button]:hidden"
           [style.--sidebar-width]="sidebarWidthMobile()"
         >
           <div class="flex h-full w-full flex-col">
@@ -86,25 +86,25 @@ export class HlmSidebar {
 
   protected readonly _sidebarGapComputedClass = computed(() =>
     hlm(
-      'relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear',
+      'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
       'group-data-[collapsible=offcanvas]:w-0',
       'group-data-[side=right]:rotate-180',
       this.variant() === 'floating' || this.variant() === 'inset'
-        ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
-        : 'group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]',
+        ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+theme(spacing.4))]'
+        : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
     ),
   );
 
   public readonly sidebarContainerClass = input<ClassValue>('');
   protected readonly _sidebarContainerComputedClass = computed(() =>
     hlm(
-      'fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex',
+      'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
       this.side() === 'left'
         ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
         : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
       this.variant() === 'floating' || this.variant() === 'inset'
-        ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
-        : 'group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[side=left]:border-r group-data-[side=right]:border-l',
+        ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+theme(spacing.4)+2px)]'
+        : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
       this.sidebarContainerClass(),
     ),
   );
@@ -149,7 +149,7 @@ export class HlmSidebar {
     classes(() => {
       if (this.collapsible() === 'none') {
         return hlm(
-          'bg-sidebar text-sidebar-foreground flex h-svh w-[var(--sidebar-width)] flex-col',
+          'bg-sidebar text-sidebar-foreground flex h-svh w-(--sidebar-width) flex-col',
         );
       } else if (this._sidebarService.isMobile()) {
         return '';

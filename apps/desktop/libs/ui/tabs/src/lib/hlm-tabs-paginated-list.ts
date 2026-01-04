@@ -51,7 +51,7 @@ import { listVariants } from './hlm-tabs-list';
 
     <div
       #tabListContainer
-      class="z-[1] flex grow overflow-hidden"
+      class="z-1 flex grow overflow-hidden"
       (keydown)="_handleKeydown($event)"
     >
       <div
@@ -87,7 +87,7 @@ import { listVariants } from './hlm-tabs-list';
 export class HlmTabsPaginatedList extends BrnTabsPaginatedList {
   constructor() {
     super();
-    classes(() => 'relative flex flex-shrink-0 gap-1 overflow-hidden');
+    classes(() => 'relative flex shrink-0 gap-1 overflow-hidden');
   }
 
   public readonly items = contentChildren(BrnTabsTrigger, {
@@ -121,7 +121,7 @@ export class HlmTabsPaginatedList extends BrnTabsPaginatedList {
   });
   protected readonly _paginationButtonClass = computed(() =>
     hlm(
-      'relative z-[2] select-none disabled:cursor-default',
+      'relative z-2 select-none disabled:cursor-default',
       buttonVariants({ variant: 'ghost', size: 'icon' }),
       this.paginationButtonClass(),
     ),

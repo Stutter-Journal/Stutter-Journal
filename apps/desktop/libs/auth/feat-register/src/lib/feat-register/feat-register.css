@@ -1,1 +1,2 @@
-/*  */
+@import 'tailwindcss/preflight' layer(utilities);
+@import 'tailwindcss/utilities' layer(utilities);

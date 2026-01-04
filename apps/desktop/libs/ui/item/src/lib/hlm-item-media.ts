@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { injectHlmItemMediaConfig } from './hlm-item-token';
 
 const itemMediaVariants = cva(
-  'flex shrink-0 items-center justify-center gap-2 group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-[[data-slot=item-description]]/item:self-start [&_ng-icon]:pointer-events-none',
+  'flex shrink-0 items-center justify-center gap-2 group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_ng-icon]:pointer-events-none',
   {
     variants: {
       variant: {

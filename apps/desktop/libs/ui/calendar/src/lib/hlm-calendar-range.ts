@@ -231,10 +231,10 @@ export class HlmCalendarRange<T> {
     'data-[outside]:text-muted-foreground data-[outside]:aria-selected:text-muted-foreground',
     'data-[today]:bg-accent data-[today]:text-accent-foreground',
     'data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:focus:bg-primary data-[selected]:focus:text-primary-foreground',
-    'data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
+    'data-[disabled]:text-muted-foreground data-disabled:opacity-50',
     'data-[range-start]:rounded-l-md',
     'data-[range-end]:rounded-r-md',
-    'data-[range-between]:bg-accent data-[range-between]:text-accent-foreground data-[range-between]:rounded-none',
+    'data-[range-between]:bg-accent data-[range-between]:text-accent-foreground data-range-between:rounded-none',
     'dark:hover:text-accent-foreground',
   );
 

@@ -16,7 +16,7 @@ export class HlmAccordionContent {
   constructor() {
     classes(
       () =>
-        'text-sm transition-all data-[state=closed]:h-0 data-[state=open]:h-[var(--brn-accordion-content-height)]',
+        'text-sm transition-all data-[state=closed]:h-0 data-[state=open]:h-(--brn-accordion-content-height)',
     );
   }
 }

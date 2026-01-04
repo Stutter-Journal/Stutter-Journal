@@ -16,7 +16,7 @@ export class HlmSelectLabel {
   constructor() {
     classes(() => [
       'text-muted-foreground px-2 py-1.5 text-xs',
-      this._stickyLabels() ? 'bg-popover sticky top-0 z-[2] block' : '',
+      this._stickyLabels() ? 'bg-popover sticky top-0 z-2 block' : '',
     ]);
   }
 }

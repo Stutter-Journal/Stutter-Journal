@@ -1,3 +1,38 @@
-<p>FeatRegister works!</p>
+<form (ngSubmit)="submit()" [formGroup]="form" class="p-fluid form-grid">
+  <div class="field">
+    <label for="fullName">Full name</label>
+    <input formControlName="fullName" id="fullName" pInputText placeholder="Alex Smith" type="text" />
 
-<p-button label="alheeem"></p-button>
+    @if (form.get('fullName')?.touched && form.get('fullName')?.invalid) {
+      <small class="error">Name is
+        required.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="reg-email">Work email</label>
+    <input formControlName="email" id="reg-email" pInputText placeholder="you@clinic.com" type="email" />
+
+    @if (form.get('email')?.touched && form.get('email')?.invalid) {
+      <small class="error">Enter a valid email.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="reg-password">Password</label>
+    <p-password [feedback]="true" [toggleMask]="true" formControlName="password" id="reg-password"
+                placeholder="At least 8 characters"></p-password>
+
+    @if (form.get('password')?.touched && form.get('password')?.invalid) {
+      <small class="error">Minimum 8
+        characters.</small>
+    }
+  </div>
+
+  <div class="actions wrap">
+    <p-checkbox [binary]="true" formControlName="accept" inputId="accept"></p-checkbox>
+    <label for="accept">I agree to the Terms and Privacy Policy</label>
+  </div>
+
+  <p-button label="Create account" styleClass="primary" type="submit"></p-button>
+</form>

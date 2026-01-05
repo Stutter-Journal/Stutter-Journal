@@ -1,1 +1,29 @@
-<p>FeatLogin works!</p>
+<form (ngSubmit)="submit()" [formGroup]="form" class="p-fluid form-grid">
+  <div class="field">
+    <label for="login-email">Email</label>
+    <input autocomplete="email" formControlName="email" id="login-email" pInputText placeholder="you@example.com"
+           type="email" />
+
+    @if (form.get('email')?.touched && form.get('email')?.invalid) {
+      <small class="error">Enter a valid email.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="login-password">Password</label>
+    <p-password [feedback]="false" [toggleMask]="true" formControlName="password" id="login-password"
+                placeholder="••••••••"></p-password>
+
+    @if (form.get('password')?.touched && form.get('password')?.invalid) {
+      <small class="error">Password is required.</small>
+    }
+  </div>
+
+  <div class="actions">
+    <p-checkbox [binary]="true" formControlName="remember" inputId="remember"></p-checkbox>
+    <label for="remember">Stay signed in</label>
+    <a class="link" href="#">Forgot password?</a>
+  </div>
+
+  <p-button label="Sign in" styleClass="primary" type="submit"></p-button>
+</form>

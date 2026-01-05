@@ -26,8 +26,14 @@
   gap: 0.75rem;
 }
 
-.actions.wrap {
-  flex-wrap: wrap;
+.actions .link {
+  margin-left: auto;
+  color: #93c5fd;
+  text-decoration: none;
+}
+
+.actions .link:hover {
+  text-decoration: underline;
 }
 
 .error {
@@ -43,9 +49,15 @@
   font-weight: 700 !important;
 }
 
+.secondary {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
 .p-password input,
-.p-inputtext,
-.p-select {
+.p-inputtext {
   border-radius: 12px !important;
 }
 

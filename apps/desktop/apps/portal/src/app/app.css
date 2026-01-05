@@ -1,2 +1,2 @@
-@import 'tailwindcss/preflight' layer(utilities);
-@import 'tailwindcss/utilities' layer(utilities);
+@import "tailwindcss";
+@import "tailwindcss-primeui";

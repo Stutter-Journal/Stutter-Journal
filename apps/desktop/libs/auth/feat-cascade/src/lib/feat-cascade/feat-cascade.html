@@ -1,1 +1,147 @@
-<p-cascade-select></p-cascade-select>
+<div class="page">
+  <div class="hero">
+    <div class="eyebrow">Secure patient access</div>
+    <h1>Welcome back or start fresh</h1>
+    <p class="lede">Switch between quick sign-in and guided registration without leaving the flow.</p>
+  </div>
+
+  <p-card class="glass-card">
+    <p-tabs class="auth-tabs" value="login">
+      <p-tablist>
+        <p-tab value="login">Sign in</p-tab>
+        <p-tab value="register">Create account</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <!-- LOGIN -->
+        <p-tabpanel value="login">
+          <form (ngSubmit)="submitLogin()" [formGroup]="loginForm" class="p-fluid form-grid">
+            <div class="field">
+              <label for="login-email">Email</label>
+              <input
+                autocomplete="email"
+                formControlName="email"
+                id="login-email"
+                pInputText
+                placeholder="you@example.com"
+                type="email"
+              />
+
+              @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+                <small class="error">Enter a valid email.</small>
+              }
+            </div>
+
+            <div class="field">
+              <label for="login-password">Password</label>
+              <p-password
+                [feedback]="false"
+                [toggleMask]="true"
+                formControlName="password"
+                id="login-password"
+                placeholder="••••••••"
+              />
+
+              @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+                <small class="error">Password is required.</small>
+              }
+            </div>
+
+            <div class="actions">
+              <div class="checkbox-row">
+                <p-checkbox [binary]="true" formControlName="remember" inputId="remember" />
+                <label for="remember">Stay signed in</label>
+              </div>
+
+              <a class="link" href="#">Forgot password?</a>
+            </div>
+
+            <p-button label="Sign in" styleClass="primary w-full" type="submit" />
+
+            <p-divider align="center">or</p-divider>
+
+            <p-button icon="pi pi-shield" label="Continue with SSO" styleClass="secondary w-full" type="button" />
+          </form>
+        </p-tabpanel>
+
+        <!-- REGISTER -->
+        <p-tabpanel value="register">
+          <form (ngSubmit)="submitRegister()" [formGroup]="registerForm" class="p-fluid form-grid">
+            <div class="field">
+              <label for="fullName">Full name</label>
+              <input
+                formControlName="fullName"
+                id="fullName"
+                pInputText
+                placeholder="Alex Smith"
+                type="text"
+              />
+
+              @if (registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid) {
+                <small class="error">Name is required.</small>
+              }
+            </div>
+
+            <div class="field">
+              <label for="reg-email">Work email</label>
+              <input
+                formControlName="email"
+                id="reg-email"
+                pInputText
+                placeholder="you@clinic.com"
+                type="email"
+              />
+
+              @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+                <small class="error">Enter a valid email.</small>
+              }
+            </div>
+
+            <div class="field">
+              <label for="reg-password">Password</label>
+              <p-password
+                [feedback]="true"
+                [toggleMask]="true"
+                formControlName="password"
+                id="reg-password"
+                placeholder="At least 8 characters"
+              />
+
+              @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+                <small class="error">Minimum 8 characters.</small>
+              }
+            </div>
+
+            <!-- Region (cleaner than CascadeSelect): Select with option groups -->
+            <div class="field">
+              <label for="country">Region</label>
+
+              <p-select
+                class="w-full glass-select"
+                formControlName="country"
+                inputId="country"
+                optionGroupChildren="items"
+                optionGroupLabel="name"
+                optionLabel="name"
+                placeholder="Select your country"
+              />
+
+              @if (registerForm.get('country')?.touched && registerForm.get('country')?.invalid) {
+                <small class="error">Choose a country.</small>
+              }
+            </div>
+
+            <div class="actions wrap">
+              <div class="checkbox-row">
+                <p-checkbox [binary]="true" formControlName="accept" inputId="accept" />
+                <label for="accept">I agree to the Terms and Privacy Policy</label>
+              </div>
+            </div>
+
+            <p-button label="Create account" styleClass="primary w-full" type="submit" />
+          </form>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </p-card>
+</div>

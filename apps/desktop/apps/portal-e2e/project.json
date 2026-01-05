@@ -1,0 +1,19 @@
+{
+  "name": "portal-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/portal-e2e/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/portal-e2e",
+        "main": "apps/portal-e2e/src/index.ts",
+        "tsConfig": "apps/portal-e2e/tsconfig.lib.json",
+        "assets": ["apps/portal-e2e/*.md"]
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ import {
 } from '@angular/platform-browser';
 import { provideHttpClient } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeuix/themes/lara';
+import Aura from '@primeuix/themes/aura';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     providePrimeNG({
       theme: {
-        preset: Lara,
+        preset: Aura,
       },
     }),
   ],

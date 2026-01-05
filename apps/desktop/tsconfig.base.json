@@ -41,7 +41,8 @@
       "@org/feat-patient-analytics": [
         "libs/analytics/feat-patient-analytics/src/index.ts"
       ],
-      "@org/plugins": ["tools/plugins/src/index.ts"]
+      "@org/plugins": ["tools/plugins/src/index.ts"],
+      "@org/feat-cascade": ["libs/auth/feat-cascade/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -21,6 +21,7 @@
     "@nestjs/platform-express": "^11.1.11",
     "@ng-icons/core": "^33.0.0",
     "@ng-icons/lucide": "^33.0.0",
+    "@primeuix/themes": "^2.0.2",
     "better-auth": "^1.4.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -29,9 +30,11 @@
     "intro.js": "^8.3.2",
     "ngx-sonner": "^3.1.0",
     "orval": "^7.17.2",
+    "primeng": "^21.0.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.2",
     "tailwind-merge": "^3.4.0",
+    "tailwindcss-primeui": "^0.6.1",
     "tslib": "^2.3.0",
     "zod": "^4.3.5",
     "zone.js": "0.16.0"
@@ -88,6 +91,7 @@
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.4.0",
+    "eslint-plugin-storybook": "10.1.11",
     "jest": "^30.2.0",
     "jest-environment-node": "^30.2.0",
     "jest-util": "^30.2.0",
@@ -109,7 +113,6 @@
     "typescript-eslint": "^8.51.0",
     "vite": "^7.3.0",
     "vitest": "4.0.16",
-    "webpack-cli": "^6.0.1",
-    "eslint-plugin-storybook": "10.1.11"
+    "webpack-cli": "^6.0.1"
   }
 }

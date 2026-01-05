@@ -34,15 +34,6 @@
         <label class="block text-sm font-medium text-slate-800 dark:text-slate-200" for="login-password">
           Password
         </label>
-
-        <a
-          class="text-sm font-medium text-slate-700 hover:text-slate-900
-                 dark:text-slate-300 dark:hover:text-white
-                 underline underline-offset-4"
-          href="#"
-        >
-          Forgot?
-        </a>
       </div>
 
       <div class="relative">
@@ -55,11 +46,11 @@
           [attr.aria-invalid]="form.get('password')?.touched && form.get('password')?.invalid ? 'true' : 'false'"
           [feedback]="false"
           [inputStyle]="{ width: '100%' }"
+          [style]=" { width: '100%' } "
           [toggleMask]="true"
           formControlName="password"
           id="login-password"
           placeholder="••••••••"
-          styleClass="w-full pl-9"
         ></p-password>
       </div>
 

@@ -6,6 +6,7 @@ import { FeatLogin } from '@org/feat-login';
 import { FeatRegister } from '@org/feat-register';
 import { MegaMenuItem } from 'primeng/api';
 import { MegaMenu } from 'primeng/megamenu';
+import { StyleClass } from 'primeng/styleclass';
 
 @Component({
   selector: 'lib-feat-cascade',
@@ -16,6 +17,7 @@ import { MegaMenu } from 'primeng/megamenu';
     FeatLogin,
     FeatRegister,
     MegaMenu,
+    StyleClass,
   ],
   templateUrl: './feat-cascade.html',
   styleUrl: './feat-cascade.css',

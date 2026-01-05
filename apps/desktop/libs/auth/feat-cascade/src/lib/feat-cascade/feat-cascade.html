@@ -1,26 +1,46 @@
-<div class="page">
-  <div class="hero">
-    <div class="eyebrow">Secure patient access</div>
-    <h1>Welcome back or start fresh</h1>
-    <p class="lede">Switch between quick sign-in and guided registration without leaving the flow.</p>
+<div
+  class="min-h-screen p-4 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-200 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
+  <div class="w-full max-w-3xl">
+    <div class="mb-6 text-center">
+      <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium
+                  bg-white/70 dark:bg-slate-800/40 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+        Secure patient access
+      </div>
+
+      <h1 class="mt-4 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+        Welcome back or start fresh
+      </h1>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        Switch between quick sign-in and guided registration without leaving the flow.
+      </p>
+    </div>
+
+    <!-- Glass container (no p-card) -->
+    <div
+      class="rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur shadow-xl ring-1 ring-slate-200/70 dark:ring-slate-800 overflow-hidden">
+      <p-tabs styleClass="auth-tabs-clean" value="login">
+        <p-tablist>
+          <p-tab value="login">
+            <i class="pi pi-sign-in mr-2"></i>
+            Sign in
+          </p-tab>
+          <p-tab value="register">
+            <i class="pi pi-user-plus mr-2"></i>
+            Create account
+          </p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <p-tabpanel value="login">
+            <lib-feat-login></lib-feat-login>
+          </p-tabpanel>
+
+          <p-tabpanel value="register">
+            <lib-feat-register></lib-feat-register>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
   </div>
-
-  <p-card class="glass-card">
-    <p-tabs class="auth-tabs" value="login">
-      <p-tablist>
-        <p-tab value="login">Sign in</p-tab>
-        <p-tab value="register">Create account</p-tab>
-      </p-tablist>
-
-      <p-tabpanels>
-        <p-tabpanel value="login">
-          <lib-feat-login></lib-feat-login>
-        </p-tabpanel>
-
-        <p-tabpanel value="register">
-          <lib-feat-register></lib-feat-register>
-        </p-tabpanel>
-      </p-tabpanels>
-    </p-tabs>
-  </p-card>
 </div>

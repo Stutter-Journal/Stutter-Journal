@@ -1,29 +1,91 @@
-<form (ngSubmit)="submit()" [formGroup]="form" class="p-fluid form-grid">
-  <div class="field">
-    <label for="login-email">Email</label>
-    <input autocomplete="email" formControlName="email" id="login-email" pInputText placeholder="you@example.com"
-           type="email" />
+<form (ngSubmit)="submit()" [formGroup]="form" class="p-6 sm:p-7">
+  <div class="space-y-5">
+    <!-- Email -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-slate-800 dark:text-slate-200" for="login-email">
+        Email
+      </label>
 
-    @if (form.get('email')?.touched && form.get('email')?.invalid) {
-      <small class="error">Enter a valid email.</small>
-    }
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-envelope text-slate-400"></i>
+        <input
+          [attr.aria-describedby]="(form.get('email')?.touched && form.get('email')?.invalid) ? 'email-error' : null"
+          [attr.aria-invalid]="form.get('email')?.touched && form.get('email')?.invalid ? 'true' : 'false'"
+          autocomplete="email"
+          class="w-full"
+          formControlName="email"
+          id="login-email"
+          pInputText
+          placeholder="you@example.com"
+          type="email"
+        />
+      </span>
+
+      @if (form.get('email')?.touched && form.get('email')?.invalid) {
+        <small class="block text-xs text-red-600 dark:text-red-400" id="email-error">
+          Enter a valid email address.
+        </small>
+      }
+    </div>
+
+    <!-- Password -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between gap-3">
+        <label class="block text-sm font-medium text-slate-800 dark:text-slate-200" for="login-password">
+          Password
+        </label>
+
+        <a
+          class="text-sm font-medium text-slate-700 hover:text-slate-900
+                 dark:text-slate-300 dark:hover:text-white
+                 underline underline-offset-4"
+          href="#"
+        >
+          Forgot?
+        </a>
+      </div>
+
+      <div class="relative">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <i class="pi pi-lock"></i>
+        </span>
+
+        <p-password
+          [attr.aria-describedby]="(form.get('password')?.touched && form.get('password')?.invalid) ? 'password-error' : null"
+          [attr.aria-invalid]="form.get('password')?.touched && form.get('password')?.invalid ? 'true' : 'false'"
+          [feedback]="false"
+          [inputStyle]="{ width: '100%' }"
+          [toggleMask]="true"
+          formControlName="password"
+          id="login-password"
+          placeholder="••••••••"
+          styleClass="w-full pl-9"
+        ></p-password>
+      </div>
+
+      @if (form.get('password')?.touched && form.get('password')?.invalid) {
+        <small class="block text-xs text-red-600 dark:text-red-400" id="password-error">
+          Password is required.
+        </small>
+      }
+    </div>
+
+    <!-- Remember -->
+    <div class="flex items-center gap-2">
+      <p-checkbox [binary]="true" formControlName="remember" inputId="remember"></p-checkbox>
+      <label class="text-sm text-slate-700 dark:text-slate-300 select-none" for="remember">
+        Stay signed in
+      </label>
+    </div>
+
+    <!-- Submit -->
+    <p-button
+      [disabled]="form.invalid"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      label="Sign in"
+      styleClass="w-full"
+      type="submit"
+    ></p-button>
   </div>
-
-  <div class="field">
-    <label for="login-password">Password</label>
-    <p-password [feedback]="false" [toggleMask]="true" formControlName="password" id="login-password"
-                placeholder="••••••••"></p-password>
-
-    @if (form.get('password')?.touched && form.get('password')?.invalid) {
-      <small class="error">Password is required.</small>
-    }
-  </div>
-
-  <div class="actions">
-    <p-checkbox [binary]="true" formControlName="remember" inputId="remember"></p-checkbox>
-    <label for="remember">Stay signed in</label>
-    <a class="link" href="#">Forgot password?</a>
-  </div>
-
-  <p-button label="Sign in" styleClass="primary" type="submit"></p-button>
 </form>

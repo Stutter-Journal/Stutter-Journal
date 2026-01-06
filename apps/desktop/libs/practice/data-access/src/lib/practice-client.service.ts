@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ErrorResponse } from '@org/util';
 import {
+  execute,
   ServerPracticeCreateRequest,
   ServerPracticeCreateResponse,
   ServerPracticeResponse,
@@ -11,6 +11,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PracticeClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -23,34 +24,28 @@ export class PracticeClientService {
   }
 
   async getPractice(): Promise<ServerPracticeResponse> {
-    return this.execute(() =>
-      this.http.get<ServerPracticeResponse>('/practice', {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.get<ServerPracticeResponse>(`${this.base}/practice`, {
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
-  async setupPractice(
+  async create(
     payload: ServerPracticeCreateRequest,
   ): Promise<ServerPracticeCreateResponse> {
-    return this.execute(() =>
-      this.http.post<ServerPracticeCreateResponse>('/practice', payload, {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.post<ServerPracticeCreateResponse>(
+          `${this.base}/practice`,
+          payload,
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
-  }
-
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
   }
 }

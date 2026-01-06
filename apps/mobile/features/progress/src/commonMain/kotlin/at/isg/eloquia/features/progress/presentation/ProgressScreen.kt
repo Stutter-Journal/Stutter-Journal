@@ -166,11 +166,39 @@ private fun ProgressContent(
         }
 
         item {
-            IntensityLineChart(
-                dataPoints = dataPoints,
-                showEmptyDays = showEmptyDays,
-                modifier = Modifier.fillMaxWidth().height(280.dp),
-            )
+            val hasRealEntries = dataPoints.any { it.intensity > 0 }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (!hasRealEntries) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = "No entries in this time range",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+                IntensityLineChart(
+                    dataPoints = dataPoints,
+                    showEmptyDays = showEmptyDays,
+                    modifier = Modifier.fillMaxWidth().height(280.dp),
+                )
+            }
         }
 
         item {
@@ -251,8 +279,6 @@ private fun IntensityLineChart(
     showEmptyDays: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (dataPoints.isEmpty()) return
-    
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
     val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant

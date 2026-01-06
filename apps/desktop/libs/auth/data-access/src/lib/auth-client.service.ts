@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
 import {
   ServerDoctorLoginRequest,
@@ -11,15 +11,16 @@ import {
 function isErrorResponse(value: unknown): value is ErrorResponse {
   return Boolean(
     value &&
-      typeof value === 'object' &&
-      'status' in value &&
-      'message' in value,
+    typeof value === 'object' &&
+    'status' in value &&
+    'message' in value,
   );
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly userSig = signal<ServerDoctorResponse | null>(null);
   private readonly loadingSig = signal(false);
@@ -38,9 +39,13 @@ export class AuthClientService {
     payload: ServerDoctorLoginRequest,
   ): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/login', payload, {
-        withCredentials: true,
-      }),
+      this.http.post<ServerDoctorResponse>(
+        `${this.base}/doctor/login`,
+        payload,
+        {
+          withCredentials: true,
+        },
+      ),
     );
     this.userSig.set(user);
     return user;
@@ -50,9 +55,13 @@ export class AuthClientService {
     payload: ServerDoctorRegisterRequest,
   ): Promise<ServerDoctorResponse> {
     const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/register', payload, {
-        withCredentials: true,
-      }),
+      this.http.post<ServerDoctorResponse>(
+        `${this.base}/doctor/register`,
+        payload,
+        {
+          withCredentials: true,
+        },
+      ),
     );
     this.userSig.set(user);
     return user;
@@ -61,7 +70,7 @@ export class AuthClientService {
   async me(): Promise<ServerDoctorResponse | null> {
     try {
       const user = await this.execute(() =>
-        this.http.get<ServerDoctorResponse>('/doctor/me', {
+        this.http.get<ServerDoctorResponse>(`${this.base}/doctor/me`, {
           withCredentials: true,
         }),
       );
@@ -78,7 +87,11 @@ export class AuthClientService {
 
   async logout(): Promise<void> {
     await this.execute(() =>
-      this.http.post<void>('/doctor/logout', {}, { withCredentials: true }),
+      this.http.post<void>(
+        `${this.base}/doctor/logout`,
+        {},
+        { withCredentials: true },
+      ),
     );
     this.userSig.set(null);
   }
@@ -86,11 +99,13 @@ export class AuthClientService {
   private async execute<T>(request: () => Observable<T>): Promise<T> {
     this.loadingSig.set(true);
     this.errorSig.set(null);
+
     try {
       return await firstValueFrom(request());
     } catch (err) {
       const normalized = normalizeError(err);
       this.errorSig.set(normalized);
+
       throw normalized;
     } finally {
       this.loadingSig.set(false);

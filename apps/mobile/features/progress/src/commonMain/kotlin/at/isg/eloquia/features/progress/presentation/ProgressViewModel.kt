@@ -49,7 +49,11 @@ class ProgressViewModel(
             val date = entry.tags
                 .firstNotNullOfOrNull { tag ->
                     if (tag.startsWith("date:", ignoreCase = true)) {
-                        runCatching { LocalDate.parse(tag.substringAfter(":").trim()) }.getOrNull()
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (e: Exception) {
+                            null
+                        }
                     } else null
                 } ?: entry.createdAt.date
             
@@ -173,7 +177,11 @@ class ProgressViewModel(
             val entryDate = entry.tags
                 .firstNotNullOfOrNull { tag ->
                     if (tag.startsWith("date:", ignoreCase = true)) {
-                        runCatching { LocalDate.parse(tag.substringAfter(":").trim()) }.getOrNull()
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (e: Exception) {
+                            null
+                        }
                     } else null
                 } ?: entry.createdAt.date
             
@@ -187,7 +195,7 @@ class ProgressViewModel(
                 .filter { it.startsWith("trigger:", ignoreCase = true) }
                 .forEach { tag ->
                     val trigger = tag.substringAfter(":").trim()
-                    triggerCounts[trigger] = triggerCounts.getOrDefault(trigger, 0) + 1
+                    triggerCounts[trigger] = (triggerCounts[trigger] ?: 0) + 1
                 }
         }
         
@@ -198,7 +206,7 @@ class ProgressViewModel(
                 .filter { it.startsWith("method:", ignoreCase = true) }
                 .forEach { tag ->
                     val technique = tag.substringAfter(":").trim()
-                    techniqueCounts[technique] = techniqueCounts.getOrDefault(technique, 0) + 1
+                    techniqueCounts[technique] = (techniqueCounts[technique] ?: 0) + 1
                 }
         }
         
@@ -209,7 +217,7 @@ class ProgressViewModel(
                 .filter { it.startsWith("stutterform:", ignoreCase = true) }
                 .forEach { tag ->
                     val form = tag.substringAfter(":").trim()
-                    stutterFormCounts[form] = stutterFormCounts.getOrDefault(form, 0) + 1
+                    stutterFormCounts[form] = (stutterFormCounts[form] ?: 0) + 1
                 }
         }
         

@@ -1,4 +1,30 @@
 <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-4">
+  <div class="grid gap-4 sm:grid-cols-2">
+    <hlm-form-field>
+      <input
+        class="w-full"
+        formControlName="firstName"
+        hlmInput
+        placeholder="First name"
+      />
+      @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+      <hlm-error> First name is required. </hlm-error>
+      }
+    </hlm-form-field>
+
+    <hlm-form-field>
+      <input
+        class="w-full"
+        formControlName="lastName"
+        hlmInput
+        placeholder="Last name"
+      />
+      @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+      <hlm-error> Last name is required. </hlm-error>
+      }
+    </hlm-form-field>
+  </div>
+
   <hlm-form-field>
     <input
       aria-label="Email"
@@ -8,7 +34,7 @@
       placeholder="name@example.com"
       type="email"
     />
-    @if (form.controls.email.invalid) {
+    @if (form.controls.email.touched && form.controls.email.invalid) {
     <hlm-error> Please enter a valid email. </hlm-error>
     }
   </hlm-form-field>
@@ -22,11 +48,9 @@
       placeholder="Password (min. 8 characters)"
       type="password"
     />
-
-    <hlm-hint> Use at least 8 characters. </hlm-hint>
-
-    @if (form.controls.password.invalid) {
-    <hlm-error> Password must be at least 8 characters. </hlm-error>
+    <hlm-hint>Use at least 8 characters.</hlm-hint>
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+    <hlm-error> Password must be at least 8 characters.</hlm-error>
     }
   </hlm-form-field>
 
@@ -34,23 +58,27 @@
     <input class="mt-1" formControlName="acceptTerms" type="checkbox" />
     <span>
       I agree to the
-      <a class="underline underline-offset-4 hover:text-foreground" href="#">
-        Terms of Service
-      </a>
+      <a class="underline underline-offset-4 hover:text-foreground" href="#"
+        >Terms of Service</a
+      >
       and
-      <a class="underline underline-offset-4 hover:text-foreground" href="#">
-        Privacy Policy </a
+      <a class="underline underline-offset-4 hover:text-foreground" href="#"
+        >Privacy Policy</a
       >.
     </span>
   </label>
 
+  @if (errorMessage(); as msg) {
+  <p class="text-xs text-destructive">{{ msg }}</p>
+  }
+
   <button
-    [disabled]="form.invalid || submitting"
+    [disabled]="form.invalid || auth.loading()"
     class="w-full"
     hlmBtn
     type="submit"
   >
-    {{ submitting ? 'Creating account…' : 'Create account' }}
+    {{ auth.loading() ? 'Creating account…' : 'Create account' }}
   </button>
 
   <p class="text-center text-sm text-muted-foreground">

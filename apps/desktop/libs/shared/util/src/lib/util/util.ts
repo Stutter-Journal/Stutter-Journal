@@ -4,6 +4,5 @@ import { Component } from '@angular/core';
   selector: 'lib-util',
   imports: [],
   templateUrl: './util.html',
-  styleUrl: './util.css',
 })
 export class Util {}

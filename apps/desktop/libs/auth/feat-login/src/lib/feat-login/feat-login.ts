@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -19,6 +20,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { HlmError, HlmFormField } from '@spartan-ng/helm/form-field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { toast } from 'ngx-sonner';
+import { AuthClientService } from '@org/auth-data-access';
 
 @Component({
   selector: 'lib-feat-login',
@@ -40,9 +43,10 @@ import { HlmButton } from '@spartan-ng/helm/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatLogin {
+  private readonly auth = inject(AuthClientService);
+
   @Output() switchToRegister = new EventEmitter<void>();
-  @Output() submitted = new EventEmitter<{ email: string; password: string }>();
-  @Output() authed = new EventEmitter<void>(); // TODO: Add login functionality here
+  @Output() authed = new EventEmitter<void>();
 
   submitting = false;
 
@@ -57,12 +61,25 @@ export class FeatLogin {
     }),
   });
 
-  submit(): void {
-    if (this.form.invalid) return;
+  async submit(): Promise<void> {
+    if (this.form.invalid || this.submitting) return;
 
     this.submitting = true;
-    this.submitted.emit(this.form.getRawValue());
+    try {
+      const { email, password } = this.form.getRawValue();
 
-    // TODO: Implement later on, copy it from the register ts component
+      await this.auth.login({ email, password });
+
+      toast.success('Welcome back');
+
+      // 🔑 Let cascade / landing handle next step
+      this.authed.emit();
+    } catch (err: any) {
+      toast.error('Login failed', {
+        description: err?.message ?? 'Please check your credentials',
+      });
+    } finally {
+      this.submitting = false;
+    }
   }
 }

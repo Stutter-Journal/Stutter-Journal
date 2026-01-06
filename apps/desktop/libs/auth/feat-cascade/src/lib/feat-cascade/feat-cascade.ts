@@ -5,7 +5,6 @@ import { TabsModule } from 'primeng/tabs';
 import { FeatLogin } from '@org/feat-login';
 import { FeatRegister } from '@org/feat-register';
 import { MegaMenuItem } from 'primeng/api';
-import { MegaMenu } from 'primeng/megamenu';
 import { StyleClass } from 'primeng/styleclass';
 
 @Component({
@@ -16,7 +15,6 @@ import { StyleClass } from 'primeng/styleclass';
     TabsModule,
     FeatLogin,
     FeatRegister,
-    MegaMenu,
     StyleClass,
   ],
   templateUrl: './feat-cascade.html',

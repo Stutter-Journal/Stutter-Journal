@@ -1,46 +1,20 @@
-<div class="min-h-screen p-6 w-full flex items-center justify-center">
-  <div
-    class="w-full max-w-4xl rounded-3xl bg-white/85 dark:bg-slate-900/80 backdrop-blur shadow-2xl ring-1 ring-slate-200/70 dark:ring-slate-800 p-8 space-y-6"
-  >
-    <!-- Hero stays wide -->
-    <div class="text-center space-y-3">
-      <h1
-        class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50"
-      >
-        Eloquia Portal
-      </h1>
-      <p class="text-sm text-slate-600 dark:text-slate-300">
-        Welcome back, doctor!
-      </p>
-    </div>
-
-    <div class="flex justify-center">
-      <p-tabs pStyleClass="auth-tabs-clean w-fit" value="login">
-        <p-tablist class="justify-center">
-          <p-tab value="login">
-            <i class="pi pi-sign-in mr-2"></i>
-            Sign in
-          </p-tab>
-          <p-tab value="register">
-            <i class="pi pi-user-plus mr-2"></i>
-            Create account
-          </p-tab>
-        </p-tablist>
-
-        <p-tabpanels>
-          <p-tabpanel value="login">
-            <div class="w-88 sm:w-[24rem]">
-              <lib-feat-login></lib-feat-login>
-            </div>
-          </p-tabpanel>
-
-          <p-tabpanel value="register">
-            <div class="w-[24rem] sm:w-104">
-              <lib-feat-register></lib-feat-register>
-            </div>
-          </p-tabpanel>
-        </p-tabpanels>
-      </p-tabs>
-    </div>
+<div class="space-y-6">
+  <div class="text-center">
+    <h1 class="text-2xl font-semibold tracking-tight">
+      {{ mode() === 'login' ? 'Welcome back' : 'Create an account' }}
+    </h1>
+    <p class="mt-2 text-sm text-muted-foreground">
+      {{
+        mode() === 'login'
+          ? 'Enter your email to sign in'
+          : 'Enter your email to create your account'
+      }}
+    </p>
   </div>
+
+  @if (mode() === 'login') {
+    <lib-feat-login (switchToRegister)="mode.set('register')" />
+  } @else {
+    <lib-feat-register (switchToLogin)="mode.set('login')" />
+  }
 </div>

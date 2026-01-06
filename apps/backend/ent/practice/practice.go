@@ -23,8 +23,6 @@ const (
 	FieldName = "name"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
-	// FieldLogoURL holds the string denoting the logo_url field in the database.
-	FieldLogoURL = "logo_url"
 	// EdgeDoctors holds the string denoting the doctors edge name in mutations.
 	EdgeDoctors = "doctors"
 	// Table holds the table name of the practice in the database.
@@ -45,7 +43,6 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldName,
 	FieldAddress,
-	FieldLogoURL,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -97,11 +94,6 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByAddress orders the results by the address field.
 func ByAddress(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAddress, opts...).ToFunc()
-}
-
-// ByLogoURL orders the results by the logo_url field.
-func ByLogoURL(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLogoURL, opts...).ToFunc()
 }
 
 // ByDoctorsCount orders the results by doctors count.

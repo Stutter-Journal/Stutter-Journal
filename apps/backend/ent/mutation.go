@@ -7445,7 +7445,6 @@ type PracticeMutation struct {
 	updated_at     *time.Time
 	name           *string
 	address        *string
-	logo_url       *string
 	clearedFields  map[string]struct{}
 	doctors        map[uuid.UUID]struct{}
 	removeddoctors map[uuid.UUID]struct{}
@@ -7716,55 +7715,6 @@ func (m *PracticeMutation) ResetAddress() {
 	delete(m.clearedFields, practice.FieldAddress)
 }
 
-// SetLogoURL sets the "logo_url" field.
-func (m *PracticeMutation) SetLogoURL(s string) {
-	m.logo_url = &s
-}
-
-// LogoURL returns the value of the "logo_url" field in the mutation.
-func (m *PracticeMutation) LogoURL() (r string, exists bool) {
-	v := m.logo_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLogoURL returns the old "logo_url" field's value of the Practice entity.
-// If the Practice object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PracticeMutation) OldLogoURL(ctx context.Context) (v *string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLogoURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLogoURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLogoURL: %w", err)
-	}
-	return oldValue.LogoURL, nil
-}
-
-// ClearLogoURL clears the value of the "logo_url" field.
-func (m *PracticeMutation) ClearLogoURL() {
-	m.logo_url = nil
-	m.clearedFields[practice.FieldLogoURL] = struct{}{}
-}
-
-// LogoURLCleared returns if the "logo_url" field was cleared in this mutation.
-func (m *PracticeMutation) LogoURLCleared() bool {
-	_, ok := m.clearedFields[practice.FieldLogoURL]
-	return ok
-}
-
-// ResetLogoURL resets all changes to the "logo_url" field.
-func (m *PracticeMutation) ResetLogoURL() {
-	m.logo_url = nil
-	delete(m.clearedFields, practice.FieldLogoURL)
-}
-
 // AddDoctorIDs adds the "doctors" edge to the Doctor entity by ids.
 func (m *PracticeMutation) AddDoctorIDs(ids ...uuid.UUID) {
 	if m.doctors == nil {
@@ -7853,7 +7803,7 @@ func (m *PracticeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PracticeMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, practice.FieldCreatedAt)
 	}
@@ -7865,9 +7815,6 @@ func (m *PracticeMutation) Fields() []string {
 	}
 	if m.address != nil {
 		fields = append(fields, practice.FieldAddress)
-	}
-	if m.logo_url != nil {
-		fields = append(fields, practice.FieldLogoURL)
 	}
 	return fields
 }
@@ -7885,8 +7832,6 @@ func (m *PracticeMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case practice.FieldAddress:
 		return m.Address()
-	case practice.FieldLogoURL:
-		return m.LogoURL()
 	}
 	return nil, false
 }
@@ -7904,8 +7849,6 @@ func (m *PracticeMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldName(ctx)
 	case practice.FieldAddress:
 		return m.OldAddress(ctx)
-	case practice.FieldLogoURL:
-		return m.OldLogoURL(ctx)
 	}
 	return nil, fmt.Errorf("unknown Practice field %s", name)
 }
@@ -7943,13 +7886,6 @@ func (m *PracticeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAddress(v)
 		return nil
-	case practice.FieldLogoURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLogoURL(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Practice field %s", name)
 }
@@ -7983,9 +7919,6 @@ func (m *PracticeMutation) ClearedFields() []string {
 	if m.FieldCleared(practice.FieldAddress) {
 		fields = append(fields, practice.FieldAddress)
 	}
-	if m.FieldCleared(practice.FieldLogoURL) {
-		fields = append(fields, practice.FieldLogoURL)
-	}
 	return fields
 }
 
@@ -8002,9 +7935,6 @@ func (m *PracticeMutation) ClearField(name string) error {
 	switch name {
 	case practice.FieldAddress:
 		m.ClearAddress()
-		return nil
-	case practice.FieldLogoURL:
-		m.ClearLogoURL()
 		return nil
 	}
 	return fmt.Errorf("unknown Practice nullable field %s", name)
@@ -8025,9 +7955,6 @@ func (m *PracticeMutation) ResetField(name string) error {
 		return nil
 	case practice.FieldAddress:
 		m.ResetAddress()
-		return nil
-	case practice.FieldLogoURL:
-		m.ResetLogoURL()
 		return nil
 	}
 	return fmt.Errorf("unknown Practice field %s", name)

@@ -10,8 +10,7 @@ export const appRoutes: Route[] = [
   {
     path: 'app',
     canActivate: [onboardingGuard],
-    loadComponent: () =>
-      import('@org/dashboard').then((m) => m.Dashboard),
+    loadComponent: () => import('@org/dashboard').then((m) => m.Dashboard),
   },
   {
     path: '',

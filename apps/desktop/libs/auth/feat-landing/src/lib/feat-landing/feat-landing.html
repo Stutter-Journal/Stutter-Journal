@@ -43,7 +43,7 @@
               } @case ('auth') {
               <lib-feat-cascade (authed)="recomputeState()" />
               } @case ('onboarding') {
-              <lib-feat-practice-setup />
+              <lib-feat-practice-setup (completed)="onBoardingCompleted()" />
               } }
             </div>
           </div>

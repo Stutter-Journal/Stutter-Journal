@@ -64,7 +64,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null
@@ -222,7 +222,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null
@@ -298,7 +298,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null
@@ -332,7 +332,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null

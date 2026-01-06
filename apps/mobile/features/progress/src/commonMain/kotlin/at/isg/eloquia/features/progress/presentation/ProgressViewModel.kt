@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import at.isg.eloquia.core.domain.entries.model.JournalEntry
 import at.isg.eloquia.core.domain.entries.usecase.ObserveJournalEntriesUseCase
 import at.isg.eloquia.features.progress.presentation.model.CategoryFrequency
+import at.isg.eloquia.features.progress.presentation.model.ComparisonData
+import at.isg.eloquia.features.progress.presentation.model.ComparisonDataPoint
 import at.isg.eloquia.features.progress.presentation.model.FrequencyData
 import at.isg.eloquia.features.progress.presentation.model.IntensityDataPoint
 import at.isg.eloquia.features.progress.presentation.model.ProgressUiState
@@ -33,10 +35,21 @@ class ProgressViewModel(
     private val _timeRange = MutableStateFlow(TimeRange.MONTH)
     val timeRange: StateFlow<TimeRange> = _timeRange
 
+    private val _comparisonMode = MutableStateFlow(false)
+    val comparisonMode: StateFlow<Boolean> = _comparisonMode
+
+    private val _selectedSituations = MutableStateFlow<Set<String>>(emptySet())
+    val selectedSituations: StateFlow<Set<String>> = _selectedSituations
+
+    private val _selectedTechniques = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTechniques: StateFlow<Set<String>> = _selectedTechniques
+
     val state: StateFlow<ProgressUiState> = combine(
         observeEntriesUseCase(),
         _timeRange,
-    ) { entries, range ->
+        _selectedSituations,
+        _selectedTechniques,
+    ) { entries, range, selectedSituations, selectedTechniques ->
         // Parse intensity and date from tags
         val dataPoints = entries.mapNotNull { entry ->
             val intensity = entry.tags
@@ -104,6 +117,13 @@ class ProgressViewModel(
         // Compute frequency data for the selected time range
         val frequencyData = computeFrequencyData(entries, selectedTimeRange)
         
+        // Compute comparison data
+        val comparisonData = computeComparisonData(entries, selectedTimeRange, selectedSituations, selectedTechniques)
+        
+        // Get available situations and techniques
+        val availableSituations = extractAvailableCategories(entries, "trigger:", selectedTimeRange)
+        val availableTechniques = extractAvailableCategories(entries, "method:", selectedTimeRange)
+        
         // Return UI state
         if (finalData.isEmpty()) {
             ProgressUiState.Empty
@@ -112,6 +132,9 @@ class ProgressViewModel(
                 dataPoints = finalData,
                 selectedTimeRange = selectedTimeRange,
                 frequencyData = frequencyData,
+                comparisonData = comparisonData,
+                availableSituations = availableSituations,
+                availableTechniques = availableTechniques,
             )
         }
     }.stateIn(
@@ -126,6 +149,26 @@ class ProgressViewModel(
 
     fun setTimeRange(range: TimeRange) {
         _timeRange.value = range
+    }
+
+    fun toggleComparisonMode() {
+        _comparisonMode.value = !_comparisonMode.value
+    }
+
+    fun toggleSituation(situation: String) {
+        _selectedSituations.value = if (situation in _selectedSituations.value) {
+            _selectedSituations.value - situation
+        } else {
+            _selectedSituations.value + situation
+        }
+    }
+
+    fun toggleTechnique(technique: String) {
+        _selectedTechniques.value = if (technique in _selectedTechniques.value) {
+            _selectedTechniques.value - technique
+        } else {
+            _selectedTechniques.value + technique
+        }
     }
 
     private fun currentLocalDate(): LocalDate {
@@ -238,6 +281,131 @@ class ProgressViewModel(
             triggers = triggers,
             techniques = techniques,
             stutterForms = stutterForms,
+        )
+    }
+
+    /**
+     * Extracts all available categories of a given type from entries in the selected time range.
+     */
+    private fun extractAvailableCategories(
+        entries: List<JournalEntry>,
+        prefix: String,
+        selectedTimeRange: SelectedTimeRange,
+    ): List<String> {
+        val entriesInRange = entries.filter { entry ->
+            val entryDate = entry.tags
+                .firstNotNullOfOrNull { tag ->
+                    if (tag.startsWith("date:", ignoreCase = true)) {
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (e: Exception) {
+                            null
+                        }
+                    } else null
+                } ?: entry.createdAt.date
+            
+            entryDate in selectedTimeRange.startDate..selectedTimeRange.endDate
+        }
+        
+        return entriesInRange
+            .flatMap { entry ->
+                entry.tags.filter { it.startsWith(prefix, ignoreCase = true) }
+                    .map { it.substringAfter(":").trim() }
+            }
+            .distinct()
+            .sorted()
+    }
+
+    /**
+     * Computes comparison data showing average intensity per situation and technique.
+     */
+    private fun computeComparisonData(
+        entries: List<JournalEntry>,
+        selectedTimeRange: SelectedTimeRange,
+        selectedSituations: Set<String>,
+        selectedTechniques: Set<String>,
+    ): ComparisonData {
+        // Filter entries within the selected time range
+        val entriesInRange = entries.filter { entry ->
+            val entryDate = entry.tags
+                .firstNotNullOfOrNull { tag ->
+                    if (tag.startsWith("date:", ignoreCase = true)) {
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (e: Exception) {
+                            null
+                        }
+                    } else null
+                } ?: entry.createdAt.date
+            
+            entryDate in selectedTimeRange.startDate..selectedTimeRange.endDate
+        }
+        
+        // Compute situation comparison data
+        val situationData = if (selectedSituations.isEmpty()) {
+            emptyList()
+        } else {
+            selectedSituations.mapNotNull { situation ->
+                val matchingEntries = entriesInRange.filter { entry ->
+                    entry.tags.any { tag ->
+                        tag.startsWith("trigger:", ignoreCase = true) &&
+                        tag.substringAfter(":").trim() == situation
+                    }
+                }
+                
+                val intensities = matchingEntries.mapNotNull { entry ->
+                    entry.tags
+                        .firstNotNullOfOrNull { tag ->
+                            if (tag.startsWith("intensity:", ignoreCase = true)) {
+                                tag.substringAfter(":").trim().toFloatOrNull()
+                            } else null
+                        }
+                }
+                
+                if (intensities.isNotEmpty()) {
+                    ComparisonDataPoint(
+                        category = situation,
+                        averageIntensity = intensities.average().toFloat(),
+                        count = intensities.size,
+                    )
+                } else null
+            }.sortedByDescending { it.averageIntensity }
+        }
+        
+        // Compute technique comparison data
+        val techniqueData = if (selectedTechniques.isEmpty()) {
+            emptyList()
+        } else {
+            selectedTechniques.mapNotNull { technique ->
+                val matchingEntries = entriesInRange.filter { entry ->
+                    entry.tags.any { tag ->
+                        tag.startsWith("method:", ignoreCase = true) &&
+                        tag.substringAfter(":").trim() == technique
+                    }
+                }
+                
+                val intensities = matchingEntries.mapNotNull { entry ->
+                    entry.tags
+                        .firstNotNullOfOrNull { tag ->
+                            if (tag.startsWith("intensity:", ignoreCase = true)) {
+                                tag.substringAfter(":").trim().toFloatOrNull()
+                            } else null
+                        }
+                }
+                
+                if (intensities.isNotEmpty()) {
+                    ComparisonDataPoint(
+                        category = technique,
+                        averageIntensity = intensities.average().toFloat(),
+                        count = intensities.size,
+                    )
+                } else null
+            }.sortedByDescending { it.averageIntensity }
+        }
+        
+        return ComparisonData(
+            situationData = situationData,
+            techniqueData = techniqueData,
         )
     }
 

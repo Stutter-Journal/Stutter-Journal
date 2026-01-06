@@ -3,14 +3,14 @@ import { BrnAvatarImage } from '@spartan-ng/brain/avatar';
 import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: 'img[hlmAvatarImage]',
-	exportAs: 'avatarImage',
-	hostDirectives: [BrnAvatarImage],
+  selector: 'img[hlmAvatarImage]',
+  exportAs: 'avatarImage',
+  hostDirectives: [BrnAvatarImage],
 })
 export class HlmAvatarImage {
-	public readonly canShow = inject(BrnAvatarImage).canShow;
+  public readonly canShow = inject(BrnAvatarImage).canShow;
 
-	constructor() {
-		classes(() => 'aspect-square size-full');
-	}
+  constructor() {
+    classes(() => 'aspect-square size-full');
+  }
 }

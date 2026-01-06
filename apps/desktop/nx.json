@@ -153,6 +153,7 @@
     }
   },
   "tui": {
-    "enabled": true
+    // NOTE: As much as it pains me to disable the TUI, if it's on, it will cause breakpoints not to be hit :((((
+    "enabled": false
   }
 }

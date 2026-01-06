@@ -72,7 +72,6 @@ export class FeatLogin {
 
       toast.success('Welcome back');
 
-      // 🔑 Let cascade / landing handle next step
       this.authed.emit();
     } catch (err: any) {
       toast.error('Login failed', {

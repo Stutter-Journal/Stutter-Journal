@@ -2,13 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  inject,
   Output,
 } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
-  FormBuilder,
   FormControl,
+  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -20,13 +19,11 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { HlmError, HlmFormField } from '@spartan-ng/helm/form-field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmSeparator } from '@spartan-ng/helm/separator';
 
 @Component({
   selector: 'lib-feat-login',
   imports: [
     CommonModule,
-    NgOptimizedImage,
     ReactiveFormsModule,
     InputTextModule,
     PasswordModule,
@@ -37,7 +34,6 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
     HlmInput,
     HlmError,
     HlmButton,
-    HlmSeparator,
   ],
   templateUrl: './feat-login.html',
   styleUrl: './feat-login.css',
@@ -45,35 +41,25 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 })
 export class FeatLogin {
   @Output() switchToRegister = new EventEmitter<void>();
+  @Output() submitted = new EventEmitter<{ email: string; password: string }>();
 
-  readonly email = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.email],
-  });
+  submitting = false;
 
-  signInWithEmail(): void {
-    if (this.email.invalid) return;
-    console.log('Email sign-in:', this.email.value);
-  }
-
-  signInWithGithub(): void {
-    console.log('GitHub sign-in');
-  }
-
-  private readonly fb = inject(FormBuilder);
-
-  readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
-    remember: [true],
+  readonly form = new FormGroup({
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) return;
 
-    console.log('Login payload', this.form.value);
+    this.submitting = true;
+    this.submitted.emit(this.form.getRawValue());
   }
 }

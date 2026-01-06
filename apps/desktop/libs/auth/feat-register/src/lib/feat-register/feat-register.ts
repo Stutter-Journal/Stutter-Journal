@@ -2,15 +2,22 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  inject,
   Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { HlmError, HlmFormField, HlmHint } from '@spartan-ng/helm/form-field';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmButton } from '@spartan-ng/helm/button';
 
 @Component({
   selector: 'lib-feat-register',
@@ -21,6 +28,11 @@ import { CheckboxModule } from 'primeng/checkbox';
     PasswordModule,
     ButtonModule,
     CheckboxModule,
+    HlmFormField,
+    HlmInput,
+    HlmError,
+    HlmHint,
+    HlmButton,
   ],
   templateUrl: './feat-register.html',
   styleUrl: './feat-register.css',
@@ -28,23 +40,45 @@ import { CheckboxModule } from 'primeng/checkbox';
 })
 export class FeatRegister {
   @Output() switchToLogin = new EventEmitter<void>();
+  @Output() submitted = new EventEmitter<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }>();
 
-  private readonly fb = inject(FormBuilder);
+  submitting = false;
 
-  readonly form = this.fb.group({
-    fullName: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    country: [null, [Validators.required]],
-    accept: [false, [Validators.requiredTrue]],
+  readonly form = new FormGroup({
+    firstName: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    lastName: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(8)],
+    }),
+    acceptTerms: new FormControl(false, {
+      nonNullable: true,
+      validators: [Validators.requiredTrue],
+    }),
   });
 
   submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) return;
 
-    console.log('Register payload', this.form.value);
+    this.submitting = true;
+
+    // TODO: Integrate that acceptTerms somehow
+    const { acceptTerms, ...payload } = this.form.getRawValue();
+    this.submitted.emit(payload);
   }
 }

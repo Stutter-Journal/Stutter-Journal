@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Output,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { TabsModule } from 'primeng/tabs';
@@ -15,5 +21,6 @@ type Mode = 'login' | 'register';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatCascade {
+  @Output() authed = new EventEmitter<void>();
   readonly mode = signal<Mode>('login');
 }

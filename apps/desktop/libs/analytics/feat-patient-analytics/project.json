@@ -1,0 +1,13 @@
+{
+  "name": "feat-patient-analytics",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/analytics/feat-patient-analytics/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:analytics", "type:feature"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

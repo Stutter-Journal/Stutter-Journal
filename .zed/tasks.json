@@ -60,14 +60,17 @@
         "hide": "never",
     },
     {
-        "label": "🖥️ Desktop: Serve Portal (Nx)",
+        "label": "🖥️ Desktop: Serve Portal (Nx dev)",
         "command": "pnpm",
-        "args": ["nx", "serve", "portal"],
+        "args": ["nx", "run", "portal:serve:development"],
         "cwd": "$ZED_WORKTREE_ROOT/apps/desktop",
         "use_new_terminal": false,
         "allow_concurrent_runs": true,
         "reveal": "always",
         "hide": "never",
+        "env": {
+            "NX_API_BASE_URL": "http://localhost:8080",
+        },
     },
     {
         "label": "🖥️ Desktop: Serve Shop (Nx)",

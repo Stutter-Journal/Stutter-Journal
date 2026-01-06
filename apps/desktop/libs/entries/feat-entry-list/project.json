@@ -1,0 +1,13 @@
+{
+  "name": "feat-entry-list",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/entries/feat-entry-list/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:entries", "type:feature"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

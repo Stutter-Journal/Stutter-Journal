@@ -1,0 +1,13 @@
+{
+  "name": "feat-practice-setup",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/practice/feat-practice-setup/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:practice", "type:feature"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

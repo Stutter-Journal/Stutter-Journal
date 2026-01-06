@@ -57,10 +57,6 @@ func (s *Server) practiceCreateHandler(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimSpace(*req.Address)
 		builder.SetAddress(addr)
 	}
-	if req.LogoURL != nil {
-		url := strings.TrimSpace(*req.LogoURL)
-		builder.SetLogoURL(url)
-	}
 
 	practice, err := builder.Save(r.Context())
 	if err != nil {
@@ -92,10 +88,6 @@ func buildPracticeResponse(p *ent.Practice) practiceResponse {
 	if p.Address != nil {
 		val := strings.TrimSpace(*p.Address)
 		addr = &val
-	}
-	if p.LogoURL != nil {
-		val := strings.TrimSpace(*p.LogoURL)
-		logo = &val
 	}
 
 	return practiceResponse{

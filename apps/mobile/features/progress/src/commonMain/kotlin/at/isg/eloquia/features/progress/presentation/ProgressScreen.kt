@@ -1,12 +1,14 @@
 package at.isg.eloquia.features.progress.presentation
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -110,6 +112,8 @@ private fun ProgressScreenContent(
             is ProgressUiState.Success -> {
                 ProgressContent(
                     dataPoints = state.dataPoints,
+                    selectedTimeRange = state.selectedTimeRange,
+                    frequencyData = state.frequencyData,
                     showEmptyDays = showEmptyDays,
                     timeRange = timeRange,
                     onToggleEmptyDays = onToggleEmptyDays,
@@ -124,6 +128,8 @@ private fun ProgressScreenContent(
 @Composable
 private fun ProgressContent(
     dataPoints: List<IntensityDataPoint>,
+    selectedTimeRange: at.isg.eloquia.features.progress.presentation.model.SelectedTimeRange,
+    frequencyData: at.isg.eloquia.features.progress.presentation.model.FrequencyData,
     showEmptyDays: Boolean,
     timeRange: TimeRange,
     onToggleEmptyDays: () -> Unit,
@@ -169,6 +175,51 @@ private fun ProgressContent(
 
         item {
             StatisticsCards(dataPoints = dataPoints)
+        }
+
+        // Frequency charts section
+        item {
+            Text(
+                text = "Category Frequencies",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp),
+            )
+        }
+
+        item {
+            Text(
+                text = "Data from ${selectedTimeRange.startDate} to ${selectedTimeRange.endDate}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        item {
+            FrequencyBarChart(
+                title = "Triggers",
+                data = frequencyData.triggers,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        item {
+            FrequencyBarChart(
+                title = "Techniques",
+                data = frequencyData.techniques,
+                color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        item {
+            FrequencyBarChart(
+                title = "Stutter Forms",
+                data = frequencyData.stutterForms,
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
@@ -587,6 +638,106 @@ private fun EmptyProgressState(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+/**
+ * Displays a horizontal bar chart for category frequency data.
+ * This is completely separate from the time-series progress chart.
+ * It shows counts/frequency, not temporal data.
+ */
+@Composable
+private fun FrequencyBarChart(
+    title: String,
+    data: List<at.isg.eloquia.features.progress.presentation.model.CategoryFrequency>,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    if (data.isEmpty()) {
+        return
+    }
+
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            val maxCount = data.maxOfOrNull { it.count } ?: 1
+
+            data.forEach { item ->
+                FrequencyBarItem(
+                    category = item.category,
+                    count = item.count,
+                    maxCount = maxCount,
+                    color = color,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FrequencyBarItem(
+    category: String,
+    count: Int,
+    maxCount: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = category,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = color,
+            )
+        }
+
+        // Horizontal bar
+        val fraction = if (maxCount > 0) count.toFloat() / maxCount.toFloat() else 0f
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.small,
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction)
+                    .fillMaxHeight()
+                    .background(
+                        color = color,
+                        shape = MaterialTheme.shapes.small,
+                    )
             )
         }
     }

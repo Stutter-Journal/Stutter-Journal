@@ -97,23 +97,18 @@ class ProgressViewModel(
         val filteredData = dailyAverages.filter { it.date in startDate..endDate }
 
         // Always fill the full time window to keep a continuous time axis
-        val finalData = if (filteredData.isNotEmpty()) {
-            fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
-        } else emptyList()
+        // Even if there are no data points, we still create an empty chart with the time range
+        val finalData = fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
         
         // Compute frequency data for the selected time range
         val frequencyData = computeFrequencyData(entries, selectedTimeRange)
         
         // Return UI state
-        if (finalData.isEmpty()) {
-            ProgressUiState.Empty
-        } else {
-            ProgressUiState.Success(
-                dataPoints = finalData,
-                selectedTimeRange = selectedTimeRange,
-                frequencyData = frequencyData,
-            )
-        }
+        ProgressUiState.Success(
+            dataPoints = finalData,
+            selectedTimeRange = selectedTimeRange,
+            frequencyData = frequencyData,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -209,7 +204,7 @@ class ProgressViewModel(
                     techniqueCounts[technique] = (techniqueCounts[technique] ?: 0) + 1
                 }
         }
-        
+
         // Aggregate stutter forms
         val stutterFormCounts = mutableMapOf<String, Int>()
         entriesInRange.forEach { entry ->

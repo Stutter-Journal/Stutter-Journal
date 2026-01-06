@@ -1,15 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { FeatCascade } from '@org/feat-cascade';
-import { FeatPracticeOnboarding } from '../feat-practice-onboarding/feat-practice-onboarding';
 import { AuthClientService } from '@org/auth-data-access';
 import { Router } from '@angular/router';
+import { FeatPracticeSetup } from '@org/feat-practice-setup';
 
 type UiState = 'checking' | 'auth' | 'onboarding';
 
 @Component({
   selector: 'lib-feat-landing',
-  imports: [NgOptimizedImage, FeatCascade, FeatPracticeOnboarding],
+  imports: [NgOptimizedImage, FeatCascade, FeatPracticeSetup],
   templateUrl: './feat-landing.html',
   styleUrl: './feat-landing.css',
 })

@@ -35,6 +35,15 @@ docker-down:
 		docker-compose down; \
 	fi
 
+# Shutdown DB container (remove volume and orphans)
+docker-down-v:
+	@if docker compose down 2>/dev/null; then \
+		: ; \
+	else \
+		echo "Falling back to Docker Compose V1"; \
+		docker-compose down -v --remove-orphans; \
+	fi
+
 # Start DB container in background
 db-up:
 	@echo "Starting database container..."

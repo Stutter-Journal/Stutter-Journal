@@ -1,7 +1,9 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a id="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
@@ -133,23 +135,23 @@ Follow these instructions to set up the project locally for development.
 - **Python**: 3.13.2 or higher
 - **uv**: Modern Python package installer
 
-  ```sh
-  # macOS/Linux
-  brew install uv
+    ```sh
+    # macOS/Linux
+    brew install uv
 
-  # Windows
-  winget install astral-sh.uv
-  ```
+    # Windows
+    winget install astral-sh.uv
+    ```
 
 - **pre-commit**: Git hooks framework
 
-  ```sh
-  # macOS/Linux
-  brew install pre-commit
+    ```sh
+    # macOS/Linux
+    brew install pre-commit
 
-  # Windows
-  winget install pre-commit
-  ```
+    # Windows
+    winget install pre-commit
+    ```
 
 ### Mobile App Setup
 
@@ -158,97 +160,97 @@ Follow these instructions to set up the project locally for development.
 
 1. **Clone the repository**
 
-   ```sh
-   git clone https://github.com/joyalissa13/Stutter-Journal.git
-   cd Stutter-Journal/apps/mobile
-   ```
+    ```sh
+    git clone https://github.com/joyalissa13/Stutter-Journal.git
+    cd Stutter-Journal/apps/mobile
+    ```
 
 2. **Set ANDROID_HOME (if needed)**
 
-   IntelliJ IDEA usually detects this automatically, but if needed:
+    IntelliJ IDEA usually detects this automatically, but if needed:
 
-   ```sh
-   # macOS/Linux
-   export ANDROID_HOME=$HOME/Library/Android/sdk
+    ```sh
+    # macOS/Linux
+    export ANDROID_HOME=$HOME/Library/Android/sdk
 
-   # Windows
-   set ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk
-   ```
+    # Windows
+    set ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk
+    ```
 
 3. **Open the project in Android Studio or IntelliJ IDEA**
-   - File → Open → Select `apps/mobile` directory
-   - Wait for Gradle sync to complete (this will take a while the first time)
+    - File → Open → Select `apps/mobile` directory
+    - Wait for Gradle sync to complete (this will take a while the first time)
 
 4. **Run the app**
 
-   **For Android:**
-   - Select an Android device/emulator from the device dropdown
-   - Click the Run button or press `Shift + F10`
+    **For Android:**
+    - Select an Android device/emulator from the device dropdown
+    - Click the Run button or press `Shift + F10`
 
-   **For iOS (macOS only):**
-   - Open `apps/mobile/iosApp/iosApp.xcodeproj` in Xcode
-   - Select a simulator or connected device
-   - Click Run or press `Cmd + R`
+    **For iOS (macOS only):**
+    - Open `apps/mobile/iosApp/iosApp.xcodeproj` in Xcode
+    - Select a simulator or connected device
+    - Click Run or press `Cmd + R`
 
 ### Backend Setup
 
 1. **Navigate to the backend directory**
 
-   ```sh
-   cd apps/backend
-   ```
+    ```sh
+    cd apps/backend
+    ```
 
 2. **Install pre-commit hooks**
 
-   ```sh
-   pre-commit install
-   ```
+    ```sh
+    pre-commit install
+    ```
 
 3. **Update pre-commit to latest versions (recommended)**
 
-   ```sh
-   pre-commit autoupdate
-   ```
+    ```sh
+    pre-commit autoupdate
+    ```
 
 4. **Create a virtual environment**
 
-   ```sh
-   uv venv
-   ```
+    ```sh
+    uv venv
+    ```
 
 5. **Activate the virtual environment**
 
-   ```sh
-   # macOS/Linux
-   source .venv/bin/activate
+    ```sh
+    # macOS/Linux
+    source .venv/bin/activate
 
-   # Windows
-   .venv\Scripts\activate
-   ```
+    # Windows
+    .venv\Scripts\activate
+    ```
 
 6. **Install setuptools dependencies**
 
-   ```sh
-   uv pip install -U setuptools setuptools_scm wheel
-   ```
+    ```sh
+    uv pip install -U setuptools setuptools_scm wheel
+    ```
 
 7. **Install the project in editable mode**
 
-   ```sh
-   uv pip install -e .
-   ```
+    ```sh
+    uv pip install -e .
+    ```
 
 8. **Sync dependencies**
 
-   ```sh
-   uv sync
-   ```
+    ```sh
+    uv sync
+    ```
 
 9. **Build the project**
 
-   ```sh
-   uv build
-   ```
+    ```sh
+    uv build
+    ```
 
 10. **Run the example skeleton script**
 
@@ -288,8 +290,8 @@ The mobile application's theme was built using [Material Theme Builder](https://
 
 - **Primary Color**: Sea Green
 - **Typography**:
-  - Display Font: **Outfit**
-  - Body Font: **Inter**
+    - Display Font: **Outfit**
+    - Body Font: **Inter**
 - **Design System**: Material Design 3
 
 ### Known Issues & Tips
@@ -301,6 +303,14 @@ The mobile application's theme was built using [Material Theme Builder](https://
 > **ANDROID_HOME**: If necessary, the `ANDROID_HOME` environment variable needs to be set in the project structure for the KMP mobile frontend. However, IntelliJ IDEA is usually intelligent enough to detect this automatically.
 
 **Virtual Device Manager**: Android Studio includes a device manager for spinning up virtual phones. Setting up a virtual device is extremely simple and fast - just select your desired phone model and API level.
+
+Generating new migrations, and forcing atlas to migrate with new diffs is a pain, as it forces you to first generate the actual migration using ent (which is totally fine), but then you have to execute something like this:
+
+```bash
+atlas migrate diff remove_logo_url --to "ent://ent/schema" --dev-url "postgres://melkey:password1234@localhost:5432/blueprint?sslmode=disable" --dir "file://ent/migrate/migrations"
+```
+
+every single time, which is cumbersome. I have to think of something better, TODO for later me.
 
 ### Backend Setup Details
 
@@ -335,6 +345,7 @@ Copyright [2025] [Group 3 developing the Stutter-Journal]
 ---
 
 <!-- MARKDOWN LINKS & IMAGES -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/joyalissa13/Stutter-Journal.svg?style=for-the-badge
 [contributors-url]: https://github.com/joyalissa13/Stutter-Journal/graphs/contributors
 [stars-shield]: https://img.shields.io/github/stars/joyalissa13/Stutter-Journal.svg?style=for-the-badge
@@ -345,6 +356,7 @@ Copyright [2025] [Group 3 developing the Stutter-Journal]
 [license-url]: https://github.com/joyalissa13/Stutter-Journal/blob/main/LICENSE
 
 <!-- Technology Badges -->
+
 [Kotlin]: https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white
 [Kotlin-url]: https://kotlinlang.org/
 [Compose]: https://img.shields.io/badge/Compose%20Multiplatform-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white

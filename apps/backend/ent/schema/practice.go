@@ -21,7 +21,6 @@ func (Practice) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(),
 		field.String("address").Optional().Nillable(),
-		field.String("logo_url").Optional().Nillable(),
 	}
 }
 

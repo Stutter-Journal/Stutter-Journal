@@ -26,8 +26,6 @@ type Practice struct {
 	Name string `json:"name,omitempty"`
 	// Address holds the value of the "address" field.
 	Address *string `json:"address,omitempty"`
-	// LogoURL holds the value of the "logo_url" field.
-	LogoURL *string `json:"logo_url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PracticeQuery when eager-loading is set.
 	Edges        PracticeEdges `json:"edges"`
@@ -57,7 +55,7 @@ func (*Practice) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case practice.FieldName, practice.FieldAddress, practice.FieldLogoURL:
+		case practice.FieldName, practice.FieldAddress:
 			values[i] = new(sql.NullString)
 		case practice.FieldCreatedAt, practice.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -108,13 +106,6 @@ func (_m *Practice) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Address = new(string)
 				*_m.Address = value.String
-			}
-		case practice.FieldLogoURL:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field logo_url", values[i])
-			} else if value.Valid {
-				_m.LogoURL = new(string)
-				*_m.LogoURL = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -168,11 +159,6 @@ func (_m *Practice) String() string {
 	builder.WriteString(", ")
 	if v := _m.Address; v != nil {
 		builder.WriteString("address=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	if v := _m.LogoURL; v != nil {
-		builder.WriteString("logo_url=")
 		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')

@@ -40,6 +40,14 @@ export class FeatLanding implements OnInit {
     }
 
     // already onboarded
-    await this.router.navigateByUrl('/'); // change to your real post-auth route
+    await this.router.navigateByUrl('/app'); // change to your real post-auth route
+  }
+
+  async onBoardingCompleted() {
+    // Make sure userSig reflects the new practiceId
+    await this.auth.me();
+
+    // Now go to dashboard
+    await this.router.navigateByUrl('/app');
   }
 }

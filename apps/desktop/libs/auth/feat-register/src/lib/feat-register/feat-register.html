@@ -1,5 +1,57 @@
-<div class="space-y-4">
-  <!-- email field + button -->
+<form (ngSubmit)="submit()" [formGroup]="form" class="space-y-4">
+  <hlm-form-field>
+    <input
+      aria-label="Email"
+      class="w-full"
+      formControlName="email"
+      hlmInput
+      placeholder="name@example.com"
+      type="email"
+    />
+    @if (form.controls.email.invalid) {
+    <hlm-error> Please enter a valid email. </hlm-error>
+    }
+  </hlm-form-field>
+
+  <hlm-form-field>
+    <input
+      aria-label="Password"
+      class="w-full"
+      formControlName="password"
+      hlmInput
+      placeholder="Password (min. 8 characters)"
+      type="password"
+    />
+
+    <hlm-hint> Use at least 8 characters. </hlm-hint>
+
+    @if (form.controls.password.invalid) {
+    <hlm-error> Password must be at least 8 characters. </hlm-error>
+    }
+  </hlm-form-field>
+
+  <label class="flex items-start gap-2 text-sm text-muted-foreground">
+    <input class="mt-1" formControlName="acceptTerms" type="checkbox" />
+    <span>
+      I agree to the
+      <a class="underline underline-offset-4 hover:text-foreground" href="#">
+        Terms of Service
+      </a>
+      and
+      <a class="underline underline-offset-4 hover:text-foreground" href="#">
+        Privacy Policy </a
+      >.
+    </span>
+  </label>
+
+  <button
+    [disabled]="form.invalid || submitting"
+    class="w-full"
+    hlmBtn
+    type="submit"
+  >
+    {{ submitting ? 'Creating account…' : 'Create account' }}
+  </button>
 
   <p class="text-center text-sm text-muted-foreground">
     Already have an account?
@@ -11,4 +63,4 @@
       Login
     </button>
   </p>
-</div>
+</form>

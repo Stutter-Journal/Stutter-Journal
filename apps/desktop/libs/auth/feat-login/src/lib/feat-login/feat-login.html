@@ -1,5 +1,40 @@
-<div class="space-y-4">
-  <!-- email field + button -->
+<form (ngSubmit)="submit()" [formGroup]="form" class="space-y-4">
+  <hlm-form-field>
+    <input
+      aria-label="Email"
+      class="w-full"
+      formControlName="email"
+      hlmInput
+      placeholder="name@example.com"
+      type="email"
+    />
+    @if (form.controls.email.invalid) {
+    <hlm-error> Please enter a valid email. </hlm-error>
+    }
+  </hlm-form-field>
+
+  <hlm-form-field>
+    <input
+      aria-label="Password"
+      class="w-full"
+      formControlName="password"
+      hlmInput
+      placeholder="Password"
+      type="password"
+    />
+    @if (form.controls.password.invalid) {
+    <hlm-error> Password is required. </hlm-error>
+    }
+  </hlm-form-field>
+
+  <button
+    [disabled]="form.invalid || submitting"
+    class="w-full"
+    hlmBtn
+    type="submit"
+  >
+    {{ submitting ? 'Signing in…' : 'Sign in' }}
+  </button>
 
   <p class="text-center text-sm text-muted-foreground">
     Don’t have an account?
@@ -11,4 +46,4 @@
       Sign up
     </button>
   </p>
-</div>
+</form>

@@ -2,7 +2,10 @@
   <div class="space-y-5">
     <!-- Email -->
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-slate-800 dark:text-slate-200" for="login-email">
+      <label
+        class="block text-sm font-medium text-slate-800 dark:text-slate-200"
+        for="login-email"
+      >
         Email
       </label>
 
@@ -22,22 +25,30 @@
       </span>
 
       @if (form.get('email')?.touched && form.get('email')?.invalid) {
-        <small class="block text-xs text-red-600 dark:text-red-400" id="email-error">
-          Enter a valid email address.
-        </small>
+      <small
+        class="block text-xs text-red-600 dark:text-red-400"
+        id="email-error"
+      >
+        Enter a valid email address.
+      </small>
       }
     </div>
 
     <!-- Password -->
     <div class="space-y-2">
       <div class="flex items-center justify-between gap-3">
-        <label class="block text-sm font-medium text-slate-800 dark:text-slate-200" for="login-password">
+        <label
+          class="block text-sm font-medium text-slate-800 dark:text-slate-200"
+          for="login-password"
+        >
           Password
         </label>
       </div>
 
       <div class="relative">
-        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+        <span
+          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        >
           <i class="pi pi-lock"></i>
         </span>
 
@@ -55,16 +66,26 @@
       </div>
 
       @if (form.get('password')?.touched && form.get('password')?.invalid) {
-        <small class="block text-xs text-red-600 dark:text-red-400" id="password-error">
-          Password is required.
-        </small>
+      <small
+        class="block text-xs text-red-600 dark:text-red-400"
+        id="password-error"
+      >
+        Password is required.
+      </small>
       }
     </div>
 
     <!-- Remember -->
     <div class="flex items-center gap-2">
-      <p-checkbox [binary]="true" formControlName="remember" inputId="remember"></p-checkbox>
-      <label class="text-sm text-slate-700 dark:text-slate-300 select-none" for="remember">
+      <p-checkbox
+        [binary]="true"
+        formControlName="remember"
+        inputId="remember"
+      ></p-checkbox>
+      <label
+        class="text-sm text-slate-700 dark:text-slate-300 select-none"
+        for="remember"
+      >
         Stay signed in
       </label>
     </div>

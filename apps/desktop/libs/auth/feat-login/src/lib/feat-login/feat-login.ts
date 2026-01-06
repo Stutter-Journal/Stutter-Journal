@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+} from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   FormBuilder,
@@ -38,6 +44,8 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatLogin {
+  @Output() switchToRegister = new EventEmitter<void>();
+
   readonly email = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.email],

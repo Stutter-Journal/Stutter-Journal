@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,6 +27,8 @@ import { CheckboxModule } from 'primeng/checkbox';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatRegister {
+  @Output() switchToLogin = new EventEmitter<void>();
+
   private readonly fb = inject(FormBuilder);
 
   readonly form = this.fb.group({

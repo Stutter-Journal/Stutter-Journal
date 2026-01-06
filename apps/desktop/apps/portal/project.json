@@ -20,7 +20,7 @@
           },
           {
             "glob": "**/*",
-            "input": "libs/auth/feat-login/src/assets",
+            "input": "libs/auth/feat-landing/src/assets",
             "output": "assets"
           }
         ],

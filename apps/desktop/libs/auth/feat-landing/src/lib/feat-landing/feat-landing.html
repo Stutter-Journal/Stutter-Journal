@@ -36,7 +36,15 @@
         <main class="bg-background">
           <div class="flex h-full items-center justify-center px-6 py-14">
             <div class="w-full max-w-sm">
-              <lib-feat-cascade></lib-feat-cascade>
+              @switch (state()) { @case ('checking') {
+              <div class="text-center text-sm text-muted-foreground">
+                Checking session…
+              </div>
+              } @case ('auth') {
+              <lib-feat-cascade (authed)="recomputeState()" />
+              } @case ('onboarding') {
+              <lib-feat-practice-onboarding />
+              } }
             </div>
           </div>
         </main>

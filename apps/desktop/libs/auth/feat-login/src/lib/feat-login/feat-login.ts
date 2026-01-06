@@ -42,6 +42,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 export class FeatLogin {
   @Output() switchToRegister = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<{ email: string; password: string }>();
+  @Output() authed = new EventEmitter<void>(); // TODO: Add login functionality here
 
   submitting = false;
 
@@ -61,5 +62,7 @@ export class FeatLogin {
 
     this.submitting = true;
     this.submitted.emit(this.form.getRawValue());
+
+    // TODO: Implement later on, copy it from the register ts component
   }
 }

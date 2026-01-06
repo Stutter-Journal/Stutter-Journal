@@ -43,6 +43,7 @@ import { toast } from 'ngx-sonner';
 })
 export class FeatRegister {
   @Output() switchToLogin = new EventEmitter<void>();
+  @Output() authed = new EventEmitter<void>();
 
   readonly auth = inject(AuthClientService);
 
@@ -95,8 +96,7 @@ export class FeatRegister {
         description: 'Welcome! You can continue to set up your practice.',
       });
 
-      // Next step: trigger onboarding (you’ll hook this later)
-      // e.g. emit event, navigate, or flip cascade state
+      this.authed.emit();
     } catch (e: any) {
       toast.error('Registration failed', {
         description: e?.message ?? 'Please try again.',

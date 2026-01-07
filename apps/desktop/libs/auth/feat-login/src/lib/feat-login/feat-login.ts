@@ -22,6 +22,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { toast } from 'ngx-sonner';
 import { AuthClientService } from '@org/auth-data-access';
+import { LoggerService } from '@org/util';
 
 @Component({
   selector: 'lib-feat-login',
@@ -44,6 +45,7 @@ import { AuthClientService } from '@org/auth-data-access';
 })
 export class FeatLogin {
   private readonly auth = inject(AuthClientService);
+  private readonly log = inject(LoggerService);
 
   @Output() switchToRegister = new EventEmitter<void>();
   @Output() authed = new EventEmitter<void>();
@@ -62,22 +64,34 @@ export class FeatLogin {
   });
 
   async submit(): Promise<void> {
-    if (this.form.invalid || this.submitting) return;
+    if (this.form.invalid || this.submitting) {
+      this.log.debug('Login submit skipped', {
+        submitting: this.submitting,
+        valid: this.form.valid,
+      });
+      return;
+    }
 
     this.submitting = true;
     try {
       const { email, password } = this.form.getRawValue();
 
+      this.log.info('Attempting login', { email });
+
       await this.auth.login({ email, password });
 
       toast.success('Welcome back');
 
+      this.log.info('Login succeeded', { email });
+
       this.authed.emit();
     } catch (err: any) {
+      this.log.error('Login failed', { error: err });
       toast.error('Login failed', {
         description: err?.message ?? 'Please check your credentials',
       });
     } finally {
+      this.log.debug('Login submit completed');
       this.submitting = false;
     }
   }

@@ -103,7 +103,8 @@
       "@spartan-ng/helm/typography": ["libs/ui/typography/src/index.ts"],
       "@spartan-ng/helm/utils": ["libs/ui/utils/src/index.ts"],
       "@org/feat-landing": ["libs/auth/feat-landing/src/index.ts"],
-      "@org/dashboard": ["libs/dashboard/dashboard/src/index.ts"]
+      "@org/dashboard": ["libs/dashboard/dashboard/src/index.ts"],
+      "@org/dashboard-data-access": ["libs/dashboard/data-access/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -50,8 +50,9 @@ export class AuthClientService {
       this.loadingSig,
       this.errorSig,
     );
-    this.userSig.set(user);
-    return user;
+    const doctor = this.unwrapDoctor(user);
+    this.userSig.set(doctor);
+    return doctor;
   }
 
   async register(
@@ -70,9 +71,11 @@ export class AuthClientService {
       this.errorSig,
     );
 
-    this.userSig.set(user);
+    const doctor = this.unwrapDoctor(user);
 
-    return user;
+    this.userSig.set(doctor);
+
+    return doctor;
   }
 
   async me(): Promise<ServerDoctorResponse | null> {
@@ -85,8 +88,9 @@ export class AuthClientService {
         this.loadingSig,
         this.errorSig,
       );
-      this.userSig.set(user);
-      return user;
+      const doctor = this.unwrapDoctor(user);
+      this.userSig.set(doctor);
+      return doctor;
     } catch (err) {
       if (isErrorResponse(err) && err.status === 401) {
         this.userSig.set(null);
@@ -109,5 +113,20 @@ export class AuthClientService {
     );
 
     this.userSig.set(null);
+  }
+
+  // TODO: Refactor this
+  private unwrapDoctor(payload: unknown): ServerDoctorResponse {
+    const anyPayload = payload as any;
+
+    // Common response envelopes we see:
+    // - { data: { doctor: {...} } }
+    // - { data: {...doctor fields...} }
+    // - { doctor: {...} }
+    // - { ...doctor fields }
+    if (anyPayload?.data?.doctor) return anyPayload.data.doctor;
+    if (anyPayload?.doctor) return anyPayload.doctor;
+    if (anyPayload?.data) return anyPayload.data;
+    return anyPayload as ServerDoctorResponse;
   }
 }

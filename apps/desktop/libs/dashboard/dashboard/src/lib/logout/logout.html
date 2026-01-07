@@ -1,0 +1,11 @@
+<div class="px-3 py-3" hlmSidebarFooter>
+  <div class="rounded-md border border-sidebar-border bg-sidebar-accent/40 p-3">
+    <div class="text-xs text-sidebar-foreground/70">Signed in as</div>
+    <div class="mt-1 text-sm font-medium text-sidebar-foreground">
+      {{ auth.user()?.displayName || auth.user()?.email }}
+    </div>
+    <button (click)="logout()" class="mt-3 w-full" hlmBtn size="sm" type="button">
+      Logout
+    </button>
+  </div>
+</div>

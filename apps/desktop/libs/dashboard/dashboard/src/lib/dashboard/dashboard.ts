@@ -1,15 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HlmButton } from '@spartan-ng/helm/button';
 import {
   HlmSidebar,
   HlmSidebarContent,
-  HlmSidebarFooter,
   HlmSidebarGroup,
   HlmSidebarHeader,
   HlmSidebarTrigger,
   HlmSidebarWrapper,
 } from '@spartan-ng/helm/sidebar';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmMenubar, HlmMenubarTrigger } from '@spartan-ng/helm/menubar';
 import {
   HlmDropdownMenu,
@@ -27,6 +26,7 @@ import {
   HlmTr,
 } from '@spartan-ng/helm/table';
 import { AuthClientService } from '@org/auth-data-access';
+import { Logout } from '../logout/logout';
 
 @Component({
   selector: 'lib-dashboard',
@@ -38,7 +38,6 @@ import { AuthClientService } from '@org/auth-data-access';
     HlmSidebarGroup,
     RouterLink,
     RouterLinkActive,
-    HlmSidebarFooter,
     HlmButton,
     HlmSidebarTrigger,
     HlmMenubar,
@@ -54,16 +53,11 @@ import { AuthClientService } from '@org/auth-data-access';
     HlmTh,
     HlmTBody,
     HlmTd,
+    Logout,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
   readonly auth = inject(AuthClientService);
-  readonly router = inject(Router);
-
-  async logout() {
-    await this.auth.logout();
-    await this.router.navigateByUrl('/landing');
-  }
 }

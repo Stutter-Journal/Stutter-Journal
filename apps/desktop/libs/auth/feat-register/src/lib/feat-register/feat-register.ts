@@ -21,6 +21,7 @@ import { HlmError, HlmFormField, HlmHint } from '@spartan-ng/helm/form-field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { toast } from 'ngx-sonner';
+import { LoggerService } from '@org/util';
 
 @Component({
   selector: 'lib-feat-register',
@@ -46,6 +47,7 @@ export class FeatRegister {
   @Output() authed = new EventEmitter<void>();
 
   readonly auth = inject(AuthClientService);
+  private readonly log = inject(LoggerService);
 
   readonly form = new FormGroup({
     firstName: new FormControl('', {
@@ -77,10 +79,15 @@ export class FeatRegister {
 
   async submit(): Promise<void> {
     if (this.form.invalid) {
+      this.log.debug('Registration form invalid', {
+        errors: this.form.errors,
+        status: this.form.status,
+      });
       this.form.markAllAsTouched();
       return;
     }
 
+    this.log.info('Submitting registration');
     this.auth.clearError();
 
     const { acceptTerms, ...raw } = this.form.getRawValue();
@@ -96,8 +103,11 @@ export class FeatRegister {
         description: 'Welcome! You can continue to set up your practice.',
       });
 
+      this.log.info('Registration succeeded', { email: raw.email });
+
       this.authed.emit();
     } catch (e: any) {
+      this.log.error('Registration failed', { error: e });
       toast.error('Registration failed', {
         description: e?.message ?? 'Please try again.',
       });

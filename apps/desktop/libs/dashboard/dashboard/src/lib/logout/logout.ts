@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmSidebarFooter } from '@spartan-ng/helm/sidebar';
 import { AuthClientService } from '@org/auth-data-access';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'lib-logout',
@@ -17,6 +18,7 @@ export class Logout {
 
   async logout() {
     await this.auth.logout();
+    toast.success('You have been logged out');
     await this.router.navigateByUrl('/landing');
   }
 }

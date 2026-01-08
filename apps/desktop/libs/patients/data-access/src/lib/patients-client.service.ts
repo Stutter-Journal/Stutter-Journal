@@ -2,7 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ErrorResponse, normalizeError } from '@org/util';
-import { ServerPatientDTO, ServerPatientsResponse } from '@org/contracts';
+import {
+  execute,
+  ServerPatientDTO,
+  ServerPatientsResponse,
+} from '@org/contracts';
 
 export interface PatientFilters {
   search?: string;
@@ -26,26 +30,14 @@ export class PatientsClientService {
     const params = new HttpParams({
       fromObject: { search: filters?.search ?? '' },
     });
-    const response = await this.execute(() =>
+
+    const response = await execute(() =>
       this.http.get<ServerPatientsResponse>('/patients', {
         params,
         withCredentials: true,
-      }),
+      }), this.loadingSig, this.errorSig
     );
-    return response.patients ?? [];
-  }
 
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
+    return response.patients ?? [];
   }
 }

@@ -27,10 +27,6 @@
         "libs/practice/feat-practice-setup/src/index.ts"
       ],
       "@org/links-data-access": ["libs/links/data-access/src/index.ts"],
-      "@org/feat-invite-patient": [
-        "libs/links/feat-invite-patient/src/index.ts"
-      ],
-      "@org/feat-approve-link": ["libs/links/feat-approve-link/src/index.ts"],
       "@org/patients-data-access": ["libs/patients/data-access/src/index.ts"],
       "@org/feat-patient-list": [
         "libs/patients/feat-patient-list/src/index.ts"

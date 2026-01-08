@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ErrorResponse } from '@org/util';
 import {
+  execute,
   ServerLinkApproveResponse,
   ServerLinkInviteRequest,
   ServerLinkInviteRequestBody,
@@ -26,44 +26,39 @@ export class LinksClientService {
   async invitePatient(
     payload: ServerLinkInviteRequest,
   ): Promise<ServerLinkResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkResponse>('/links/invite', payload, {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>('/links/invite', payload, {
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
   async requestLink(
     payload: ServerLinkInviteRequestBody,
   ): Promise<ServerLinkResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkResponse>('/links/request', payload, {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>('/links/request', payload, {
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
   async approveLink(linkId: string): Promise<ServerLinkApproveResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkApproveResponse>(
-        `/links/${linkId}/approve`,
-        {},
-        { withCredentials: true },
-      ),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkApproveResponse>(
+          `/links/${linkId}/approve`,
+          {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
-  }
-
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
   }
 }

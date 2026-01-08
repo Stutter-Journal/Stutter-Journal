@@ -1,6 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ServerPatientDTO } from '@org/contracts';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -38,6 +40,8 @@ import {
 import { HlmNumberedPagination } from '@spartan-ng/helm/pagination';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmItemFooter } from '@spartan-ng/helm/item';
+import { AddPatient } from '../add-patient/add-patient';
+import { take } from 'rxjs';
 
 type PatientStatus = 'active' | 'pending' | 'archived';
 
@@ -89,7 +93,9 @@ interface Patient {
   ],
 })
 export class FeatPatientsOverview {
-  // Replace this with your API/store later.
+  private readonly dialog = inject(HlmDialogService);
+
+  // TODO: Replace this with your API/store later.
   private readonly _patients = signal<Patient[]>([
     {
       id: 'p_001',
@@ -141,6 +147,43 @@ export class FeatPatientsOverview {
     const start = (safePage - 1) * size;
     return this.filteredPatients().slice(start, start + size);
   });
+
+  openAddPatient() {
+    const ref = this.dialog.open(AddPatient, {
+      contentClass: 'sm:!max-w-lg',
+    });
+
+    ref.closed$
+      .pipe(take(1))
+      .subscribe((patient?: ServerPatientDTO) =>
+        this.onPatientCreated(patient),
+      );
+  }
+
+  onPatientCreated(patient: ServerPatientDTO | null | undefined) {
+    if (!patient) return;
+
+    const id =
+      patient.id ??
+      (typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `patient_${Date.now()}`);
+
+    const fullName = patient.displayName?.trim() || 'New patient';
+
+    this._patients.update((current) => [
+      {
+        id,
+        fullName,
+        status: 'pending',
+        dob: undefined,
+        lastEntryAt: undefined,
+      },
+      ...current,
+    ]);
+
+    this.page.set(1);
+  }
 
   onQueryInput(value: string) {
     this.query.set(value);

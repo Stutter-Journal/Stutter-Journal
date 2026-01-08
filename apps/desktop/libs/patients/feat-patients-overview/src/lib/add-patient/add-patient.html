@@ -1,1 +1,39 @@
-<p>add-patient works!</p>
+<hlm-dialog-header>
+  <h3 hlmDialogTitle>Add patient</h3>
+  <p hlmDialogDescription>
+    Invite a patient by email and optionally share a patient code.
+  </p>
+</hlm-dialog-header>
+
+<form (ngSubmit)="submit()" [formGroup]="form" class="space-y-4">
+  <hlm-form-field>
+    <label class="mb-1 block text-sm font-medium">Patient name</label>
+    <input class="w-full" formControlName="displayName" hlmInput placeholder="Alex Smith" type="text" />
+    @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
+      <hlm-error>Name is required.</hlm-error>
+    }
+  </hlm-form-field>
+
+  <hlm-form-field>
+    <label class="mb-1 block text-sm font-medium">Patient email</label>
+    <input class="w-full" formControlName="patientEmail" hlmInput placeholder="patient@email.com" type="email" />
+    @if (form.controls.patientEmail.touched && form.controls.patientEmail.invalid) {
+      <hlm-error>Enter a valid email.</hlm-error>
+    }
+  </hlm-form-field>
+
+  <hlm-form-field>
+    <label class="mb-1 block text-sm font-medium">Patient code (optional)</label>
+    <input class="w-full" formControlName="patientCode" hlmInput placeholder="e.g. P-48392" type="text" />
+    <hlm-hint>Share this if the patient prefers entering a code.</hlm-hint>
+  </hlm-form-field>
+
+  <hlm-dialog-footer>
+    <!-- ✅ spartan-native close -->
+    <button brnDialogClose hlmBtn type="button" variant="outline">Cancel</button>
+
+    <button [disabled]="form.invalid || submitting || loading" hlmBtn type="submit">
+      {{ submitting || loading ? 'Sending…' : 'Send invite' }}
+    </button>
+  </hlm-dialog-footer>
+</form>

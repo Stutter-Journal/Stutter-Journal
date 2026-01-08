@@ -31,11 +31,14 @@ export class PatientsClientService {
       fromObject: { search: filters?.search ?? '' },
     });
 
-    const response = await execute(() =>
-      this.http.get<ServerPatientsResponse>('/patients', {
-        params,
-        withCredentials: true,
-      }), this.loadingSig, this.errorSig
+    const response = await execute(
+      () =>
+        this.http.get<ServerPatientsResponse>('/patients', {
+          params,
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
     );
 
     return response.patients ?? [];

@@ -1,10 +1,8 @@
 import { Body, Controller, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod } from '@eloquia/shared/api/contracts';
 import { BffService } from './bff.service';
-import {
-  serverLinkApproveResponseSchema,
-  serverLinkResponseSchema,
-} from './schemas';
+import { serverErrorResponseSchema, serverLinkResponseSchema } from './schemas';
 
 @Controller('links')
 export class LinksController {
@@ -23,6 +21,12 @@ export class LinksController {
       method: 'POST',
       body,
       schema: serverLinkResponseSchema,
+      schemasByStatus: {
+        201: serverLinkResponseSchema,
+        400: serverErrorResponseSchema,
+        401: serverErrorResponseSchema,
+        409: serverErrorResponseSchema,
+      },
     });
   }
 
@@ -39,6 +43,12 @@ export class LinksController {
       method: 'POST',
       body,
       schema: serverLinkResponseSchema,
+      schemasByStatus: {
+        201: serverLinkResponseSchema,
+        400: serverErrorResponseSchema,
+        401: serverErrorResponseSchema,
+        409: serverErrorResponseSchema,
+      },
     });
   }
 
@@ -53,7 +63,13 @@ export class LinksController {
       res,
       path: `/links/${id}/approve`,
       method: 'POST',
-      schema: serverLinkApproveResponseSchema,
+      schema: contractsZod.postLinksIdApproveResponse,
+      schemasByStatus: {
+        200: contractsZod.postLinksIdApproveResponse,
+        400: serverErrorResponseSchema,
+        401: serverErrorResponseSchema,
+        404: serverErrorResponseSchema,
+      },
     });
   }
 }

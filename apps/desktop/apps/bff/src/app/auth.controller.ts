@@ -1,11 +1,8 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod } from '@eloquia/shared/api/contracts';
 import { BffService } from './bff.service';
-import {
-  serverDoctorMeResponseSchema,
-  serverDoctorResponseSchema,
-  serverStatusResponseSchema,
-} from './schemas';
+import { serverErrorResponseSchema } from './schemas';
 
 @Controller('doctor')
 export class AuthController {
@@ -18,7 +15,11 @@ export class AuthController {
       res,
       path: '/doctor/me',
       method: 'GET',
-      schema: serverDoctorMeResponseSchema,
+      schema: contractsZod.getDoctorMeResponse,
+      schemasByStatus: {
+        200: contractsZod.getDoctorMeResponse,
+        401: serverErrorResponseSchema,
+      },
     });
   }
   @Post('login')
@@ -33,7 +34,12 @@ export class AuthController {
       path: '/doctor/login',
       method: 'POST',
       body,
-      schema: serverDoctorResponseSchema,
+      schema: contractsZod.postDoctorLoginResponse,
+      schemasByStatus: {
+        200: contractsZod.postDoctorLoginResponse,
+        400: serverErrorResponseSchema,
+        401: serverErrorResponseSchema,
+      },
     });
   }
 
@@ -49,7 +55,12 @@ export class AuthController {
       path: '/doctor/register',
       method: 'POST',
       body,
-      schema: serverDoctorResponseSchema,
+      schema: contractsZod.postDoctorLoginResponse,
+      schemasByStatus: {
+        201: contractsZod.postDoctorLoginResponse,
+        400: serverErrorResponseSchema,
+        409: serverErrorResponseSchema,
+      },
     });
   }
 
@@ -60,7 +71,11 @@ export class AuthController {
       res,
       path: '/doctor/logout',
       method: 'POST',
-      schema: serverStatusResponseSchema,
+      schema: contractsZod.postDoctorLogoutResponse,
+      schemasByStatus: {
+        200: contractsZod.postDoctorLogoutResponse,
+        401: serverErrorResponseSchema,
+      },
     });
   }
 }

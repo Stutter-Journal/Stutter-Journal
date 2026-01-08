@@ -1,10 +1,8 @@
 import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod } from '@eloquia/shared/api/contracts';
 import { BffService } from './bff.service';
-import {
-  serverEntriesResponseSchema,
-  serverPatientsResponseSchema,
-} from './schemas';
+import { serverErrorResponseSchema } from './schemas';
 
 @Controller('patients')
 export class PatientsController {
@@ -17,7 +15,11 @@ export class PatientsController {
       res,
       path: '/patients',
       method: 'GET',
-      schema: serverPatientsResponseSchema,
+      schema: contractsZod.getPatientsResponse,
+      schemasByStatus: {
+        200: contractsZod.getPatientsResponse,
+        401: serverErrorResponseSchema,
+      },
     });
   }
 
@@ -42,7 +44,13 @@ export class PatientsController {
       res,
       path,
       method: 'GET',
-      schema: serverEntriesResponseSchema,
+      schema: contractsZod.getPatientsIdEntriesResponse,
+      schemasByStatus: {
+        200: contractsZod.getPatientsIdEntriesResponse,
+        400: serverErrorResponseSchema,
+        401: serverErrorResponseSchema,
+        403: serverErrorResponseSchema,
+      },
     });
   }
 }

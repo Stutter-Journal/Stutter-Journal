@@ -11,6 +11,7 @@ interface ForwardOptions<TBody = unknown> {
   method: 'GET' | 'POST';
   body?: TBody;
   schema?: z.ZodTypeAny | null;
+  schemasByStatus?: Record<number, z.ZodTypeAny>;
 }
 
 @Injectable()
@@ -26,6 +27,7 @@ export class BffService {
     method,
     body,
     schema,
+    schemasByStatus,
   }: ForwardOptions<TBody>): Promise<void> {
     const url = `${BASE_URL}${path}`;
     const headers: Record<string, string> = {
@@ -46,10 +48,35 @@ export class BffService {
     this.copySetCookie(upstream, res);
 
     const text = await upstream.text();
-    const json = text ? JSON.parse(text) : undefined;
-    const validated = schema ? schema.parse(json) : json;
+    let json: unknown;
+    try {
+      json = text ? JSON.parse(text) : undefined;
+    } catch (err) {
+      json = text; // if upstream returns non-JSON, keep raw text
+    }
 
-    res.status(upstream.status).json(validated ?? null);
+    const chosenSchema = schemasByStatus?.[upstream.status] ?? schema ?? null;
+
+    if (!chosenSchema) {
+      res.status(upstream.status).json(json ?? null);
+      return;
+    }
+
+    const parsed = chosenSchema.safeParse(json);
+
+    if (parsed.success) {
+      res.status(upstream.status).json(parsed.data ?? null);
+      return;
+    }
+
+    // On validation failure, return the upstream payload but log the mismatch
+    console.warn('Upstream response failed validation', {
+      path,
+      status: upstream.status,
+      issues: parsed.error.issues,
+    });
+
+    res.status(upstream.status).json(json ?? null);
   }
 
   private copySetCookie(upstream: Response | any, res: Response) {

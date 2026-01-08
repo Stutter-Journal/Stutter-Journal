@@ -1,5 +1,6 @@
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 import {
   lucideLayoutDashboard,
@@ -45,8 +46,11 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
     HlmSidebarHeader,
     HlmSidebarContent,
     HlmSidebarGroup,
+    CommonModule,
+    NgIf,
     RouterLink,
     RouterLinkActive,
+    RouterOutlet,
     HlmButton,
     HlmSidebarTrigger,
     HlmMenubar,

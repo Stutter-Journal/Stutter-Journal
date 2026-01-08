@@ -122,6 +122,9 @@
 
     <!-- Body -->
     <div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+      <router-outlet #childOutlet="outlet"></router-outlet>
+
+      @if (!childOutlet.isActivated) {
       <!-- KPI Cards -->
       <section class="grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border bg-card p-4">
@@ -252,6 +255,7 @@
           </div>
         </div>
       </section>
+      }
     </div>
   </main>
 </div>

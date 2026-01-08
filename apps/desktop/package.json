@@ -2,7 +2,9 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "generate:contracts": "pnpm orval --config tools/openapi/orval.config.cjs"
+  },
   "private": true,
   "packageManager": "pnpm@10.27.0",
   "dependencies": {

@@ -19,6 +19,17 @@ export const appRoutes: Route[] = [
             (m) => m.FeatPatientsOverview,
           ),
       },
+      // TODO: This is for later
+      // {
+      //   path: 'patients/new',
+      //   loadComponent: () =>
+      //     import('@org/feat-patients').then((m) => m.PatientCreatePage),
+      // },
+      // {
+      //   path: 'patients/:id',
+      //   loadComponent: () =>
+      //     import('@org/feat-patients').then((m) => m.PatientDetailPage),
+      // },
     ],
   },
   {

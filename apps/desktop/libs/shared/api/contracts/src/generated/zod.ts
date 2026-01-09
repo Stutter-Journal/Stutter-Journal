@@ -8,214 +8,197 @@ import * as zod from 'zod';
  * @summary Authenticate a doctor
  */
 export const postDoctorLoginBody = zod.object({
-  email: zod.string().optional(),
-  password: zod.string().optional(),
-});
+  "email": zod.string().optional(),
+  "password": zod.string().optional()
+})
 
 export const postDoctorLoginResponse = zod.object({
-  displayName: zod.string().optional(),
-  email: zod.string().optional(),
-  id: zod.string().optional(),
-  practiceId: zod.string().optional(),
-  role: zod.string().optional(),
-});
+  "displayName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "id": zod.string().optional(),
+  "practiceId": zod.string().optional(),
+  "role": zod.string().optional()
+})
+
 
 /**
  * @summary Terminate the current session
  */
 export const postDoctorLogoutResponse = zod.object({
-  status: zod.string().optional(),
-});
+  "status": zod.string().optional()
+})
+
 
 /**
  * @summary Fetch the current doctor
  */
 export const getDoctorMeResponse = zod.object({
-  displayName: zod.string().optional(),
-  email: zod.string().optional(),
-  id: zod.string().optional(),
-  practiceId: zod.string().optional(),
-  role: zod.string().optional(),
-});
+  "displayName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "id": zod.string().optional(),
+  "practiceId": zod.string().optional(),
+  "role": zod.string().optional()
+})
+
 
 /**
  * @summary Register a doctor account
  */
 export const postDoctorRegisterBody = zod.object({
-  displayName: zod.string().optional(),
-  email: zod.string().optional(),
-  password: zod.string().optional(),
-});
+  "displayName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "password": zod.string().optional()
+})
+
 
 /**
  * @summary Liveness probe
  */
 export const getHealthResponse = zod.object({
-  status: zod.string().optional(),
-});
+  "status": zod.string().optional()
+})
+
 
 /**
  * @summary Invite a patient to link with the doctor
  */
 export const postLinksInviteBody = zod.object({
-  displayName: zod.string().optional(),
-  patientCode: zod.string().optional(),
-  patientEmail: zod.string().optional(),
-  patientId: zod.string().optional(),
-});
+  "displayName": zod.string().optional(),
+  "patientCode": zod.string().optional(),
+  "patientEmail": zod.string().optional(),
+  "patientId": zod.string().optional()
+})
+
 
 /**
  * @summary Patient-side link request (placeholder)
  */
 export const postLinksRequestBody = zod.object({
-  displayName: zod.string().optional(),
-  patientCode: zod.string().optional(),
-  patientEmail: zod.string().optional(),
-  patientId: zod.string().optional(),
-});
+  "displayName": zod.string().optional(),
+  "patientCode": zod.string().optional(),
+  "patientEmail": zod.string().optional(),
+  "patientId": zod.string().optional()
+})
+
 
 /**
  * @summary Approve a pending doctor-patient link
  */
 export const postLinksIdApproveParams = zod.object({
-  id: zod.string().describe('Link ID'),
-});
+  "id": zod.string().describe('Link ID')
+})
 
 export const postLinksIdApproveResponse = zod.object({
-  link: zod
-    .object({
-      approvedAt: zod.string().optional(),
-      doctorId: zod.string().optional(),
-      id: zod.string().optional(),
-      patientId: zod.string().optional(),
-      requestedAt: zod.string().optional(),
-      status: zod.string().optional(),
-    })
-    .optional(),
-  patient: zod
-    .object({
-      displayName: zod.string().optional(),
-      email: zod.string().optional(),
-      id: zod.string().optional(),
-      patientCode: zod.string().optional(),
-    })
-    .optional(),
-});
+  "link": zod.object({
+  "approvedAt": zod.string().optional(),
+  "doctorId": zod.string().optional(),
+  "id": zod.string().optional(),
+  "patientId": zod.string().optional(),
+  "requestedAt": zod.string().optional(),
+  "status": zod.string().optional()
+}).optional(),
+  "patient": zod.object({
+  "displayName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "id": zod.string().optional(),
+  "patientCode": zod.string().optional()
+}).optional()
+})
+
 
 /**
  * @summary List patients and pending links for the current doctor
  */
 export const getPatientsResponse = zod.object({
-  patients: zod
-    .array(
-      zod.object({
-        displayName: zod.string().optional(),
-        email: zod.string().optional(),
-        id: zod.string().optional(),
-        patientCode: zod.string().optional(),
-      }),
-    )
-    .optional(),
-  pendingLinks: zod
-    .array(
-      zod.object({
-        approvedAt: zod.string().optional(),
-        doctorId: zod.string().optional(),
-        id: zod.string().optional(),
-        patientId: zod.string().optional(),
-        requestedAt: zod.string().optional(),
-        status: zod.string().optional(),
-      }),
-    )
-    .optional(),
-});
+  "patients": zod.array(zod.object({
+  "displayName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "id": zod.string().optional(),
+  "patientCode": zod.string().optional()
+})).optional(),
+  "pendingLinks": zod.array(zod.object({
+  "approvedAt": zod.string().optional(),
+  "doctorId": zod.string().optional(),
+  "id": zod.string().optional(),
+  "patientId": zod.string().optional(),
+  "requestedAt": zod.string().optional(),
+  "status": zod.string().optional()
+})).optional()
+})
+
 
 /**
  * @summary Patient analytics (distributions and stutter trend)
  */
 export const getPatientsIdAnalyticsParams = zod.object({
-  id: zod.string().describe('Patient ID'),
-});
+  "id": zod.string().describe('Patient ID')
+})
 
 export const getPatientsIdAnalyticsQueryParams = zod.object({
-  range: zod
-    .string()
-    .optional()
-    .describe('Range in days (7, 30, or 90). Defaults to 7.'),
-});
+  "range": zod.string().optional().describe('Range in days (7, 30, or 90). Defaults to 7.')
+})
 
 export const getPatientsIdAnalyticsResponse = zod.object({
-  distributions: zod
-    .object({
-      emotions: zod.record(zod.string(), zod.number()).optional(),
-      techniques: zod.record(zod.string(), zod.number()).optional(),
-      triggers: zod.record(zod.string(), zod.number()).optional(),
-    })
-    .optional(),
-  rangeDays: zod.number().optional(),
-  trend: zod
-    .array(
-      zod.object({
-        avgStutterFrequency: zod.number().optional(),
-        count: zod.number().optional(),
-        date: zod.string().optional(),
-      }),
-    )
-    .optional(),
-});
+  "distributions": zod.object({
+  "emotions": zod.record(zod.string(), zod.number()).optional(),
+  "techniques": zod.record(zod.string(), zod.number()).optional(),
+  "triggers": zod.record(zod.string(), zod.number()).optional()
+}).optional(),
+  "rangeDays": zod.number().optional(),
+  "trend": zod.array(zod.object({
+  "avgStutterFrequency": zod.number().optional(),
+  "count": zod.number().optional(),
+  "date": zod.string().optional()
+})).optional()
+})
+
 
 /**
  * @summary List patient entries (doctor must have approved link)
  */
 export const getPatientsIdEntriesParams = zod.object({
-  id: zod.string().describe('Patient ID'),
-});
+  "id": zod.string().describe('Patient ID')
+})
 
 export const getPatientsIdEntriesQueryParams = zod.object({
-  from: zod.string().optional().describe('ISO timestamp (RFC3339) lower bound'),
-  to: zod.string().optional().describe('ISO timestamp (RFC3339) upper bound'),
-});
+  "from": zod.string().optional().describe('ISO timestamp (RFC3339) lower bound'),
+  "to": zod.string().optional().describe('ISO timestamp (RFC3339) upper bound')
+})
 
 export const getPatientsIdEntriesResponse = zod.object({
-  entries: zod
-    .array(
-      zod.object({
-        createdAt: zod.string().optional(),
-        emotions: zod
-          .array(
-            zod.object({
-              intensity: zod.number().optional().describe('0..10'),
-              name: zod.string().optional(),
-            }),
-          )
-          .optional(),
-        happenedAt: zod.string().optional(),
-        id: zod.string().optional(),
-        notes: zod.string().optional(),
-        patientId: zod.string().optional(),
-        situation: zod.string().optional(),
-        stutterFrequency: zod.number().optional(),
-        tags: zod.array(zod.string()).optional(),
-        techniques: zod.array(zod.string()).optional(),
-        triggers: zod.array(zod.string()).optional(),
-        updatedAt: zod.string().optional(),
-      }),
-    )
-    .optional(),
-});
+  "entries": zod.array(zod.object({
+  "createdAt": zod.string().optional(),
+  "emotions": zod.array(zod.object({
+  "intensity": zod.number().optional().describe('0..10'),
+  "name": zod.string().optional()
+})).optional(),
+  "happenedAt": zod.string().optional(),
+  "id": zod.string().optional(),
+  "notes": zod.string().optional(),
+  "patientId": zod.string().optional(),
+  "situation": zod.string().optional(),
+  "stutterFrequency": zod.number().optional(),
+  "tags": zod.array(zod.string()).optional(),
+  "techniques": zod.array(zod.string()).optional(),
+  "triggers": zod.array(zod.string()).optional(),
+  "updatedAt": zod.string().optional()
+})).optional()
+})
+
 
 /**
  * @summary Create a practice and assign the current doctor
  */
 export const postPracticeBody = zod.object({
-  address: zod.string().optional(),
-  logoUrl: zod.string().optional(),
-  name: zod.string().optional(),
-});
+  "address": zod.string().optional(),
+  "logoUrl": zod.string().optional(),
+  "name": zod.string().optional()
+})
+
 
 /**
  * @summary Readiness probe
  */
 export const getReadyResponse = zod.object({
-  status: zod.string().optional(),
-});
+  "status": zod.string().optional()
+})

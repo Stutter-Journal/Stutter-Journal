@@ -1,5 +1,5 @@
-import { contractsZod } from '@org/contracts';
 import { z } from 'zod';
+import * as contractsZod from '../generated/zod';
 
 // Doctor/Auth (sourced from generated contracts)
 export const serverDoctorResponseSchema = contractsZod.postDoctorLoginResponse;

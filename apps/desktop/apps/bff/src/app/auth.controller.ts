@@ -21,6 +21,7 @@ export class AuthController {
       },
     });
   }
+
   @Post('login')
   async login(
     @Body() body: unknown,

@@ -11,50 +11,34 @@ export interface ErrorResponse {
 
 // Lightweight normalizer to keep executor self-contained and avoid cross-lib deps
 function normalizeError(err: unknown): ErrorResponse {
-  const anyErr = err as any;
-  const status = typeof anyErr?.status === 'number' ? anyErr.status : 0;
+  const e = err as {
+    status?: unknown;
+    message?: unknown;
+    error?: unknown;
+    code?: unknown;
+  };
 
-  const upstreamPayload = anyErr?.error;
+  const status = typeof e?.status === 'number' ? e.status : 0;
+  const payload = e?.error;
 
-  let payloadMessage: string | undefined;
-  let payloadCode: string | undefined;
-  let payloadDetails: unknown | undefined;
-
-  // Prefer structured backend errors when available.
-  const parsed = serverErrorResponseSchema.safeParse(upstreamPayload);
-  if (parsed.success) {
-    payloadMessage = parsed.data.error ?? parsed.data.message;
-    payloadCode = parsed.data.code;
-    payloadDetails = parsed.data.details;
-  } else if (typeof upstreamPayload === 'string') {
-    payloadMessage = upstreamPayload;
-  } else if (upstreamPayload && typeof upstreamPayload === 'object') {
-    const anyPayload = upstreamPayload as any;
-    payloadMessage =
-      (typeof anyPayload.error === 'string' ? anyPayload.error : undefined) ??
-      (typeof anyPayload.message === 'string' ? anyPayload.message : undefined);
-    payloadCode = typeof anyPayload.code === 'string' ? anyPayload.code : undefined;
-    payloadDetails = anyPayload.details;
-  }
+  const backend = serverErrorResponseSchema.safeParse(payload);
+  const backendMessage = backend.success ? backend.data.error : undefined;
 
   const rawMessage =
-    typeof anyErr?.message === 'string'
-      ? anyErr.message
-      : typeof anyErr === 'string'
-        ? anyErr
+    typeof e?.message === 'string'
+      ? e.message
+      : typeof err === 'string'
+        ? err
         : 'Request failed';
 
-  // Angular's HttpErrorResponse.message is usually "Http failure response for ..."; don't show that if we have a better backend message.
-  const isAngularGeneric =
-    typeof rawMessage === 'string' && rawMessage.startsWith('Http failure response for ');
-
-  const message = payloadMessage ?? (isAngularGeneric ? 'Request failed' : rawMessage);
+  const isAngularGeneric = rawMessage.startsWith('Http failure response for ');
+  const message = backendMessage ?? (isAngularGeneric ? 'Request failed' : rawMessage);
 
   return {
     status,
-    code: payloadCode ?? (typeof anyErr?.code === 'string' ? anyErr.code : undefined),
+    code: typeof e?.code === 'string' ? e.code : undefined,
     message,
-    details: payloadDetails ?? upstreamPayload ?? anyErr,
+    details: payload ?? err,
   };
 }
 

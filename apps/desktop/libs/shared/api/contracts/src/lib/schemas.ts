@@ -41,9 +41,5 @@ export const serverPracticeCreateResponseSchema = z.object({
 
 // Errors
 export const serverErrorResponseSchema = z.object({
-  // Upstream services are not consistent yet (some return {error}, some {message})
-  error: z.string().optional(),
-  message: z.string().optional(),
-  code: z.string().optional(),
-  details: z.unknown().optional(),
+  error: z.string(),
 });

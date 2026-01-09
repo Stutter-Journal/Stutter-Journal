@@ -1,4 +1,12 @@
 definitions:
+  schema.Emotion:
+    properties:
+      intensity:
+        description: 0..10
+        type: integer
+      name:
+        type: string
+    type: object
   server.AnalyticsResponse:
     properties:
       distributions:
@@ -139,7 +147,9 @@ definitions:
       createdAt:
         type: string
       emotions:
-        type: any
+        items:
+          $ref: '#/definitions/schema.Emotion'
+        type: array
       happenedAt:
         type: string
       id:
@@ -153,11 +163,17 @@ definitions:
       stutterFrequency:
         type: integer
       tags:
-        type: any
+        items:
+          type: string
+        type: array
       techniques:
-        type: any
+        items:
+          type: string
+        type: array
       triggers:
-        type: any
+        items:
+          type: string
+        type: array
       updatedAt:
         type: string
     type: object

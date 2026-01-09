@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"backend/internal/database"
+	"backend/internal/server/docs"
 	"backend/internal/server"
 
 	"github.com/charmbracelet/lipgloss"
@@ -80,6 +81,10 @@ func main() {
 	}
 
 	server := server.NewServer(dbClient)
+	// Configure Swagger metadata served at /docs.
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)

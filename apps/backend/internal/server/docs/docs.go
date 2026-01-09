@@ -575,6 +575,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "schema.Emotion": {
+            "type": "object",
+            "properties": {
+                "intensity": {
+                    "description": "0..10",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.AnalyticsResponse": {
             "type": "object",
             "properties": {
@@ -792,7 +804,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "emotions": {
-                    "type": "any"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.Emotion"
+                    }
                 },
                 "happenedAt": {
                     "type": "string"
@@ -813,13 +828,22 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "tags": {
-                    "type": "any"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "techniques": {
-                    "type": "any"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "triggers": {
-                    "type": "any"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "updatedAt": {
                     "type": "string"

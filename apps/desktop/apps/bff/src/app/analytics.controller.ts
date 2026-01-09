@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { contractsZod } from '@eloquia/shared/api/contracts';
+import { contractsZod } from '@org/contracts';
 import { BffService } from './bff.service';
 import { serverErrorResponseSchema } from './schemas';
 

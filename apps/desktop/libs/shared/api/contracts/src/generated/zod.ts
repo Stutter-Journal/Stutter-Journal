@@ -168,16 +168,19 @@ export const getPatientsIdEntriesQueryParams = zod.object({
 export const getPatientsIdEntriesResponse = zod.object({
   "entries": zod.array(zod.object({
   "createdAt": zod.string().optional(),
-  "emotions": zod.any().optional(),
+  "emotions": zod.array(zod.object({
+  "intensity": zod.number().optional().describe('0..10'),
+  "name": zod.string().optional()
+})).optional(),
   "happenedAt": zod.string().optional(),
   "id": zod.string().optional(),
   "notes": zod.string().optional(),
   "patientId": zod.string().optional(),
   "situation": zod.string().optional(),
   "stutterFrequency": zod.number().optional(),
-  "tags": zod.any().optional(),
-  "techniques": zod.any().optional(),
-  "triggers": zod.any().optional(),
+  "tags": zod.array(zod.string()).optional(),
+  "techniques": zod.array(zod.string()).optional(),
+  "triggers": zod.array(zod.string()).optional(),
   "updatedAt": zod.string().optional()
 })).optional()
 })

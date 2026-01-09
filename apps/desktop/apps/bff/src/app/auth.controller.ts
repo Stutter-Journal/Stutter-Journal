@@ -1,8 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { contractsZod } from '@org/contracts';
+import { contractsZod, schemas } from '@org/contracts';
 import { BffService } from './bff.service';
-import { serverErrorResponseSchema } from './schemas';
 
 @Controller('doctor')
 export class AuthController {
@@ -18,7 +17,7 @@ export class AuthController {
       schema: contractsZod.getDoctorMeResponse,
       schemasByStatus: {
         200: contractsZod.getDoctorMeResponse,
-        401: serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -37,8 +36,8 @@ export class AuthController {
       schema: contractsZod.postDoctorLoginResponse,
       schemasByStatus: {
         200: contractsZod.postDoctorLoginResponse,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -58,8 +57,8 @@ export class AuthController {
       schema: contractsZod.postDoctorLoginResponse,
       schemasByStatus: {
         201: contractsZod.postDoctorLoginResponse,
-        400: serverErrorResponseSchema,
-        409: serverErrorResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -74,7 +73,7 @@ export class AuthController {
       schema: contractsZod.postDoctorLogoutResponse,
       schemasByStatus: {
         200: contractsZod.postDoctorLogoutResponse,
-        401: serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
       },
     });
   }

@@ -1,8 +1,7 @@
 import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { contractsZod } from '@org/contracts';
+import { contractsZod, schemas } from '@org/contracts';
 import { BffService } from './bff.service';
-import { serverErrorResponseSchema } from './schemas';
 
 @Controller('patients')
 export class PatientsController {
@@ -18,7 +17,7 @@ export class PatientsController {
       schema: contractsZod.getPatientsResponse,
       schemasByStatus: {
         200: contractsZod.getPatientsResponse,
-        401: serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -47,9 +46,9 @@ export class PatientsController {
       schema: contractsZod.getPatientsIdEntriesResponse,
       schemasByStatus: {
         200: contractsZod.getPatientsIdEntriesResponse,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
-        403: serverErrorResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        403: schemas.serverErrorResponseSchema,
       },
     });
   }

@@ -4,14 +4,6 @@ import { z } from 'zod';
 // Doctor/Auth (sourced from generated contracts)
 export const serverDoctorResponseSchema = contractsZod.postDoctorLoginResponse;
 
-// Entries
-export const serverEntriesResponseSchema =
-  contractsZod.getPatientsIdEntriesResponse;
-
-// Analytics
-export const serverAnalyticsResponseSchema =
-  contractsZod.getPatientsIdAnalyticsResponse;
-
 // Links
 const serverLinkSchema = z.object({
   id: z.string().optional(),
@@ -33,9 +25,6 @@ export const serverLinkResponseSchema = z.object({
     })
     .optional(),
 });
-
-export const serverLinkApproveResponseSchema =
-  contractsZod.postLinksIdApproveResponse;
 
 // Practice (still manual until added to OpenAPI)
 export const serverPracticeResponseSchema = z.object({

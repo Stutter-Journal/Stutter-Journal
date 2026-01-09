@@ -1,11 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { BffService } from './bff.service';
-import {
-  serverErrorResponseSchema,
-  serverPracticeCreateResponseSchema,
-  serverPracticeResponseSchema,
-} from './schemas';
+import { schemas } from '@org/contracts';
 
 @Controller('practice')
 export class PracticeController {
@@ -18,9 +14,9 @@ export class PracticeController {
       res,
       path: '/practice',
       method: 'GET',
-      schema: serverPracticeResponseSchema,
+      schema: schemas.serverPracticeResponseSchema,
       schemasByStatus: {
-        200: serverPracticeResponseSchema,
+        200: schemas.serverPracticeResponseSchema,
       },
     });
   }
@@ -37,11 +33,11 @@ export class PracticeController {
       path: '/practice',
       method: 'POST',
       body,
-      schema: serverPracticeCreateResponseSchema,
+      schema: schemas.serverPracticeCreateResponseSchema,
       schemasByStatus: {
-        201: serverPracticeCreateResponseSchema,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
+        201: schemas.serverPracticeCreateResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
       },
     });
   }

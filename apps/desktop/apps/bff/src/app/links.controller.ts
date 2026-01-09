@@ -1,8 +1,7 @@
 import { Body, Controller, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { contractsZod } from '@org/contracts';
 import { BffService } from './bff.service';
-import { serverErrorResponseSchema, serverLinkResponseSchema } from './schemas';
+import { contractsZod, schemas } from '@org/contracts';
 
 @Controller('links')
 export class LinksController {
@@ -20,12 +19,12 @@ export class LinksController {
       path: '/links/invite',
       method: 'POST',
       body,
-      schema: serverLinkResponseSchema,
+      schema: schemas.serverLinkResponseSchema,
       schemasByStatus: {
-        201: serverLinkResponseSchema,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
-        409: serverErrorResponseSchema,
+        201: schemas.serverLinkResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -42,12 +41,12 @@ export class LinksController {
       path: '/links/request',
       method: 'POST',
       body,
-      schema: serverLinkResponseSchema,
+      schema: schemas.serverLinkResponseSchema,
       schemasByStatus: {
-        201: serverLinkResponseSchema,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
-        409: serverErrorResponseSchema,
+        201: schemas.serverLinkResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
       },
     });
   }
@@ -66,9 +65,9 @@ export class LinksController {
       schema: contractsZod.postLinksIdApproveResponse,
       schemasByStatus: {
         200: contractsZod.postLinksIdApproveResponse,
-        400: serverErrorResponseSchema,
-        401: serverErrorResponseSchema,
-        404: serverErrorResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        404: schemas.serverErrorResponseSchema,
       },
     });
   }

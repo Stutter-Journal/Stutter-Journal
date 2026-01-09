@@ -113,7 +113,7 @@ func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} ErrorResponse
 // @Router /doctor/login [post]
 func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
-	if !s.ensureAuthReady(w) {
+    if !s.ensureAuthReady(w) {
 		return
 	}
 
@@ -124,6 +124,7 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
 	if req.Email == "" || req.Password == "" {
+		log.Error("Email and password are required!")
 		s.writeError(w, http.StatusBadRequest, "email and password are required")
 		return
 	}
@@ -133,6 +134,7 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 		Only(r.Context())
 	if err != nil {
 		if ent.IsNotFound(err) {
+    		log.Error("doctor not found")
 			s.writeError(w, http.StatusUnauthorized, "invalid email or password")
 			return
 		}
@@ -142,6 +144,7 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.Auth.VerifyPassword(doc.PasswordHash, req.Password); err != nil {
+		log.Error("Invalid email or password")
 		s.writeError(w, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
@@ -151,6 +154,8 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, http.StatusInternalServerError, "could not create session")
 		return
 	}
+
+	log.Info("Login was successful")
 
 	s.writeJSON(w, http.StatusOK, map[string]any{
 		"doctor": buildDoctorResponse(doc),

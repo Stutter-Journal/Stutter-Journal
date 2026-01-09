@@ -1,4 +1,4 @@
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -47,7 +47,6 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
     HlmSidebarContent,
     HlmSidebarGroup,
     CommonModule,
-    NgIf,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,

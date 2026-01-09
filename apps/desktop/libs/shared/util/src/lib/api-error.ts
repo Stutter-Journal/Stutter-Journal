@@ -13,12 +13,12 @@ export interface ErrorResponse {
 export function normalizeError(err: unknown): ErrorResponse {
   if (err instanceof HttpErrorResponse) {
     const body = err.error as
-      | { message?: string; code?: string; details?: unknown }
+      | { message?: string; error?: string; code?: string; details?: unknown }
       | undefined;
     return {
       status: err.status,
       code: body?.code,
-      message: body?.message ?? err.message ?? 'Request failed',
+      message: body?.message ?? body?.error ?? err.message ?? 'Request failed',
       details: body?.details ?? err.error,
     };
   }

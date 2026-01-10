@@ -51,7 +51,7 @@ export class BffService {
     let json: unknown;
     try {
       json = text ? JSON.parse(text) : undefined;
-    } catch (err) {
+    } catch {
       json = text; // if upstream returns non-JSON, keep raw text
     }
 
@@ -65,7 +65,11 @@ export class BffService {
     const parsed = chosenSchema.safeParse(json);
 
     if (parsed.success) {
-      res.status(upstream.status).json(parsed.data ?? null);
+      // IMPORTANT: Zod objects strip unknown keys by default.
+      // Returning `parsed.data` can silently drop fields if upstream uses a
+      // different casing (e.g. snake_case), resulting in `{}` on the client.
+      // We only use Zod here for validation; return the original payload.
+      res.status(upstream.status).json(json ?? null);
       return;
     }
 
@@ -79,11 +83,16 @@ export class BffService {
     res.status(upstream.status).json(json ?? null);
   }
 
-  private copySetCookie(upstream: Response | any, res: Response) {
+  private copySetCookie(upstream: unknown, res: Response) {
+    type UpstreamHeaders = {
+      getSetCookie?: () => string[];
+      raw?: () => Record<string, string[]>;
+    };
+
+    const headers = (upstream as { headers?: UpstreamHeaders } | null)?.headers;
+
     const setCookies: string[] =
-      upstream.headers?.getSetCookie?.() ??
-      upstream.headers?.raw?.()['set-cookie'] ??
-      [];
+      headers?.getSetCookie?.() ?? headers?.raw?.()['set-cookie'] ?? [];
     setCookies.forEach((cookie) => res.append('set-cookie', cookie));
   }
 }

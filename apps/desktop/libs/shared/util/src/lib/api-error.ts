@@ -19,13 +19,17 @@ export function normalizeError(err: unknown): ErrorResponse {
         ? body.error
         : undefined;
 
-    const rawMessage = typeof err.message === 'string' ? err.message : 'Request failed';
-    const isAngularGeneric = rawMessage.startsWith('Http failure response for ');
+    const rawMessage =
+      typeof err.message === 'string' ? err.message : 'Request failed';
+    const isAngularGeneric = rawMessage.startsWith(
+      'Http failure response for ',
+    );
 
     return {
       status: err.status,
       code: typeof body?.code === 'string' ? body.code : undefined,
-      message: backendError ?? (isAngularGeneric ? 'Request failed' : rawMessage),
+      message:
+        backendError ?? (isAngularGeneric ? 'Request failed' : rawMessage),
       details: err.error,
     };
   }

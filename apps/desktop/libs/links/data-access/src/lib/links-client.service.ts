@@ -29,9 +29,13 @@ export class LinksClientService {
   ): Promise<ServerLinkResponse> {
     return await execute(
       () =>
-        this.http.post<ServerLinkResponse>(`${this.base}/links/invite`, payload, {
-          withCredentials: true,
-        }),
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/invite`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
       this.loadingSig,
       this.errorSig,
     );
@@ -42,9 +46,13 @@ export class LinksClientService {
   ): Promise<ServerLinkResponse> {
     return await execute(
       () =>
-        this.http.post<ServerLinkResponse>(`${this.base}/links/request`, payload, {
-          withCredentials: true,
-        }),
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/request`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
       this.loadingSig,
       this.errorSig,
     );

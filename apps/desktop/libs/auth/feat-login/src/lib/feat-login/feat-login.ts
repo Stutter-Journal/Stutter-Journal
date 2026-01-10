@@ -56,11 +56,15 @@ export class FeatLogin {
   @Output() switchToRegister = new EventEmitter<void>();
   @Output() authed = new EventEmitter<void>();
 
-  private readonly loginFlow = createRequestFlow<{ email: string; password: string }>({
+  private readonly loginFlow = createRequestFlow<{
+    email: string;
+    password: string;
+  }>({
     request: async ({ email, password }) => {
       await this.auth.login({ email, password });
     },
-    errorMessage: (err) => (err instanceof Error ? err.message : 'Login failed'),
+    errorMessage: (err) =>
+      err instanceof Error ? err.message : 'Login failed',
   });
 
   submitting = false;

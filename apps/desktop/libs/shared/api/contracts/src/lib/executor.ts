@@ -32,7 +32,8 @@ function normalizeError(err: unknown): ErrorResponse {
         : 'Request failed';
 
   const isAngularGeneric = rawMessage.startsWith('Http failure response for ');
-  const message = backendMessage ?? (isAngularGeneric ? 'Request failed' : rawMessage);
+  const message =
+    backendMessage ?? (isAngularGeneric ? 'Request failed' : rawMessage);
 
   return {
     status,

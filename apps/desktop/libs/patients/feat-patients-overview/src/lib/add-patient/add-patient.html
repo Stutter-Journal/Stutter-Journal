@@ -10,30 +10,50 @@
     <label class="mb-1 block text-sm font-medium" for="patientDisplayName">
       Patient name
     </label>
-    <input id="patientDisplayName" class="w-full" formControlName="displayName" hlmInput placeholder="Alex Smith"
-      type="text" />
+    <input
+      id="patientDisplayName"
+      class="w-full"
+      formControlName="displayName"
+      hlmInput
+      placeholder="Alex Smith"
+      type="text"
+    />
     @if(form.controls.displayName.touched && form.controls.displayName.invalid)
-      {
-      <hlm-error>Name is required.</hlm-error>
-      }
+    {
+    <hlm-error>Name is required.</hlm-error>
+    }
   </hlm-form-field>
 
   <hlm-form-field>
     <label class="mb-1 block text-sm font-medium" for="patientEmail">
       Patient email
     </label>
-    <input id="patientEmail" class="w-full" formControlName="patientEmail" hlmInput placeholder="patient@email.com"
-      type="email" />
+    <input
+      id="patientEmail"
+      class="w-full"
+      formControlName="patientEmail"
+      hlmInput
+      placeholder="patient@email.com"
+      type="email"
+    />
     @if(form.controls.patientEmail.touched &&
-      form.controls.patientEmail.invalid) {
-      <hlm-error>Enter a valid email.</hlm-error>
-      }
+    form.controls.patientEmail.invalid) {
+    <hlm-error>Enter a valid email.</hlm-error>
+    }
   </hlm-form-field>
 
   <hlm-form-field>
-    <label class="mb-1 block text-sm font-medium" for="patientCode">Patient code (optional)</label>
-    <input id="patientCode" class="w-full" formControlName="patientCode" hlmInput placeholder="e.g. P-48392"
-      type="text" />
+    <label class="mb-1 block text-sm font-medium" for="patientCode"
+      >Patient code (optional)</label
+    >
+    <input
+      id="patientCode"
+      class="w-full"
+      formControlName="patientCode"
+      hlmInput
+      placeholder="e.g. P-48392"
+      type="text"
+    />
     <hlm-hint>Share this if the patient prefers entering a code.</hlm-hint>
   </hlm-form-field>
 
@@ -43,8 +63,8 @@
       Cancel
     </button>
 
-    <button [disabled]="form.invalid || submitting() || loading()" hlmBtn type="submit">
-      {{ submitting() || loading() ? 'Sending…' : 'Send invite' }}
+    <button [disabled]="form.invalid || submitting()" hlmBtn type="submit">
+      {{ submitting() ? 'Sending…' : 'Send invite' }}
     </button>
   </hlm-dialog-footer>
 </form>

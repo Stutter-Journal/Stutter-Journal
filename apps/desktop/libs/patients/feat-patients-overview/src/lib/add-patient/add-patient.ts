@@ -1,7 +1,10 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  DestroyRef,
   inject,
+  NgZone,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,8 +16,12 @@ import {
 } from '@angular/forms';
 
 import { LinksClientService } from '@org/links-data-access';
-import { LoggerService } from '@org/util';
-import { ServerLinkResponse, ServerPatientDTO } from '@org/contracts';
+import { createRequestFlow, LoggerService } from '@org/util';
+import {
+  ServerLinkResponse,
+  ServerPatientDTO,
+  ServerLinkInviteRequest,
+} from '@org/contracts';
 
 import { toast } from 'ngx-sonner';
 
@@ -59,8 +66,10 @@ import { HlmFormFieldImports } from '@spartan-ng/helm/form-field';
 export class AddPatient {
   private readonly links = inject(LinksClientService);
   private readonly log = inject(LoggerService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly zone = inject(NgZone);
 
-  // ✅ Correctly typed: we close with ServerPatientDTO (or undefined)
   private readonly dialogRef =
     inject<BrnDialogRef<ServerPatientDTO | undefined>>(BrnDialogRef);
 
@@ -77,16 +86,22 @@ export class AddPatient {
   });
 
   readonly submitting = signal(false);
-  readonly loading = this.links.loading;
+
+  private readonly inviteFlow = createRequestFlow<
+    ServerLinkInviteRequest,
+    ServerLinkResponse
+  >({
+    request: async (payload) => {
+      this.links.clearError();
+      return await this.links.invitePatient(payload);
+    },
+  });
 
   async submit(): Promise<void> {
     if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();
       return;
     }
-
-    this.submitting.set(true);
-    this.links.clearError();
 
     const raw = this.form.getRawValue();
     const payload = {
@@ -95,46 +110,46 @@ export class AddPatient {
       patientCode: raw.patientCode.trim() || undefined,
     };
 
-    try {
-      const response: ServerLinkResponse =
-        await this.links.invitePatient(payload);
+    this.inviteFlow.submit(payload);
+  }
 
-      // Prefer server-returned patient. If missing, fail softly but still return something consistent.
-      const patient = response.patient;
-      if (!patient) {
-        toast.success('Invitation sent');
-        this.dialogRef.close(undefined);
-        return;
-      }
+  constructor() {
+    this.inviteFlow.start();
 
-      toast.success('Invitation sent', {
-        description: patient.displayName
-          ? `${patient.displayName} can connect via email or code.`
-          : 'The patient can connect via email or code.',
+    let prev = this.inviteFlow.getSnapshot();
+    const unsubscribe = this.inviteFlow.subscribe((curr) => {
+      // The flow emits outside Angular; re-enter the zone so OnPush views update.
+      this.zone.run(() => {
+        this.submitting.set(curr.state === 'submitting');
+
+        if (prev.state !== 'success' && curr.state === 'success') {
+          const response = curr.result;
+          const patient = response?.patient;
+
+          toast.success('Invitation sent', {
+            description: patient?.displayName
+              ? `${patient.displayName} can connect via email or code.`
+              : 'The patient can connect via email or code.',
+          });
+
+          this.dialogRef.close(patient);
+        }
+
+        if (prev.state !== 'failure' && curr.state === 'failure') {
+          toast.error('Could not add patient', {
+            description: curr.error ?? 'Please try again.',
+          });
+          this.log.error('Invite patient failed', { error: curr.error });
+        }
+
+        prev = curr;
+        this.cdr.markForCheck();
       });
+    });
 
-      this.dialogRef.close(patient);
-    } catch (err: unknown) {
-      const message =
-        (typeof err === 'object' &&
-          err !== null &&
-          'message' in err &&
-          typeof (err as { message?: unknown }).message === 'string' &&
-          (err as { message: string }).message) ||
-        (typeof err === 'object' &&
-          err !== null &&
-          'error' in err &&
-          typeof (err as { error?: unknown }).error === 'object' &&
-          (err as { error?: { message?: unknown } }).error?.message &&
-          typeof (err as { error: { message: unknown } }).error.message ===
-            'string' &&
-          (err as { error: { message: string } }).error.message) ||
-        'Please try again.';
-
-      this.log.error('Invite patient failed', { error: err });
-      toast.error('Could not add patient');
-    } finally {
-      this.submitting.set(false);
-    }
+    this.destroyRef.onDestroy(() => {
+      unsubscribe();
+      this.inviteFlow.stop();
+    });
   }
 }

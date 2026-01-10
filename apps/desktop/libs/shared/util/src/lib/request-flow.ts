@@ -2,19 +2,22 @@ import { assign, createActor, createMachine, fromPromise } from 'xstate';
 
 export type RequestFlowState = 'idle' | 'submitting' | 'success' | 'failure';
 
-export interface RequestFlowSnapshot<TInput> {
+export interface RequestFlowSnapshot<TInput, TResult = unknown> {
   state: RequestFlowState;
   input?: TInput;
+  result?: TResult;
   error?: string;
 }
 
-export interface RequestFlow<TInput> {
+export interface RequestFlow<TInput, TResult = unknown> {
   start(): void;
   stop(): void;
   submit(input: TInput): void;
   reset(): void;
-  getSnapshot(): RequestFlowSnapshot<TInput>;
-  subscribe(listener: (snapshot: RequestFlowSnapshot<TInput>) => void): () => void;
+  getSnapshot(): RequestFlowSnapshot<TInput, TResult>;
+  subscribe(
+    listener: (snapshot: RequestFlowSnapshot<TInput, TResult>) => void,
+  ): () => void;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -23,17 +26,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function defaultErrorMessage(error: unknown): string {
   if (typeof error === 'string') return error;
-  if (isRecord(error) && typeof error['message'] === 'string') return error['message'];
+  if (isRecord(error) && typeof error['message'] === 'string')
+    return error['message'];
+  // Common normalized error shape in this repo: { error: { message: string, ... } }
+  if (
+    isRecord(error) &&
+    isRecord(error['error']) &&
+    typeof (error['error'] as Record<string, unknown>)['message'] === 'string'
+  ) {
+    return (error['error'] as Record<string, unknown>)['message'] as string;
+  }
   return 'Request failed';
 }
 
-export function createRequestFlow<TInput>(options: {
-  request: (input: TInput) => Promise<unknown>;
+export function createRequestFlow<TInput, TResult = unknown>(options: {
+  request: (input: TInput) => Promise<TResult>;
   errorMessage?: (error: unknown) => string;
-}): RequestFlow<TInput> {
+}): RequestFlow<TInput, TResult> {
   const errorMessage = options.errorMessage ?? defaultErrorMessage;
 
-  type Ctx = { input?: TInput; error?: string };
+  type Ctx = { input?: TInput; result?: TResult; error?: string };
   type Ev =
     | { type: 'SUBMIT'; input: TInput }
     | { type: 'RESET' }
@@ -50,11 +62,15 @@ export function createRequestFlow<TInput>(options: {
     context: {},
     states: {
       idle: {
-        entry: assign(() => ({ error: undefined })),
+        entry: assign(() => ({ error: undefined, result: undefined })),
         on: {
           SUBMIT: {
             target: 'submitting',
-            actions: assign(({ event }) => ({ input: event.input, error: undefined })),
+            actions: assign(({ event }) => ({
+              input: event.input,
+              error: undefined,
+              result: undefined,
+            })),
           },
         },
       },
@@ -69,11 +85,16 @@ export function createRequestFlow<TInput>(options: {
           },
           onDone: {
             target: 'success',
+            actions: assign(({ event }) => ({
+              result: (event as unknown as { output?: TResult }).output,
+            })),
           },
           onError: {
             target: 'failure',
             actions: assign(({ event }) => ({
-              error: errorMessage((event as unknown as { error?: unknown }).error),
+              error: errorMessage(
+                (event as unknown as { error?: unknown }).error,
+              ),
             })),
           },
         },
@@ -83,17 +104,28 @@ export function createRequestFlow<TInput>(options: {
           RESET: { target: 'idle' },
           SUBMIT: {
             target: 'submitting',
-            actions: assign(({ event }) => ({ input: event.input, error: undefined })),
+            actions: assign(({ event }) => ({
+              input: event.input,
+              error: undefined,
+              result: undefined,
+            })),
           },
         },
       },
       failure: {
         on: {
-          RESET: { target: 'idle', actions: assign(() => ({ error: undefined })) },
+          RESET: {
+            target: 'idle',
+            actions: assign(() => ({ error: undefined, result: undefined })),
+          },
           RETRY: { target: 'submitting' },
           SUBMIT: {
             target: 'submitting',
-            actions: assign(({ event }) => ({ input: event.input, error: undefined })),
+            actions: assign(({ event }) => ({
+              input: event.input,
+              error: undefined,
+              result: undefined,
+            })),
           },
         },
       },
@@ -102,7 +134,9 @@ export function createRequestFlow<TInput>(options: {
 
   const actor = createActor(machine);
 
-  const listeners = new Set<(snapshot: RequestFlowSnapshot<TInput>) => void>();
+  const listeners = new Set<
+    (snapshot: RequestFlowSnapshot<TInput, TResult>) => void
+  >();
 
   function emit() {
     const snapshot = getSnapshot();
@@ -111,17 +145,21 @@ export function createRequestFlow<TInput>(options: {
 
   const subscription = actor.subscribe(() => emit());
 
-  function getSnapshot(): RequestFlowSnapshot<TInput> {
+  function getSnapshot(): RequestFlowSnapshot<TInput, TResult> {
     const s = actor.getSnapshot();
     const value = s.value;
     const state =
-      value === 'idle' || value === 'submitting' || value === 'success' || value === 'failure'
+      value === 'idle' ||
+      value === 'submitting' ||
+      value === 'success' ||
+      value === 'failure'
         ? value
         : 'idle';
 
     return {
       state,
       input: s.context.input,
+      result: s.context.result,
       error: s.context.error,
     };
   }

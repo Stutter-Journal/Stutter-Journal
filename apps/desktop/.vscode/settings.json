@@ -1,8 +1,6 @@
 {
-"eslint.validate": [
-    "json"
-],
-"chat.tools.terminal.autoApprove": {
+  "eslint.validate": ["json"],
+  "chat.tools.terminal.autoApprove": {
     "pnpm": true
-}
+  }
 }

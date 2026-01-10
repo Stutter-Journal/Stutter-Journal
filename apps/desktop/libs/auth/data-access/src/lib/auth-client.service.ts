@@ -143,13 +143,16 @@ export class AuthClientService {
     // Be tolerant to upstream casing differences (snake_case vs camelCase)
     // since the BFF is a proxy and upstream responses can vary.
     return {
-      id: asString(get(doctorLike, 'id'))
-        ?? asString(get(doctorLike, 'doctorId'))
-        ?? asString(get(doctorLike, 'doctor_id')),
-      practiceId: asString(get(doctorLike, 'practiceId'))
-        ?? asString(get(doctorLike, 'practice_id')),
-      displayName: asString(get(doctorLike, 'displayName'))
-        ?? asString(get(doctorLike, 'display_name')),
+      id:
+        asString(get(doctorLike, 'id')) ??
+        asString(get(doctorLike, 'doctorId')) ??
+        asString(get(doctorLike, 'doctor_id')),
+      practiceId:
+        asString(get(doctorLike, 'practiceId')) ??
+        asString(get(doctorLike, 'practice_id')),
+      displayName:
+        asString(get(doctorLike, 'displayName')) ??
+        asString(get(doctorLike, 'display_name')),
       email: asString(get(doctorLike, 'email')),
       role: asString(get(doctorLike, 'role')),
     };

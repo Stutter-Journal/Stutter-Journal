@@ -39,6 +39,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss-primeui": "^0.6.1",
     "tslib": "^2.3.0",
+    "xstate": "^5.25.0",
     "zod": "^4.3.5",
     "zone.js": "0.16.0"
   },

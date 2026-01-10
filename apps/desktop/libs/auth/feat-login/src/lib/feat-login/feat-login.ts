@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   EventEmitter,
   inject,
   Output,
@@ -22,7 +23,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { toast } from 'ngx-sonner';
 import { AuthClientService } from '@org/auth-data-access';
-import { LoggerService } from '@org/util';
+import { createRequestFlow, LoggerService } from '@org/util';
 
 @Component({
   selector: 'lib-feat-login',
@@ -46,9 +47,17 @@ import { LoggerService } from '@org/util';
 export class FeatLogin {
   private readonly auth = inject(AuthClientService);
   private readonly log = inject(LoggerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Output() switchToRegister = new EventEmitter<void>();
   @Output() authed = new EventEmitter<void>();
+
+  private readonly loginFlow = createRequestFlow<{ email: string; password: string }>({
+    request: async ({ email, password }) => {
+      await this.auth.login({ email, password });
+    },
+    errorMessage: (err) => (err instanceof Error ? err.message : 'Login failed'),
+  });
 
   submitting = false;
 
@@ -72,27 +81,38 @@ export class FeatLogin {
       return;
     }
 
-    this.submitting = true;
-    try {
-      const { email, password } = this.form.getRawValue();
+    const { email, password } = this.form.getRawValue();
+    this.log.info('Attempting login', { email });
 
-      this.log.info('Attempting login', { email });
+    // Drive the UI with a state machine transition instead of a manual try/catch.
+    this.loginFlow.submit({ email, password });
+  }
 
-      await this.auth.login({ email, password });
+  constructor() {
+    this.loginFlow.start();
 
-      toast.success('Welcome back');
+    let prev = this.loginFlow.getSnapshot();
+    const unsubscribe = this.loginFlow.subscribe((curr) => {
+      this.submitting = curr.state === 'submitting';
 
-      this.log.info('Login succeeded', { email });
+      if (prev.state !== 'success' && curr.state === 'success') {
+        toast.success('Welcome back');
+        this.log.info('Login succeeded', { email: curr.input?.email });
+        this.authed.emit();
+      }
 
-      this.authed.emit();
-    } catch (err: any) {
-      this.log.error('Login failed', { error: err });
-      toast.error('Login failed', {
-        description: err?.message ?? 'Please check your credentials',
-      });
-    } finally {
-      this.log.debug('Login submit completed');
-      this.submitting = false;
-    }
+      if (prev.state !== 'failure' && curr.state === 'failure') {
+        const description = curr.error ?? 'Please check your credentials';
+        toast.error('Login failed', { description });
+        this.log.error('Login failed', { error: description });
+      }
+
+      prev = curr;
+    });
+
+    this.destroyRef.onDestroy(() => {
+      unsubscribe();
+      this.loginFlow.stop();
+    });
   }
 }

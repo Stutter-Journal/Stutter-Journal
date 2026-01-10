@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   EventEmitter,
   inject,
+  NgZone,
   Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -48,6 +50,8 @@ export class FeatLogin {
   private readonly auth = inject(AuthClientService);
   private readonly log = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly zone = inject(NgZone);
 
   @Output() switchToRegister = new EventEmitter<void>();
   @Output() authed = new EventEmitter<void>();
@@ -93,21 +97,25 @@ export class FeatLogin {
 
     let prev = this.loginFlow.getSnapshot();
     const unsubscribe = this.loginFlow.subscribe((curr) => {
-      this.submitting = curr.state === 'submitting';
+      // The flow emits outside Angular; re-enter the zone so OnPush views update.
+      this.zone.run(() => {
+        this.submitting = curr.state === 'submitting';
 
-      if (prev.state !== 'success' && curr.state === 'success') {
-        toast.success('Welcome back');
-        this.log.info('Login succeeded', { email: curr.input?.email });
-        this.authed.emit();
-      }
+        if (prev.state !== 'success' && curr.state === 'success') {
+          toast.success('Welcome back');
+          this.log.info('Login succeeded', { email: curr.input?.email });
+          this.authed.emit();
+        }
 
-      if (prev.state !== 'failure' && curr.state === 'failure') {
-        const description = curr.error ?? 'Please check your credentials';
-        toast.error('Login failed', { description });
-        this.log.error('Login failed', { error: description });
-      }
+        if (prev.state !== 'failure' && curr.state === 'failure') {
+          const description = curr.error ?? 'Please check your credentials';
+          toast.error('Login failed', { description });
+          this.log.error('Login failed', { error: description });
+        }
 
-      prev = curr;
+        prev = curr;
+        this.cdr.markForCheck();
+      });
     });
 
     this.destroyRef.onDestroy(() => {

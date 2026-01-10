@@ -37,8 +37,10 @@ include(":composeApp")
 include(":core:data")
 include(":core:domain")
 include(":core:theme")
+include(":features:auth")
+include(":tests:architecture")
 include(":features:entries")
 include(":features:progress")
 include(":features:support")
-include(":tests:architecture")
+
 

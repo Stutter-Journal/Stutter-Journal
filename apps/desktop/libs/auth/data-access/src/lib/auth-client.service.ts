@@ -20,7 +20,7 @@ function isErrorResponse(value: unknown): value is ErrorResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthClientService {
   private readonly http = inject(HttpClient);
-  private readonly base = 'api';
+  private readonly base = '/api';
 
   private readonly userSig = signal<ServerDoctorResponse | null>(null);
   private readonly loadingSig = signal(false);

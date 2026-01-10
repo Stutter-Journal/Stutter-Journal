@@ -12,6 +12,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class LinksClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -28,7 +29,7 @@ export class LinksClientService {
   ): Promise<ServerLinkResponse> {
     return await execute(
       () =>
-        this.http.post<ServerLinkResponse>('/links/invite', payload, {
+        this.http.post<ServerLinkResponse>(`${this.base}/links/invite`, payload, {
           withCredentials: true,
         }),
       this.loadingSig,
@@ -41,7 +42,7 @@ export class LinksClientService {
   ): Promise<ServerLinkResponse> {
     return await execute(
       () =>
-        this.http.post<ServerLinkResponse>('/links/request', payload, {
+        this.http.post<ServerLinkResponse>(`${this.base}/links/request`, payload, {
           withCredentials: true,
         }),
       this.loadingSig,
@@ -53,7 +54,7 @@ export class LinksClientService {
     return await execute(
       () =>
         this.http.post<ServerLinkApproveResponse>(
-          `/links/${linkId}/approve`,
+          `${this.base}/links/${linkId}/approve`,
           {},
           { withCredentials: true },
         ),

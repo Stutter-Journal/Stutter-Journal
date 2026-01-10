@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -71,19 +76,16 @@ export class AddPatient {
     patientCode: new FormControl('', { nonNullable: true }),
   });
 
-  submitting = false;
-
-  get loading(): boolean {
-    return this.links.loading();
-  }
+  readonly submitting = signal(false);
+  readonly loading = this.links.loading;
 
   async submit(): Promise<void> {
-    if (this.form.invalid || this.submitting) {
+    if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.submitting = true;
+    this.submitting.set(true);
     this.links.clearError();
 
     const raw = this.form.getRawValue();
@@ -112,13 +114,27 @@ export class AddPatient {
       });
 
       this.dialogRef.close(patient);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        (typeof err === 'object' &&
+          err !== null &&
+          'message' in err &&
+          typeof (err as { message?: unknown }).message === 'string' &&
+          (err as { message: string }).message) ||
+        (typeof err === 'object' &&
+          err !== null &&
+          'error' in err &&
+          typeof (err as { error?: unknown }).error === 'object' &&
+          (err as { error?: { message?: unknown } }).error?.message &&
+          typeof (err as { error: { message: unknown } }).error.message ===
+            'string' &&
+          (err as { error: { message: string } }).error.message) ||
+        'Please try again.';
+
       this.log.error('Invite patient failed', { error: err });
-      toast.error('Could not add patient', {
-        description: err?.message ?? 'Please try again.',
-      });
+      toast.error('Could not add patient');
     } finally {
-      this.submitting = false;
+      this.submitting.set(false);
     }
   }
 }

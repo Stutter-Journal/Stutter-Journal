@@ -145,6 +145,9 @@ androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", v
 #region Code Quality
 spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 
+#region OpenAPI
+openapi-generator-gradlePlugin = { group = "org.openapitools", name = "openapi-generator-gradle-plugin", version.ref = "openapi-generator" }
+
 #region Convention Plugin Dependencies
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -212,3 +215,4 @@ eloquia-kmp-networking-ktor = { id = "eloquia.kmp.networking.ktor" }
 eloquia-kmp-di = { id = "eloquia.kmp.di" }
 eloquia-kmp-room = { id = "eloquia.kmp.room" }
 eloquia-kmp-library-no-desktop = { id = "eloquia.kmp.library.no-desktop" }
+eloquia-openapi-models = { id = "eloquia.openapi.models" }

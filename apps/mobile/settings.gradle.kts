@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "KMP-App-Template"
+rootProject.name = "Eloquia"
 
 pluginManagement {
     includeBuild("build-logic")

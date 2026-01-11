@@ -19,13 +19,15 @@ dependencies {
 
 val openApiSpecUrl = providers
     .gradleProperty("openApiSpecUrl")
-    .orElse("http://192.168.0.77:8080/docs/doc.json")
+    .orElse("http://localhost:8080/docs/doc.json")
 
 val openApiSpecPath = providers.gradleProperty("openApiSpecPath")
 
 val openApiSpecFile = layout.buildDirectory.file("openapi/doc.json")
-val openApiOutDir = layout.buildDirectory.dir("generated/openapi")
-val openApiGeneratedCommonDir = openApiOutDir.map { it.dir("src/commonMain/kotlin") }
+// IMPORTANT: Keep generated sources out of build/ so they are not ignored by git.
+// This allows checking in generated DTOs when desired.
+val openApiOutDir = layout.projectDirectory.dir("generated/openapi")
+val openApiGeneratedCommonDir = openApiOutDir.dir("src/commonMain/kotlin")
 
 tasks.register("downloadOpenApiSpec") {
     group = "openapi"
@@ -59,13 +61,13 @@ tasks.register("downloadOpenApiSpec") {
 
 tasks.register<GenerateTask>("generateOpenApiModels") {
     group = "openapi"
-    description = "Generates Kotlin Multiplatform models from OpenAPI doc.json into build/generated/openapi."
+    description = "Generates Kotlin Multiplatform models from OpenAPI doc.json into core/data/generated/openapi."
 
     dependsOn("downloadOpenApiSpec")
 
-    generatorName.set("kotlin-multiplatform")
+    generatorName.set("kotlin")
     inputSpec.set(openApiSpecFile.map { it.asFile.absolutePath })
-    outputDir.set(openApiOutDir.map { it.asFile.absolutePath })
+    outputDir.set(openApiOutDir.asFile.absolutePath)
 
     // Generate DTOs only (keep Ktor usage inside core:network, not in generated code).
     globalProperties.set(
@@ -83,6 +85,8 @@ tasks.register<GenerateTask>("generateOpenApiModels") {
 
     configOptions.set(
         mapOf(
+            "library" to "multiplatform",
+            "sourceFolder" to "src/commonMain/kotlin",
             "serializationLibrary" to "kotlinx_serialization",
             "dateLibrary" to "kotlinx-datetime",
             "enumPropertyNaming" to "UPPERCASE",
@@ -90,6 +94,11 @@ tasks.register<GenerateTask>("generateOpenApiModels") {
     )
 }
 
+// Ensure generated sources exist when compiling core:data (clean builds).
+tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
+    dependsOn("generateOpenApiModels")
+}
+
 extensions.configure<KotlinMultiplatformExtension> {
-    sourceSets.getByName("commonMain").kotlin.srcDir(openApiGeneratedCommonDir)
+    sourceSets.getByName("commonMain").kotlin.srcDir(openApiGeneratedCommonDir.asFile)
 }

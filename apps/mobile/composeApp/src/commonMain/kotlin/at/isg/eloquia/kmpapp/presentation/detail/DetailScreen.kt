@@ -37,16 +37,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.isg.eloquia.kmpapp.data.MuseumObject
 import at.isg.eloquia.kmpapp.presentation.EmptyScreenContent
 import coil3.compose.AsyncImage
-import kmp_app_template.composeapp.generated.resources.Res
-import kmp_app_template.composeapp.generated.resources.back
-import kmp_app_template.composeapp.generated.resources.label_artist
-import kmp_app_template.composeapp.generated.resources.label_credits
-import kmp_app_template.composeapp.generated.resources.label_date
-import kmp_app_template.composeapp.generated.resources.label_department
-import kmp_app_template.composeapp.generated.resources.label_dimensions
-import kmp_app_template.composeapp.generated.resources.label_medium
-import kmp_app_template.composeapp.generated.resources.label_repository
-import kmp_app_template.composeapp.generated.resources.label_title
+import eloquia.composeapp.generated.resources.Res
+import eloquia.composeapp.generated.resources.back
+import eloquia.composeapp.generated.resources.label_artist
+import eloquia.composeapp.generated.resources.label_credits
+import eloquia.composeapp.generated.resources.label_date
+import eloquia.composeapp.generated.resources.label_department
+import eloquia.composeapp.generated.resources.label_dimensions
+import eloquia.composeapp.generated.resources.label_medium
+import eloquia.composeapp.generated.resources.label_repository
+import eloquia.composeapp.generated.resources.label_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

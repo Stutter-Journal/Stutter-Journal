@@ -1,5 +1,7 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
  * Convention plugin for the Ktor-backed networking implementation module.
@@ -12,6 +14,15 @@ class KmpNetworkingKtorConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("eloquia.kmp.library")
                 apply("eloquia.kmp.networking")
+            }
+
+            extensions.configure<KotlinMultiplatformExtension> {
+                sourceSets.apply {
+                    commonMain.dependencies {
+                        implementation(libs.ktor.client.logging)
+                        implementation(libs.ktor.client.auth)
+                    }
+                }
             }
         }
     }

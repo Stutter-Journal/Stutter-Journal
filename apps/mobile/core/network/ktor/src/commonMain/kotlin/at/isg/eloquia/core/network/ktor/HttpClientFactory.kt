@@ -17,6 +17,7 @@ import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Url
+import io.ktor.http.URLBuilder
 import io.ktor.http.contentType
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
@@ -76,13 +77,13 @@ internal fun buildHttpClient(
 }
 
 fun createHttpClient(
-    baseUrl: Url,
+    baseUrl: String,
     tokenProvider: () -> String? = { null },
     enableLogging: Boolean = false,
     engine: HttpClientEngine = defaultHttpClientEngine(),
 ): HttpClient = buildHttpClient(
     engine = engine,
-    baseUrl = baseUrl,
+    baseUrl = URLBuilder().takeFrom(baseUrl).build(),
     tokenProvider = tokenProvider,
     enableLogging = enableLogging,
 )

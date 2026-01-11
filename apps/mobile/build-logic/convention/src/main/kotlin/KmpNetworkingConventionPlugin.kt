@@ -27,6 +27,11 @@ class KmpNetworkingConventionPlugin : Plugin<Project> {
                     iosMain.dependencies {
                         implementation(libs.ktor.client.darwin)
                     }
+
+                    // Desktop/JVM engine for the "desktop" target.
+                    findByName("desktopMain")?.dependencies {
+                        implementation(libs.ktor.client.cio)
+                    }
                 }
             }
         }

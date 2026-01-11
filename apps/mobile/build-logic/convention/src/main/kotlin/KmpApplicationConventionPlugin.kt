@@ -40,11 +40,13 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.androidx.activity.compose)
                         implementation(libs.ktor.client.okhttp)
                         implementation(project(":core:data"))
+                        implementation(project(":core:network:ktor"))
                     }
 
                     iosMain.dependencies {
                         implementation(libs.ktor.client.darwin)
                         implementation(project(":core:data"))
+                        implementation(project(":core:network:ktor"))
                     }
 
                     commonMain.dependencies {
@@ -63,6 +65,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(project(":core:theme"))
                         implementation(project(":core:domain"))
                         implementation(project(":features:entries"))
+                        implementation(project(":features:auth"))
                         implementation(project(":features:progress"))
                         implementation(project(":features:support"))
                     }

@@ -4,9 +4,9 @@ import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.toUserMessage
 import at.isg.eloquia.core.domain.auth.usecase.PatientLoginUseCase
 import at.isg.eloquia.core.domain.auth.usecase.PatientRegisterUseCase
+import at.isg.eloquia.core.domain.logging.AppLog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -48,10 +48,13 @@ sealed interface AuthLandingState {
 class AuthLandingViewModel(
     private val patientLogin: PatientLoginUseCase,
     private val patientRegister: PatientRegisterUseCase,
-    private val logger: Logger,
 ) : ViewModel() {
     private val _state = MutableStateFlow<AuthLandingState>(AuthLandingState.Editing(AuthLandingForm()))
     val state: StateFlow<AuthLandingState> = _state
+
+    private companion object {
+        const val TAG = "Auth"
+    }
 
     fun updateEmail(email: String) {
         _state.update { it.withForm { copy(email = email) }.clearError() }
@@ -71,7 +74,7 @@ class AuthLandingViewModel(
                 AuthMode.SignIn -> AuthMode.Register
                 AuthMode.Register -> AuthMode.SignIn
             }
-            logger.i("Switch mode ${it.form.mode} -> $next")
+            AppLog.i(TAG, "Switch mode ${it.form.mode} -> $next")
             AuthLandingState.Editing(form = it.form.copy(mode = next), errorMessage = null)
         }
     }
@@ -79,14 +82,14 @@ class AuthLandingViewModel(
     fun submit() {
         val form = _state.value.form
 
-        logger.i("Submit mode=${form.mode} email='${form.email.trim()}' displayNameLen=${form.displayName.trim().length}")
+        AppLog.i(TAG, "Submit mode=${form.mode} email='${form.email.trim()}' displayNameLen=${form.displayName.trim().length}")
 
         val localError = when (form.mode) {
             AuthMode.SignIn -> validateSignIn(form)
             AuthMode.Register -> validateRegister(form)
         }
         if (localError != null) {
-            logger.w("Validation failed: $localError")
+            AppLog.w(TAG, "Validation failed: $localError")
             _state.value = AuthLandingState.Editing(form = form, errorMessage = localError)
             return
         }
@@ -105,13 +108,13 @@ class AuthLandingViewModel(
 
             when (result) {
                 is AuthResult.Success -> {
-                    logger.i("Auth success patientId=${result.value.id}")
+                    AppLog.i(TAG, "Auth success patientId=${result.value.id}")
                     _state.value = AuthLandingState.Success
                 }
 
                 is AuthResult.Failure -> {
                     val msg = result.error.toUserMessage()
-                    logger.w("Auth failure: $msg")
+                    AppLog.w(TAG, "Auth failure: $msg")
                     _state.value = AuthLandingState.Editing(form = form, errorMessage = msg)
                 }
             }

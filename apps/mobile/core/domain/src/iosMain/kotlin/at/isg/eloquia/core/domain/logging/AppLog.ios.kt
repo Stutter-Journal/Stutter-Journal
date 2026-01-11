@@ -1,21 +1,22 @@
 package at.isg.eloquia.core.domain.logging
 
-import co.touchlab.kermit.Logger
+import at.isg.eloquia.core.logger.AppLogger
+import at.isg.eloquia.core.logger.w
 
 actual object AppLog {
     actual fun d(tag: String, message: String) {
-        Logger.d(messageString = message, tag = tag)
+        AppLogger.d(tag, message)
     }
 
     actual fun i(tag: String, message: String) {
-        Logger.i(messageString = message, tag = tag)
+        AppLogger.i(tag, message)
     }
 
     actual fun w(tag: String, message: String) {
-        Logger.w(messageString = message, tag = tag)
+        AppLogger.w(tag, message)
     }
 
     actual fun e(tag: String, message: String, throwable: Throwable?) {
-        Logger.e(messageString = message, throwable = throwable, tag = tag)
+        AppLogger.e(tag, message, throwable)
     }
 }

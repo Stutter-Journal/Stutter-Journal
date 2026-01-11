@@ -4,6 +4,7 @@ import at.isg.eloquia.core.network.api.ApiResult
 import at.isg.eloquia.core.network.api.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.header
@@ -15,9 +16,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.ContentConvertException
 import io.ktor.serialization.JsonConvertException
-import io.ktor.network.sockets.SocketTimeoutException
-import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.CancellationException
+import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
 
 class NetworkClient(@PublishedApi internal val client: HttpClient) {
@@ -55,8 +55,7 @@ class NetworkClient(@PublishedApi internal val client: HttpClient) {
             val status = response.status.value
             if (status in 200..299) {
                 val value: T = if ((status == 204 || status == 205) && T::class == Unit::class) {
-                    @Suppress("UNCHECKED_CAST")
-                    Unit as T
+                    @Suppress("UNCHECKED_CAST") Unit as T
                 } else {
                     response.body()
                 }
@@ -74,13 +73,12 @@ class NetworkClient(@PublishedApi internal val client: HttpClient) {
 }
 
 @PublishedApi
-internal fun Throwable.toNetworkError(): NetworkError =
-    when (this) {
-        is HttpRequestTimeoutException -> NetworkError.Timeout(this)
-        is SocketTimeoutException -> NetworkError.Timeout(this)
-        is IOException -> NetworkError.Offline(this)
-        is SerializationException -> NetworkError.Decode(message ?: "Serialization error", this)
-        is JsonConvertException -> NetworkError.Decode(message ?: "Conversion error", this)
-        is ContentConvertException -> NetworkError.Decode(message ?: "Conversion error", this)
-        else -> NetworkError.Unknown(this)
-    }
+internal fun Throwable.toNetworkError(): NetworkError = when (this) {
+    is HttpRequestTimeoutException -> NetworkError.Timeout(this)
+    is SocketTimeoutException -> NetworkError.Timeout(this)
+    is IOException -> NetworkError.Offline(this)
+    is SerializationException -> NetworkError.Decode(message ?: "Serialization error", this)
+    is JsonConvertException -> NetworkError.Decode(message ?: "Conversion error", this)
+    is ContentConvertException -> NetworkError.Decode(message ?: "Conversion error", this)
+    else -> NetworkError.Unknown(this)
+}

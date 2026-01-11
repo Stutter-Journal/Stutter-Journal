@@ -12,17 +12,20 @@ import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.LinkRequest
 import at.isg.eloquia.core.domain.auth.model.Patient
 import at.isg.eloquia.core.domain.auth.repository.AuthRepository
+import at.isg.eloquia.core.domain.logging.AppLog
 import at.isg.eloquia.core.network.api.ApiResult
 import at.isg.eloquia.core.network.api.NetworkError
-import co.touchlab.kermit.Logger
 
 internal class AuthRepositoryImpl(
     private val api: AuthApi,
-    private val logger: Logger,
 ) : AuthRepository {
 
+    private companion object {
+        const val TAG = "Auth"
+    }
+
     override suspend fun requestLink(patientCode: String, email: String): AuthResult<LinkRequest> {
-        logger.i("Request link start email='${email.trim()}' codeLen=${patientCode.trim().length}")
+        AppLog.i(TAG, "Request link start email='${email.trim()}' codeLen=${patientCode.trim().length}")
         val result = api.requestLink(
             ServerLinkInviteRequest(
                 patientCode = patientCode,
@@ -42,14 +45,14 @@ internal class AuthRepositoryImpl(
         )
 
         when (mapped) {
-            is AuthResult.Success -> logger.i("Request link success linkId=${mapped.value.linkId}")
-            is AuthResult.Failure -> logger.w("Request link failed")
+            is AuthResult.Success -> AppLog.i(TAG, "Request link success linkId=${mapped.value.linkId}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Request link failed")
         }
         return mapped
     }
 
     override suspend fun patientRegister(email: String, displayName: String, password: String): AuthResult<Patient> {
-        logger.i("Patient register start email='${email.trim()}' displayNameLen=${displayName.trim().length}")
+        AppLog.i(TAG, "Patient register start email='${email.trim()}' displayNameLen=${displayName.trim().length}")
         val result = api.patientRegister(
             PatientRegisterRequest(
                 email = email,
@@ -69,14 +72,14 @@ internal class AuthRepositoryImpl(
         )
 
         when (mapped) {
-            is AuthResult.Success -> logger.i("Patient register success patientId=${mapped.value.id}")
-            is AuthResult.Failure -> logger.w("Patient register failed")
+            is AuthResult.Success -> AppLog.i(TAG, "Patient register success patientId=${mapped.value.id}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Patient register failed")
         }
         return mapped
     }
 
     override suspend fun patientLogin(email: String, password: String): AuthResult<Patient> {
-        logger.i("Patient login start email='${email.trim()}'")
+        AppLog.i(TAG, "Patient login start email='${email.trim()}'")
         val result = api.patientLogin(
             PatientLoginRequest(
                 email = email,
@@ -95,8 +98,8 @@ internal class AuthRepositoryImpl(
         )
 
         when (mapped) {
-            is AuthResult.Success -> logger.i("Patient login success patientId=${mapped.value.id}")
-            is AuthResult.Failure -> logger.w("Patient login failed")
+            is AuthResult.Success -> AppLog.i(TAG, "Patient login success patientId=${mapped.value.id}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Patient login failed")
         }
         return mapped
     }

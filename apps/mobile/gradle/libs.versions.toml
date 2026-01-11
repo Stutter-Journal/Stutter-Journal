@@ -56,9 +56,6 @@ room = "2.8.4"
 sqlite = "2.6.2"
 ksp = "2.2.21-2.0.4"
 
-#region Logging
-kermit = "2.0.6"
-
 [libraries]
 #region AndroidX & Compose UI
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activityCompose" }
@@ -157,9 +154,6 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "compose-multiplatform" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
-
-#region Logging
-kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 
 [bundles]
 compose-ui = [

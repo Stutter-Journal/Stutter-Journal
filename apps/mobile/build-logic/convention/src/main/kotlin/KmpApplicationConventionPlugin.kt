@@ -39,6 +39,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.jetbrains.compose.ui.tooling.preview)
                         implementation(libs.androidx.activity.compose)
                         implementation(libs.ktor.client.okhttp)
+                        runtimeOnly(libs.slf4j.simple)
                         implementation(project(":core:data"))
                         implementation(project(":core:network:ktor"))
                     }
@@ -61,6 +62,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.bundles.ktor.common)
                         implementation(libs.bundles.coil)
                         implementation(libs.bundles.koin)
+                        implementation(libs.napier)
 
                         implementation(project(":core:theme"))
                         implementation(project(":core:domain"))

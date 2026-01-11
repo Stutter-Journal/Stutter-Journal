@@ -4,6 +4,5 @@ plugins {
 }
 
 dependencies {
-    commonMainImplementation(projects.core.logger)
     commonMainImplementation(projects.core.network.api)
 }

@@ -33,6 +33,10 @@ kotlinx-serialization-json = "1.9.0"
 kotlinx-datetime = "0.7.1"
 jetbrains-savedstate = "1.4.0"
 
+#region Logging
+napier = "2.7.1"
+slf4j = "2.0.17"
+
 #region Testing
 kotlinStdlib = "2.3.0"
 kotlinTest = "2.2.21"
@@ -114,6 +118,10 @@ koin-core-viewmodel = { group = "io.insert-koin", name = "koin-core-viewmodel", 
 #region Kotlinx Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+#region Logging
+napier = { module = "io.github.aakira:napier", version.ref = "napier" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 #region Kotlin Related
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutine" }

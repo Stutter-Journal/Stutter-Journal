@@ -7,12 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import at.isg.eloquia.core.theme.EloquiaTheme
+import co.touchlab.kermit.Logger
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        Logger.withTag("MainActivity").i("onCreate")
 
         setContent {
             EloquiaTheme {

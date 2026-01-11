@@ -84,6 +84,33 @@ definitions:
       patient:
         $ref: '#/definitions/server.patientDTO'
     type: object
+  server.PatientLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.PatientRegisterRequest:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.PatientResponse:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
   server.PatientsResponse:
     properties:
       patients:
@@ -423,6 +450,100 @@ paths:
       summary: Patient-side link request (placeholder)
       tags:
       - Links
+  /patient/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Patient login payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PatientLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Authenticate a patient
+      tags:
+      - Patient
+  /patient/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Terminate the current patient session
+      tags:
+      - Patient
+  /patient/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Fetch the current patient
+      tags:
+      - Patient
+  /patient/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Patient registration payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PatientRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Register a patient account
+      tags:
+      - Patient
   /patients:
     get:
       produces:

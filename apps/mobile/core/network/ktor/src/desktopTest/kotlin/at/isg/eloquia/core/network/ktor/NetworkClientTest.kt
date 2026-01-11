@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class NetworkClientTest {
 
-    private val baseUrl = "http://192.168.127.12:8080/"
+    private val baseUrl = "http://eloquia.backend:8080/"
 
     @Nested
     inner class OkCases {
@@ -47,7 +47,7 @@ class NetworkClientTest {
         @Test
         fun `includes baseUrl and default headers`() = runTest {
             val engine = MockEngine { request ->
-                request.url.host shouldBe "192.168.127.12"
+                request.url.host shouldBe "eloquia.backend"
                 request.url.port shouldBe 8080
                 request.url.encodedPath shouldBe "/user/1"
 

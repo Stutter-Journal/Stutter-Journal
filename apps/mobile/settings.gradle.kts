@@ -36,11 +36,11 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":composeApp")
 include(":core:data")
 include(":core:domain")
+include(":core:network:ktor")
+include(":core:network:api")
 include(":core:theme")
 include(":features:auth")
 include(":tests:architecture")
 include(":features:entries")
 include(":features:progress")
 include(":features:support")
-
-

@@ -28,6 +28,8 @@ const (
 	FieldStatus = "status"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
+	FieldPasswordHash = "password_hash"
 	// FieldPatientCode holds the string denoting the patient_code field in the database.
 	FieldPatientCode = "patient_code"
 	// FieldLastEntryAt holds the string denoting the last_entry_at field in the database.
@@ -81,6 +83,7 @@ var Columns = []string{
 	FieldBirthDate,
 	FieldStatus,
 	FieldEmail,
+	FieldPasswordHash,
 	FieldPatientCode,
 	FieldLastEntryAt,
 }
@@ -172,6 +175,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPasswordHash orders the results by the password_hash field.
+func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
 }
 
 // ByPatientCode orders the results by the patient_code field.

@@ -310,6 +310,7 @@ var (
 		{Name: "birth_date", Type: field.TypeTime, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Active", "Inactive"}, Default: "Active"},
 		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "password_hash", Type: field.TypeString, Nullable: true},
 		{Name: "patient_code", Type: field.TypeString, Nullable: true},
 		{Name: "last_entry_at", Type: field.TypeTime, Nullable: true},
 	}
@@ -327,7 +328,7 @@ var (
 			{
 				Name:    "uq_patient_code",
 				Unique:  true,
-				Columns: []*schema.Column{PatientsColumns[7]},
+				Columns: []*schema.Column{PatientsColumns[8]},
 			},
 			{
 				Name:    "patient_status",

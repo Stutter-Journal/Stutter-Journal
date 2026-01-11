@@ -30,6 +30,8 @@ type Patient struct {
 	Status patient.Status `json:"status,omitempty"`
 	// Email holds the value of the "email" field.
 	Email *string `json:"email,omitempty"`
+	// bcrypt hash of the patient's password
+	PasswordHash *string `json:"-"`
 	// PatientCode holds the value of the "patient_code" field.
 	PatientCode *string `json:"patient_code,omitempty"`
 	// LastEntryAt holds the value of the "last_entry_at" field.
@@ -96,7 +98,7 @@ func (*Patient) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case patient.FieldDisplayName, patient.FieldStatus, patient.FieldEmail, patient.FieldPatientCode:
+		case patient.FieldDisplayName, patient.FieldStatus, patient.FieldEmail, patient.FieldPasswordHash, patient.FieldPatientCode:
 			values[i] = new(sql.NullString)
 		case patient.FieldCreatedAt, patient.FieldUpdatedAt, patient.FieldBirthDate, patient.FieldLastEntryAt:
 			values[i] = new(sql.NullTime)
@@ -160,6 +162,13 @@ func (_m *Patient) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Email = new(string)
 				*_m.Email = value.String
+			}
+		case patient.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value.Valid {
+				_m.PasswordHash = new(string)
+				*_m.PasswordHash = value.String
 			}
 		case patient.FieldPatientCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -252,6 +261,8 @@ func (_m *Patient) String() string {
 		builder.WriteString("email=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")
 	if v := _m.PatientCode; v != nil {
 		builder.WriteString("patient_code=")

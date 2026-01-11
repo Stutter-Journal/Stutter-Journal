@@ -101,6 +101,20 @@ func (_c *PatientCreate) SetNillableEmail(v *string) *PatientCreate {
 	return _c
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_c *PatientCreate) SetPasswordHash(v string) *PatientCreate {
+	_c.mutation.SetPasswordHash(v)
+	return _c
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_c *PatientCreate) SetNillablePasswordHash(v *string) *PatientCreate {
+	if v != nil {
+		_c.SetPasswordHash(*v)
+	}
+	return _c
+}
+
 // SetPatientCode sets the "patient_code" field.
 func (_c *PatientCreate) SetPatientCode(v string) *PatientCreate {
 	_c.mutation.SetPatientCode(v)
@@ -338,6 +352,10 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(patient.FieldEmail, field.TypeString, value)
 		_node.Email = &value
+	}
+	if value, ok := _c.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+		_node.PasswordHash = &value
 	}
 	if value, ok := _c.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)

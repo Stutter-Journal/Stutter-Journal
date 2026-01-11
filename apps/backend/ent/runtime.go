@@ -197,7 +197,7 @@ func init() {
 	// patient.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	patient.DisplayNameValidator = patientDescDisplayName.Validators[0].(func(string) error)
 	// patientDescLastEntryAt is the schema descriptor for last_entry_at field.
-	patientDescLastEntryAt := patientFields[5].Descriptor()
+	patientDescLastEntryAt := patientFields[6].Descriptor()
 	// patient.UpdateDefaultLastEntryAt holds the default value on update for the last_entry_at field.
 	patient.UpdateDefaultLastEntryAt = patientDescLastEntryAt.UpdateDefault.(func() time.Time)
 	// patientDescID is the schema descriptor for id field.

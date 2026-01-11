@@ -32,6 +32,9 @@ func (Patient) Fields() []ent.Field {
 		// optional patient-side identity fields if you need invite flows by email
 		field.String("email").Optional().Nillable(),
 
+		// optional until a patient registers (legacy/invited patients may not have credentials)
+		field.String("password_hash").Optional().Nillable().Sensitive().Comment("bcrypt hash of the patient's password"),
+
 		// optional code for "doctor code / patient code" flows
 		field.String("patient_code").Optional().Nillable(),
 

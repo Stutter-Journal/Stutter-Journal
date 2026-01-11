@@ -1,4 +1,5 @@
-h1:C8r4KYtBbnDchiDHN0AFg2xmmzZ/SMQhOPb7gxvMCnM=
+h1:swvt5xcg7U5pH9wi5cWSGrRumgH4i10y44UorZpObfE=
 20251223135742_init.sql h1:azO6+rrw/Pzyl7KycoHkbEzfP18Ph2kVxFZB0RTkFvA=
 20251223140000_add_doctor_password_hash.sql h1:Cbw/P9ILhxsvlqxlmg2hOIX//HXm3ekZfPqAP/QYYpQ=
 20260106152226_remove_logo_url.sql h1:HzhDdXQ/E+zm1ZKGGn24froeCmiGDH+XugbDTekwiXc=
+20260111110000_add_patient_password_hash.sql h1:AYeRWjwubx05mkKFp9C4GnESfZUqGnKYGiYwkqAKDf8=

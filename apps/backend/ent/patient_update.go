@@ -107,6 +107,26 @@ func (_u *PatientUpdate) ClearEmail() *PatientUpdate {
 	return _u
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_u *PatientUpdate) SetPasswordHash(v string) *PatientUpdate {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *PatientUpdate) SetNillablePasswordHash(v *string) *PatientUpdate {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (_u *PatientUpdate) ClearPasswordHash() *PatientUpdate {
+	_u.mutation.ClearPasswordHash()
+	return _u
+}
+
 // SetPatientCode sets the "patient_code" field.
 func (_u *PatientUpdate) SetPatientCode(v string) *PatientUpdate {
 	_u.mutation.SetPatientCode(v)
@@ -375,6 +395,12 @@ func (_u *PatientUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+	}
+	if _u.mutation.PasswordHashCleared() {
+		_spec.ClearField(patient.FieldPasswordHash, field.TypeString)
 	}
 	if value, ok := _u.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)
@@ -659,6 +685,26 @@ func (_u *PatientUpdateOne) SetNillableEmail(v *string) *PatientUpdateOne {
 // ClearEmail clears the value of the "email" field.
 func (_u *PatientUpdateOne) ClearEmail() *PatientUpdateOne {
 	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (_u *PatientUpdateOne) SetPasswordHash(v string) *PatientUpdateOne {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *PatientUpdateOne) SetNillablePasswordHash(v *string) *PatientUpdateOne {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (_u *PatientUpdateOne) ClearPasswordHash() *PatientUpdateOne {
+	_u.mutation.ClearPasswordHash()
 	return _u
 }
 
@@ -960,6 +1006,12 @@ func (_u *PatientUpdateOne) sqlSave(ctx context.Context) (_node *Patient, err er
 	}
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+	}
+	if _u.mutation.PasswordHashCleared() {
+		_spec.ClearField(patient.FieldPasswordHash, field.TypeString)
 	}
 	if value, ok := _u.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)

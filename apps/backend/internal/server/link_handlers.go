@@ -260,7 +260,21 @@ func (s *Server) resolvePatient(ctx context.Context, req linkInviteRequest) (*en
 		email := strings.ToLower(strings.TrimSpace(*req.PatientEmail))
 		p, err := q.Where(patient.EmailEQ(email)).Only(ctx)
 		if ent.IsNotFound(err) {
-			return nil, internal_errors.ErrPatientNotFound
+			displayName := strings.TrimSpace(valOrDefault(req.DisplayName, ""))
+			if displayName == "" {
+				return nil, errors.New("displayName is required")
+			}
+
+			created, createErr := s.Db.Ent().Patient.
+				Create().
+				SetEmail(email).
+				SetDisplayName(displayName).
+				Save(ctx)
+			if ent.IsConstraintError(createErr) {
+				// Another request may have created it concurrently; fetch and continue.
+				return q.Where(patient.EmailEQ(email)).Only(ctx)
+			}
+			return created, createErr
 		}
 		return p, err
 
@@ -268,12 +282,24 @@ func (s *Server) resolvePatient(ctx context.Context, req linkInviteRequest) (*en
 		code := strings.TrimSpace(*req.PatientCode)
 		p, err := q.Where(patient.PatientCodeEQ(code)).Only(ctx)
 		if ent.IsNotFound(err) {
-			return nil, internal_errors.ErrPatientNotFound
+			displayName := strings.TrimSpace(valOrDefault(req.DisplayName, ""))
+			if displayName == "" {
+				return nil, errors.New("displayName is required")
+			}
+
+			created, createErr := s.Db.Ent().Patient.
+				Create().
+				SetPatientCode(code).
+				SetDisplayName(displayName).
+				Save(ctx)
+			if ent.IsConstraintError(createErr) {
+				return q.Where(patient.PatientCodeEQ(code)).Only(ctx)
+			}
+			return created, createErr
 		}
 		return p, err
 
 	default:
-		// previously you created a patient here; now we reject the request
 		return nil, errors.New("provide patientId, patientEmail, or patientCode")
 	}
 }

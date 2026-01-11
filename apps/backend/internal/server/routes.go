@@ -33,6 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		log.Warn("auth manager missing; authentication routes are disabled")
 	} else {
 		s.registerDoctorRoutes(r)
+		s.registerPatientRoutes(r)
 		s.registerPracticeRoutes(r)
 		s.registerLinkRoutes(r)
 	}
@@ -98,6 +99,19 @@ func (s *Server) registerDoctorRoutes(r chi.Router) {
 			r.Use(s.requireDoctor)
 			r.Get("/me", s.doctorMeHandler)
 			r.Post("/logout", s.doctorLogoutHandler)
+		})
+	})
+}
+
+func (s *Server) registerPatientRoutes(r chi.Router) {
+	r.Route("/patient", func(r chi.Router) {
+		r.Post("/register", s.patientRegisterHandler)
+		r.Post("/login", s.patientLoginHandler)
+
+		r.Group(func(r chi.Router) {
+			r.Use(s.requirePatient)
+			r.Get("/me", s.patientMeHandler)
+			r.Post("/logout", s.patientLogoutHandler)
 		})
 	})
 }

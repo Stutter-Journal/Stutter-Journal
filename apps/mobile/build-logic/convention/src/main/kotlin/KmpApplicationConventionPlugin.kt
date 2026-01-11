@@ -56,6 +56,8 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.ui)
                         implementation(compose.dependencies.components.resources)
 
+                        implementation(libs.kermit)
+
                         implementation(libs.bundles.navigation.lifecycle)
                         implementation(libs.jetbrains.compose.material.icons.extended)
                         implementation(libs.bundles.ktor.common)

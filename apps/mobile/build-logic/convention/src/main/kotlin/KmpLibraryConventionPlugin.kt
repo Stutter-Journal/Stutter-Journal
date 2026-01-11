@@ -34,6 +34,9 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 "commonMainImplementation"(libs.kotlinx.serialization.json)
                 "commonMainImplementation"(libs.kotlinx.datetime)
                 "commonMainImplementation"(libs.koin.core)
+
+                "commonMainImplementation"(libs.kermit)
+
                 "commonTestImplementation"(libs.kotlin.test)
             }
         }

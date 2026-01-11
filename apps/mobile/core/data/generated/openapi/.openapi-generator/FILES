@@ -8,6 +8,9 @@ src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerErrorResponse
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkApproveResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkInviteRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkResponse.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientLoginRequest.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientRegisterRequest.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientsResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPracticeCreateRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPracticeCreateResponse.kt

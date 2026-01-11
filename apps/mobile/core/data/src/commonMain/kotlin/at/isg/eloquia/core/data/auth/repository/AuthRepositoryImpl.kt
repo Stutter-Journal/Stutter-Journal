@@ -1,28 +1,35 @@
 package at.isg.eloquia.core.data.auth.repository
 
 import at.isg.eloquia.core.data.auth.mapper.toDomain
+import at.isg.eloquia.core.data.auth.mapper.toDomainPatient
 import at.isg.eloquia.core.data.auth.mapper.parseServerErrorMessage
 import at.isg.eloquia.core.data.auth.remote.AuthApi
+import at.isg.eloquia.core.data.auth.remote.PatientLoginRequest
+import at.isg.eloquia.core.data.auth.remote.PatientRegisterRequest
 import at.isg.eloquia.core.data.openapi.model.ServerLinkInviteRequest
 import at.isg.eloquia.core.domain.auth.model.AuthError
 import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.LinkRequest
+import at.isg.eloquia.core.domain.auth.model.Patient
 import at.isg.eloquia.core.domain.auth.repository.AuthRepository
 import at.isg.eloquia.core.network.api.ApiResult
 import at.isg.eloquia.core.network.api.NetworkError
+import co.touchlab.kermit.Logger
 
 internal class AuthRepositoryImpl(
     private val api: AuthApi,
+    private val logger: Logger,
 ) : AuthRepository {
 
     override suspend fun requestLink(patientCode: String, email: String): AuthResult<LinkRequest> {
+        logger.i("Request link start email='${email.trim()}' codeLen=${patientCode.trim().length}")
         val result = api.requestLink(
             ServerLinkInviteRequest(
                 patientCode = patientCode,
                 patientEmail = email,
             ),
         )
-        return result.toLinkRequestResult(
+        val mapped = result.toLinkRequestResult(
             mapHttp = { status, body ->
                 when (status) {
                     400 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Invalid request")
@@ -33,6 +40,65 @@ internal class AuthRepositoryImpl(
                 }
             },
         )
+
+        when (mapped) {
+            is AuthResult.Success -> logger.i("Request link success linkId=${mapped.value.linkId}")
+            is AuthResult.Failure -> logger.w("Request link failed")
+        }
+        return mapped
+    }
+
+    override suspend fun patientRegister(email: String, displayName: String, password: String): AuthResult<Patient> {
+        logger.i("Patient register start email='${email.trim()}' displayNameLen=${displayName.trim().length}")
+        val result = api.patientRegister(
+            PatientRegisterRequest(
+                email = email,
+                displayName = displayName,
+                password = password,
+            ),
+        )
+
+        val mapped = result.toPatientResult(
+            mapHttp = { status, body ->
+                when (status) {
+                    400 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Invalid registration")
+                    409 -> AuthError.Validation(parseServerErrorMessage(body) ?: "An account with that email already exists")
+                    else -> AuthError.Network(NetworkError.Http(status, body))
+                }
+            },
+        )
+
+        when (mapped) {
+            is AuthResult.Success -> logger.i("Patient register success patientId=${mapped.value.id}")
+            is AuthResult.Failure -> logger.w("Patient register failed")
+        }
+        return mapped
+    }
+
+    override suspend fun patientLogin(email: String, password: String): AuthResult<Patient> {
+        logger.i("Patient login start email='${email.trim()}'")
+        val result = api.patientLogin(
+            PatientLoginRequest(
+                email = email,
+                password = password,
+            ),
+        )
+
+        val mapped = result.toPatientResult(
+            mapHttp = { status, body ->
+                when (status) {
+                    400 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Email and password are required")
+                    401 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Invalid email or password")
+                    else -> AuthError.Network(NetworkError.Http(status, body))
+                }
+            },
+        )
+
+        when (mapped) {
+            is AuthResult.Success -> logger.i("Patient login success patientId=${mapped.value.id}")
+            is AuthResult.Failure -> logger.w("Patient login failed")
+        }
+        return mapped
     }
 }
 
@@ -46,6 +112,28 @@ private inline fun ApiResult<at.isg.eloquia.core.data.openapi.model.ServerLinkRe
                 AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
             } else {
                 AuthResult.Success(linkRequest)
+            }
+        }
+
+        is ApiResult.Err -> {
+            val authError = when (val error = error) {
+                is NetworkError.Http -> mapHttp(error.status, error.body)
+                else -> AuthError.Network(error)
+            }
+            AuthResult.Failure(authError)
+        }
+    }
+
+private inline fun ApiResult<at.isg.eloquia.core.data.auth.remote.PatientAuthResponse>.toPatientResult(
+    mapHttp: (status: Int, body: String?) -> AuthError,
+): AuthResult<Patient> =
+    when (this) {
+        is ApiResult.Ok -> {
+            val patient = value.patient?.toDomainPatient()
+            if (patient == null) {
+                AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
+            } else {
+                AuthResult.Success(patient)
             }
         }
 

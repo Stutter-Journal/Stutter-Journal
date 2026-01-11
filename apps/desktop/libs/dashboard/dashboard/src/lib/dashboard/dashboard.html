@@ -1,0 +1,218 @@
+<div class="min-h-dvh" hlmSidebarWrapper>
+  <!-- Sidebar -->
+  <hlm-sidebar>
+    <div class="px-3 py-3" hlmSidebarHeader>
+      <div class="flex items-center gap-3">
+        <div class="grid size-9 place-items-center rounded-md border bg-sidebar-accent text-sidebar-foreground">
+          <span class="text-sm font-semibold">⌘</span>
+        </div>
+        <div class="leading-tight">
+          <div class="text-sm font-semibold text-sidebar-foreground">
+            Eloquia
+          </div>
+          <div class="text-xs text-sidebar-foreground/70">Praxis Portal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-2" hlmSidebarContent>
+      <div class="space-y-1" hlmSidebarGroup>
+        <a [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app" routerLinkActive="bg-sidebar-accent">
+          <span class="text-base">🏠</span>
+          <span>Overview</span>
+        </a>
+
+        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/patients">
+          <span class="text-base">🧑‍🤝‍🧑</span>
+          <span>Patients</span>
+        </a>
+
+        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/entries">
+          <span class="text-base">📝</span>
+          <span>Entries</span>
+        </a>
+
+        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/analytics">
+          <span class="text-base">📈</span>
+          <span>Analytics</span>
+        </a>
+
+        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/settings">
+          <span class="text-base">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </div>
+    </div>
+
+    <lib-logout></lib-logout>
+  </hlm-sidebar>
+
+  <!-- Main content -->
+  <main class="min-h-dvh w-full bg-background">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
+      <div class="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
+        <div class="flex items-center gap-3">
+          <button class="inline-flex items-center justify-center rounded-md border px-2 py-1" hlmSidebarTrigger>
+            <span class="sr-only">Toggle sidebar</span>
+            ☰
+          </button>
+
+          <div>
+            <div class="text-sm text-muted-foreground">Dashboard</div>
+            <div class="text-base font-semibold leading-tight">
+              Welcome back, {{ auth.user()?.displayName || 'Doctor' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Menubar -->
+        <div class="hidden md:block">
+          <hlm-menubar>
+            <button [hlmMenubarTrigger]="actions">Actions</button>
+            <button [hlmMenubarTrigger]="help">Help</button>
+          </hlm-menubar>
+
+          <ng-template #actions>
+            <hlm-dropdown-menu sideOffset="6">
+              <button hlmDropdownMenuItem routerLink="/app/patients/new">
+                Add patient
+              </button>
+              <button hlmDropdownMenuItem routerLink="/app/entries/new">
+                New entry
+              </button>
+              <hlm-dropdown-menu-separator />
+              <button hlmDropdownMenuItem routerLink="/app/settings">
+                Settings
+              </button>
+            </hlm-dropdown-menu>
+          </ng-template>
+
+          <ng-template #help>
+            <hlm-dropdown-menu sideOffset="6">
+              <button hlmDropdownMenuItem>Documentation</button>
+              <button hlmDropdownMenuItem>Contact support</button>
+            </hlm-dropdown-menu>
+          </ng-template>
+        </div>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+      <!-- KPI Cards -->
+      <section class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-lg border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Patients</div>
+          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="mt-1 text-xs text-muted-foreground">
+            Connected and active
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Entries (7 days)</div>
+          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="mt-1 text-xs text-muted-foreground">
+            Recent therapy notes
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Pending links</div>
+          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="mt-1 text-xs text-muted-foreground">
+            Patients awaiting approval
+          </div>
+        </div>
+      </section>
+
+      <!-- Two-column section -->
+      <section class="grid gap-6 lg:grid-cols-5">
+        <!-- Activity / Table -->
+        <div class="lg:col-span-3 rounded-lg border bg-card p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-base font-semibold">Recent activity</div>
+              <div class="text-sm text-muted-foreground">
+                Latest entries created in your practice
+              </div>
+            </div>
+            <button hlmBtn routerLink="/app/entries" size="sm" variant="outline">
+              View all
+            </button>
+          </div>
+
+          <div class="mt-4" hlmTableContainer>
+            <table hlmTable>
+              <caption hlmCaption>
+                Recent entries
+              </caption>
+              <thead hlmTHead>
+                <tr hlmTr>
+                  <th hlmTh>Patient</th>
+                  <th hlmTh>Date</th>
+                  <th hlmTh>Tag</th>
+                  <th class="text-right" hlmTh>Stutter freq.</th>
+                </tr>
+              </thead>
+
+              <tbody hlmTBody>
+                <!-- placeholder rows -->
+                <tr hlmTr>
+                  <td class="font-medium" hlmTd>—</td>
+                  <td hlmTd>—</td>
+                  <td hlmTd>—</td>
+                  <td class="text-right" hlmTd>—</td>
+                </tr>
+                <tr hlmTr>
+                  <td class="font-medium" hlmTd>—</td>
+                  <td hlmTd>—</td>
+                  <td hlmTd>—</td>
+                  <td class="text-right" hlmTd>—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="rounded-lg border bg-card p-4">
+            <div class="text-base font-semibold">Quick actions</div>
+            <div class="mt-3 grid gap-2">
+              <button class="w-full" hlmBtn routerLink="/app/patients/new" type="button">
+                Add patient
+              </button>
+              <button class="w-full" hlmBtn routerLink="/app/entries/new" type="button" variant="outline">
+                New entry
+              </button>
+              <button class="w-full" hlmBtn routerLink="/app/analytics" type="button" variant="outline">
+                View analytics
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-lg border bg-card p-4">
+            <div class="text-base font-semibold">Practice</div>
+            <div class="mt-2 text-sm text-muted-foreground">
+              Practice ID:
+              <span
+                class="font-medium text-foreground">{{ auth.user()?.practiceId || '—' }}</span>
+            </div>
+            <div class="mt-3 text-xs text-muted-foreground">
+              We’ll show name, address and staff settings here once practice
+              data is wired.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

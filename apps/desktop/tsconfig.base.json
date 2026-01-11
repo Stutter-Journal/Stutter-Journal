@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "paths": {
       "@org/portal-shared-ui": ["libs/portal/shared-ui/src/index.ts"],
-      "@org/ui": ["libs/shared/ui/src/index.ts"],
       "@org/util": ["libs/shared/util/src/index.ts"],
       "@org/models": ["libs/shared/models/src/index.ts"],
       "@org/contracts": ["libs/shared/api/contracts/src/index.ts"],
@@ -42,6 +41,9 @@
       "@org/feat-patient-analytics": [
         "libs/analytics/feat-patient-analytics/src/index.ts"
       ],
+      "@org/plugins": ["tools/plugins/src/index.ts"],
+      "@org/feat-cascade": ["libs/auth/feat-cascade/src/index.ts"],
+      "@org/portal-e2e": ["apps/portal-e2e/src/index.ts"],
       "@spartan-ng/helm/accordion": ["libs/ui/accordion/src/index.ts"],
       "@spartan-ng/helm/alert": ["libs/ui/alert/src/index.ts"],
       "@spartan-ng/helm/alert-dialog": ["libs/ui/alert-dialog/src/index.ts"],
@@ -100,7 +102,9 @@
       "@spartan-ng/helm/tooltip": ["libs/ui/tooltip/src/index.ts"],
       "@spartan-ng/helm/typography": ["libs/ui/typography/src/index.ts"],
       "@spartan-ng/helm/utils": ["libs/ui/utils/src/index.ts"],
-      "@org/plugins": ["tools/plugins/src/index.ts"]
+      "@org/feat-landing": ["libs/auth/feat-landing/src/index.ts"],
+      "@org/dashboard": ["libs/dashboard/dashboard/src/index.ts"],
+      "@org/dashboard-data-access": ["libs/dashboard/data-access/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

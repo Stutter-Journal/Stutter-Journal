@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ErrorResponse } from '@org/util';
 import {
+  execute,
   ServerDoctorLoginRequest,
   ServerDoctorRegisterRequest,
   ServerDoctorResponse,
@@ -11,15 +11,16 @@ import {
 function isErrorResponse(value: unknown): value is ErrorResponse {
   return Boolean(
     value &&
-      typeof value === 'object' &&
-      'status' in value &&
-      'message' in value,
+    typeof value === 'object' &&
+    'status' in value &&
+    'message' in value,
   );
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = 'api';
 
   private readonly userSig = signal<ServerDoctorResponse | null>(null);
   private readonly loadingSig = signal(false);
@@ -37,36 +38,59 @@ export class AuthClientService {
   async login(
     payload: ServerDoctorLoginRequest,
   ): Promise<ServerDoctorResponse> {
-    const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/login', payload, {
-        withCredentials: true,
-      }),
+    const user = await execute(
+      () =>
+        this.http.post<ServerDoctorResponse>(
+          `${this.base}/doctor/login`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
-    this.userSig.set(user);
-    return user;
+    const doctor = this.unwrapDoctor(user);
+    this.userSig.set(doctor);
+    return doctor;
   }
 
   async register(
     payload: ServerDoctorRegisterRequest,
   ): Promise<ServerDoctorResponse> {
-    const user = await this.execute(() =>
-      this.http.post<ServerDoctorResponse>('/doctor/register', payload, {
-        withCredentials: true,
-      }),
+    const user = await execute(
+      () =>
+        this.http.post<ServerDoctorResponse>(
+          `${this.base}/doctor/register`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
-    this.userSig.set(user);
-    return user;
+
+    const doctor = this.unwrapDoctor(user);
+
+    this.userSig.set(doctor);
+
+    return doctor;
   }
 
   async me(): Promise<ServerDoctorResponse | null> {
     try {
-      const user = await this.execute(() =>
-        this.http.get<ServerDoctorResponse>('/doctor/me', {
-          withCredentials: true,
-        }),
+      const user = await execute(
+        () =>
+          this.http.get<ServerDoctorResponse>(`${this.base}/doctor/me`, {
+            withCredentials: true,
+          }),
+        this.loadingSig,
+        this.errorSig,
       );
-      this.userSig.set(user);
-      return user;
+      const doctor = this.unwrapDoctor(user);
+      this.userSig.set(doctor);
+      return doctor;
     } catch (err) {
       if (isErrorResponse(err) && err.status === 401) {
         this.userSig.set(null);
@@ -77,23 +101,32 @@ export class AuthClientService {
   }
 
   async logout(): Promise<void> {
-    await this.execute(() =>
-      this.http.post<void>('/doctor/logout', {}, { withCredentials: true }),
+    await execute(
+      () =>
+        this.http.post<void>(
+          `${this.base}/doctor/logout`,
+          {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
+
     this.userSig.set(null);
   }
 
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
+  // TODO: Refactor this
+  private unwrapDoctor(payload: unknown): ServerDoctorResponse {
+    const anyPayload = payload as any;
+
+    // Common response envelopes we see:
+    // - { data: { doctor: {...} } }
+    // - { data: {...doctor fields...} }
+    // - { doctor: {...} }
+    // - { ...doctor fields }
+    if (anyPayload?.data?.doctor) return anyPayload.data.doctor;
+    if (anyPayload?.doctor) return anyPayload.doctor;
+    if (anyPayload?.data) return anyPayload.data;
+    return anyPayload as ServerDoctorResponse;
   }
 }

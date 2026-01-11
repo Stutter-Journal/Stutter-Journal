@@ -1,0 +1,54 @@
+<div class="min-h-dvh bg-transparent text-foreground">
+  <div
+    class="mx-auto flex min-h-dvh max-w-6xl items-center justify-center px-4 py-10"
+  >
+    <section
+      class="w-full max-w-4xl overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm"
+    >
+      <div class="grid md:grid-cols-2">
+        <!-- LEFT PANEL -->
+        <aside class="relative hidden md:flex flex-col bg-muted/30">
+          <img
+            alt="Product preview"
+            class="h-full w-full object-cover"
+            fill
+            ngSrc="/assets/auth-panel.png"
+            priority
+          />
+
+          <div class="pointer-events-none absolute inset-0 bg-black/30"></div>
+
+          <div class="absolute inset-0 flex flex-col text-white">
+            <div class="flex items-center gap-3 p-8">
+              <div
+                class="grid size-8 place-items-center rounded-md border border-white/30 bg-white/10"
+              >
+                <span class="text-sm font-semibold">⌘</span>
+              </div>
+              <div class="text-sm font-semibold font-stretch-150%">
+                Eloquia Portal
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT PANEL -->
+        <main class="bg-background">
+          <div class="flex h-full items-center justify-center px-6 py-14">
+            <div class="w-full max-w-sm">
+              @switch (state()) { @case ('checking') {
+              <div class="text-center text-sm text-muted-foreground">
+                Checking session…
+              </div>
+              } @case ('auth') {
+              <lib-feat-cascade (authed)="recomputeState()" />
+              } @case ('onboarding') {
+              <lib-feat-practice-setup (completed)="onBoardingCompleted()" />
+              } }
+            </div>
+          </div>
+        </main>
+      </div>
+    </section>
+  </div>
+</div>

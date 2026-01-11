@@ -70,20 +70,6 @@ func (_c *PracticeCreate) SetNillableAddress(v *string) *PracticeCreate {
 	return _c
 }
 
-// SetLogoURL sets the "logo_url" field.
-func (_c *PracticeCreate) SetLogoURL(v string) *PracticeCreate {
-	_c.mutation.SetLogoURL(v)
-	return _c
-}
-
-// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
-func (_c *PracticeCreate) SetNillableLogoURL(v *string) *PracticeCreate {
-	if v != nil {
-		_c.SetLogoURL(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *PracticeCreate) SetID(v uuid.UUID) *PracticeCreate {
 	_c.mutation.SetID(v)
@@ -228,10 +214,6 @@ func (_c *PracticeCreate) createSpec() (*Practice, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Address(); ok {
 		_spec.SetField(practice.FieldAddress, field.TypeString, value)
 		_node.Address = &value
-	}
-	if value, ok := _c.mutation.LogoURL(); ok {
-		_spec.SetField(practice.FieldLogoURL, field.TypeString, value)
-		_node.LogoURL = &value
 	}
 	if nodes := _c.mutation.DoctorsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -70,26 +70,6 @@ func (_u *PracticeUpdate) ClearAddress() *PracticeUpdate {
 	return _u
 }
 
-// SetLogoURL sets the "logo_url" field.
-func (_u *PracticeUpdate) SetLogoURL(v string) *PracticeUpdate {
-	_u.mutation.SetLogoURL(v)
-	return _u
-}
-
-// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
-func (_u *PracticeUpdate) SetNillableLogoURL(v *string) *PracticeUpdate {
-	if v != nil {
-		_u.SetLogoURL(*v)
-	}
-	return _u
-}
-
-// ClearLogoURL clears the value of the "logo_url" field.
-func (_u *PracticeUpdate) ClearLogoURL() *PracticeUpdate {
-	_u.mutation.ClearLogoURL()
-	return _u
-}
-
 // AddDoctorIDs adds the "doctors" edge to the Doctor entity by IDs.
 func (_u *PracticeUpdate) AddDoctorIDs(ids ...uuid.UUID) *PracticeUpdate {
 	_u.mutation.AddDoctorIDs(ids...)
@@ -201,12 +181,6 @@ func (_u *PracticeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.AddressCleared() {
 		_spec.ClearField(practice.FieldAddress, field.TypeString)
 	}
-	if value, ok := _u.mutation.LogoURL(); ok {
-		_spec.SetField(practice.FieldLogoURL, field.TypeString, value)
-	}
-	if _u.mutation.LogoURLCleared() {
-		_spec.ClearField(practice.FieldLogoURL, field.TypeString)
-	}
 	if _u.mutation.DoctorsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -309,26 +283,6 @@ func (_u *PracticeUpdateOne) SetNillableAddress(v *string) *PracticeUpdateOne {
 // ClearAddress clears the value of the "address" field.
 func (_u *PracticeUpdateOne) ClearAddress() *PracticeUpdateOne {
 	_u.mutation.ClearAddress()
-	return _u
-}
-
-// SetLogoURL sets the "logo_url" field.
-func (_u *PracticeUpdateOne) SetLogoURL(v string) *PracticeUpdateOne {
-	_u.mutation.SetLogoURL(v)
-	return _u
-}
-
-// SetNillableLogoURL sets the "logo_url" field if the given value is not nil.
-func (_u *PracticeUpdateOne) SetNillableLogoURL(v *string) *PracticeUpdateOne {
-	if v != nil {
-		_u.SetLogoURL(*v)
-	}
-	return _u
-}
-
-// ClearLogoURL clears the value of the "logo_url" field.
-func (_u *PracticeUpdateOne) ClearLogoURL() *PracticeUpdateOne {
-	_u.mutation.ClearLogoURL()
 	return _u
 }
 
@@ -472,12 +426,6 @@ func (_u *PracticeUpdateOne) sqlSave(ctx context.Context) (_node *Practice, err 
 	}
 	if _u.mutation.AddressCleared() {
 		_spec.ClearField(practice.FieldAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.LogoURL(); ok {
-		_spec.SetField(practice.FieldLogoURL, field.TypeString, value)
-	}
-	if _u.mutation.LogoURLCleared() {
-		_spec.ClearField(practice.FieldLogoURL, field.TypeString)
 	}
 	if _u.mutation.DoctorsCleared() {
 		edge := &sqlgraph.EdgeSpec{

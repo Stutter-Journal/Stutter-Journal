@@ -13,6 +13,10 @@ export const serverStatusResponseSchema = z.object({
   status: z.string().optional(),
 });
 
+export const serverDoctorMeResponseSchema = z.object({
+  doctor: serverDoctorResponseSchema.optional(),
+});
+
 // Patients
 export const serverPatientSchema = z.object({
   id: z.string().optional(),

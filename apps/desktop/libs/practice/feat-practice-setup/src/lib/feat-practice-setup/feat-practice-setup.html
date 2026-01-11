@@ -1,1 +1,51 @@
-<p>FeatPracticeSetup works!</p>
+<div class="space-y-6">
+  <div class="text-center">
+    <h1 class="text-2xl font-semibold tracking-tight">Set up your practice</h1>
+    <p class="mt-2 text-sm text-muted-foreground">
+      This helps your patients and staff find the right place.
+    </p>
+  </div>
+
+  <form (ngSubmit)="submit()" [formGroup]="form" class="space-y-4">
+    <hlm-form-field>
+      <input
+        aria-label="Practice name"
+        class="w-full"
+        formControlName="name"
+        hlmInput
+        placeholder="Practice name (e.g. Praxis Müller)"
+      />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+      <hlm-error> Practice name is required.</hlm-error>
+      }
+    </hlm-form-field>
+
+    <hlm-form-field>
+      <input
+        aria-label="Address"
+        class="w-full"
+        formControlName="address"
+        hlmInput
+        placeholder="Address (street, number, city)"
+      />
+      <hlm-hint>You can refine this later.</hlm-hint>
+      @if (form.controls.address.touched && form.controls.address.invalid) {
+      <hlm-error> Address is required.</hlm-error>
+
+      }
+    </hlm-form-field>
+
+    <button
+      [disabled]="form.invalid || submitting"
+      class="w-full"
+      hlmBtn
+      type="submit"
+    >
+      {{ submitting ? 'Saving…' : 'Continue' }}
+    </button>
+
+    <p class="text-center text-xs text-muted-foreground">
+      You can update these details in settings later.
+    </p>
+  </form>
+</div>

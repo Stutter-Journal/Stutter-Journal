@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { HlmToaster } from '@spartan-ng/helm/sonner';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [RouterModule, HlmToaster],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

@@ -3,4 +3,4 @@ package at.isg.eloquia.core.network.ktor
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 
-internal actual fun defaultHttpClientEngine(): HttpClientEngine = CIO.create()
+internal actual fun defaultHttpClientEngine(enableLogging: Boolean): HttpClientEngine = CIO.create()

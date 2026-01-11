@@ -26,7 +26,7 @@ import kotlinx.serialization.encoding.*
  * @param intensity 0..10
  * @param name 
  */
-@Serializable@Serializable
+@Serializable
 
 data class SchemaEmotion (
 

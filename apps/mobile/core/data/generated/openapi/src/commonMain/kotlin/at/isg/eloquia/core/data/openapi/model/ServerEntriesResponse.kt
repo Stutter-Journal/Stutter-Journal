@@ -26,7 +26,7 @@ import kotlinx.serialization.encoding.*
  *
  * @param propertyEntries 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerEntriesResponse (
 

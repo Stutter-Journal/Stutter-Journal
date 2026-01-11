@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.*
  * @param practiceId 
  * @param role 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerDoctorResponse (
 

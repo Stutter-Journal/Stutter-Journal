@@ -27,7 +27,7 @@ import kotlinx.serialization.encoding.*
  * @param count 
  * @param date 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServertrendPoint (
 

@@ -14,6 +14,8 @@ plugins {
 //  unacceptable - oh wait, I wrote this crap
 dependencies {
     commonMainImplementation(project(":core:domain"))
+    commonMainImplementation(project(":core:network:api"))
+    commonMainImplementation(project(":core:network:ktor"))
     androidMainImplementation(libs.koin.android)
 }
 
@@ -94,9 +96,33 @@ tasks.register<GenerateTask>("generateOpenApiModels") {
     )
 }
 
+val sanitizeOpenApiModels = tasks.register("sanitizeOpenApiModels") {
+    group = "openapi"
+    description = "Cleans up OpenAPI generator output to keep compilation stable (e.g. duplicate @Serializable)."
+    dependsOn("generateOpenApiModels")
+
+    doLast {
+        fileTree(openApiOutDir.asFile).matching { include("**/*.kt") }.forEach { file ->
+            val original = file.readText()
+            val sanitized = original
+                .replace("@Serializable@Serializable", "@Serializable")
+                .replace("@Serializable @Serializable", "@Serializable")
+
+            if (sanitized != original) {
+                file.writeText(sanitized)
+            }
+        }
+    }
+}
+
 // Ensure generated sources exist when compiling core:data (clean builds).
 tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
-    dependsOn("generateOpenApiModels")
+    dependsOn(sanitizeOpenApiModels)
+}
+
+// KSP tasks also compile against source sets and need the generated sources present.
+tasks.matching { it.name.startsWith("ksp") }.configureEach {
+    dependsOn(sanitizeOpenApiModels)
 }
 
 extensions.configure<KotlinMultiplatformExtension> {

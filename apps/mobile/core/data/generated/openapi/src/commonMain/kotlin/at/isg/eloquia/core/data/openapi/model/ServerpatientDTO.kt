@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param id 
  * @param patientCode 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerpatientDTO (
 

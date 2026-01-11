@@ -27,7 +27,7 @@ import kotlinx.serialization.encoding.*
  * @param email 
  * @param password 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerDoctorRegisterRequest (
 

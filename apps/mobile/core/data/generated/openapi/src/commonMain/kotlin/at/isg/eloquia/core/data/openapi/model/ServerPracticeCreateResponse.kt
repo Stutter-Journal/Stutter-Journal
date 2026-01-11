@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param doctor 
  * @param practice 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerPracticeCreateResponse (
 

@@ -8,6 +8,8 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
@@ -46,6 +48,10 @@ internal fun buildHttpClient(
                 isLenient = true
             },
         )
+    }
+
+    install(HttpCookies) {
+        storage = AcceptAllCookiesStorage()
     }
 
     install(HttpTimeout) {

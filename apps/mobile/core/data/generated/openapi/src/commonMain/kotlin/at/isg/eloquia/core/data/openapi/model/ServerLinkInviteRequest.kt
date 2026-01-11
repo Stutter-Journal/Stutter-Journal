@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param patientEmail 
  * @param patientId 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerLinkInviteRequest (
 

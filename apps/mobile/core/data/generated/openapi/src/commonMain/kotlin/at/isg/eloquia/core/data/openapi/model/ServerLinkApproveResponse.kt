@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param link 
  * @param patient 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerLinkApproveResponse (
 

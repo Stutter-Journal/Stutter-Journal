@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.*
  * @param rangeDays 
  * @param trend 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerAnalyticsResponse (
 

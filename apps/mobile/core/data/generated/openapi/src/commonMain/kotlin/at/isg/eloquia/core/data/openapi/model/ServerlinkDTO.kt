@@ -30,7 +30,7 @@ import kotlinx.serialization.encoding.*
  * @param requestedAt 
  * @param status 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerlinkDTO (
 

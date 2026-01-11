@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param logoUrl 
  * @param name 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerPracticeResponse (
 

@@ -28,7 +28,7 @@ import kotlinx.serialization.encoding.*
  * @param patients 
  * @param pendingLinks 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerPatientsResponse (
 

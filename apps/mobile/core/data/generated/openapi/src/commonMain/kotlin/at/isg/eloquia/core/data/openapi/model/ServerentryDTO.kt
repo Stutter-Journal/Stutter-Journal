@@ -37,7 +37,7 @@ import kotlinx.serialization.encoding.*
  * @param triggers 
  * @param updatedAt 
  */
-@Serializable@Serializable
+@Serializable
 
 data class ServerentryDTO (
 

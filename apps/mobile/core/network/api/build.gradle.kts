@@ -1,4 +1,3 @@
 plugins {
-    alias(libs.plugins.eloquia.kmp.library)
-    alias(libs.plugins.eloquia.kmp.room)
+    alias(libs.plugins.eloquia.kmp.networking.api)
 }

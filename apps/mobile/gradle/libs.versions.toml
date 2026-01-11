@@ -156,7 +156,7 @@ compose-ui = [
 
 ktor-common = [
     "ktor-client-core",
-    "ktor-client-content-negotiation",
+    "ktor-client-contentneg",
     "ktor-serialization-kotlinx-json"
 ]
 
@@ -202,6 +202,8 @@ eloquia-kmp-compose = { id = "eloquia.kmp.compose" }
 eloquia-android-compose = { id = "eloquia.android.compose" }
 eloquia-ios-framework = { id = "eloquia.ios.framework" }
 eloquia-kmp-networking = { id = "eloquia.kmp.networking" }
+eloquia-kmp-networking-api = { id = "eloquia.kmp.networking.api" }
+eloquia-kmp-networking-ktor = { id = "eloquia.kmp.networking.ktor" }
 eloquia-kmp-di = { id = "eloquia.kmp.di" }
 eloquia-kmp-room = { id = "eloquia.kmp.room" }
 eloquia-kmp-library-no-desktop = { id = "eloquia.kmp.library.no-desktop" }

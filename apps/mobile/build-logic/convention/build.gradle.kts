@@ -78,6 +78,16 @@ gradlePlugin {
             implementationClass = "KmpNetworkingConventionPlugin"
         }
 
+        register("kmpNetworkingApi") {
+            id = "eloquia.kmp.networking.api"
+            implementationClass = "KmpNetworkingApiConventionPlugin"
+        }
+
+        register("kmpNetworkingKtor") {
+            id = "eloquia.kmp.networking.ktor"
+            implementationClass = "KmpNetworkingKtorConventionPlugin"
+        }
+
         register("kmpDependencyInjection") {
             id = "eloquia.kmp.di"
             implementationClass = "KmpDependencyInjectionConventionPlugin"

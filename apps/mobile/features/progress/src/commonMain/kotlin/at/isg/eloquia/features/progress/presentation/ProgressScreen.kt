@@ -1026,7 +1026,10 @@ private fun ComparisonBarItem(
                 )
             }
             Text(
-                text = String.format("%.1f", averageIntensity),
+                text = run {
+                    val rounded = kotlin.math.round(averageIntensity * 10) / 10
+                    rounded.toString()
+                },
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = color,

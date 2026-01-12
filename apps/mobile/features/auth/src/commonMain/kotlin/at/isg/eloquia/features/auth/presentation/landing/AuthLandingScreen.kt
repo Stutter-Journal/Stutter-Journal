@@ -175,6 +175,11 @@ private fun AuthLandingCardContent(
                     OutlinedTextField(
                         value = form.displayName,
                         onValueChange = onDisplayNameChange,
+                        isError = state.displayNameError != null,
+                        supportingText = {
+                            val text = state.displayNameError ?: "This will be shown in the app."
+                            Text(text)
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Display name") },
                         singleLine = true,
@@ -185,6 +190,11 @@ private fun AuthLandingCardContent(
                 OutlinedTextField(
                     value = form.email,
                     onValueChange = onEmailChange,
+                    isError = state.emailError != null,
+                    supportingText = {
+                        val text = state.emailError ?: "Use the email you registered with."
+                        Text(text)
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email") },
                     singleLine = true,
@@ -194,6 +204,12 @@ private fun AuthLandingCardContent(
                 OutlinedTextField(
                     value = form.password,
                     onValueChange = onPasswordChange,
+                    isError = state.passwordError != null,
+                    supportingText = {
+                        val hint = if (form.mode == AuthMode.Register) "At least 8 characters." else "Enter your password."
+                        val text = state.passwordError ?: hint
+                        Text(text)
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
                     singleLine = true,

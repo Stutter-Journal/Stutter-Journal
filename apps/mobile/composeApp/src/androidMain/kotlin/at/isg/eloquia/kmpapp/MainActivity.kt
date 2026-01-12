@@ -16,8 +16,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        AppLog.i("MainActivity", "onCreate")
-
         setContent {
             EloquiaTheme {
                 // TODO: Remove when https://issuetracker.google.com/issues/364713509 is fixed

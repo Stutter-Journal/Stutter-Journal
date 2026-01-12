@@ -55,6 +55,9 @@ konsist = "0.17.3"
 #region Code Quality
 spotless = "8.1.0"
 
+#region Permissions
+moko-permissions = "0.25.2"
+
 #region OpenAPI
 openapi-generator = "7.18.0"
 
@@ -161,6 +164,22 @@ spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plug
 
 #region OpenAPI
 openapi-generator-gradlePlugin = { group = "org.openapitools", name = "openapi-generator-gradle-plugin", version.ref = "openapi-generator" }
+
+#region Permissions (moko)
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko-permissions" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko-permissions" }
+moko-permissions-test = { module = "dev.icerock.moko:permissions-test", version.ref = "moko-permissions" }
+
+# specific permissions support
+moko-permissions-bluetooth = { module = "dev.icerock.moko:permissions-bluetooth", version.ref = "moko-permissions" }
+moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko-permissions" }
+moko-permissions-contacts = { module = "dev.icerock.moko:permissions-contacts", version.ref = "moko-permissions" }
+moko-permissions-gallery = { module = "dev.icerock.moko:permissions-gallery", version.ref = "moko-permissions" }
+moko-permissions-location = { module = "dev.icerock.moko:permissions-location", version.ref = "moko-permissions" }
+moko-permissions-microphone = { module = "dev.icerock.moko:permissions-microphone", version.ref = "moko-permissions" }
+moko-permissions-motion = { module = "dev.icerock.moko:permissions-motion", version.ref = "moko-permissions" }
+moko-permissions-notifications = { module = "dev.icerock.moko:permissions-notifications", version.ref = "moko-permissions" }
+moko-permissions-storage = { module = "dev.icerock.moko:permissions-storage", version.ref = "moko-permissions" }
 
 #region Convention Plugin Dependencies
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }

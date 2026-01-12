@@ -4,9 +4,10 @@ import at.isg.eloquia.core.data.auth.mapper.toDomain
 import at.isg.eloquia.core.data.auth.mapper.toDomainPatient
 import at.isg.eloquia.core.data.auth.mapper.parseServerErrorMessage
 import at.isg.eloquia.core.data.auth.remote.AuthApi
-import at.isg.eloquia.core.data.auth.remote.PatientLoginRequest
-import at.isg.eloquia.core.data.auth.remote.PatientRegisterRequest
 import at.isg.eloquia.core.data.openapi.model.ServerLinkInviteRequest
+import at.isg.eloquia.core.data.openapi.model.ServerLinkResponse
+import at.isg.eloquia.core.data.openapi.model.ServerPatientLoginRequest
+import at.isg.eloquia.core.data.openapi.model.ServerPatientRegisterRequest
 import at.isg.eloquia.core.domain.auth.model.AuthError
 import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.LinkRequest
@@ -54,7 +55,7 @@ internal class AuthRepositoryImpl(
     override suspend fun patientRegister(email: String, displayName: String, password: String): AuthResult<Patient> {
         AppLog.i(TAG, "Patient register start email='${email.trim()}' displayNameLen=${displayName.trim().length}")
         val result = api.patientRegister(
-            PatientRegisterRequest(
+            ServerPatientRegisterRequest(
                 email = email,
                 displayName = displayName,
                 password = password,
@@ -81,7 +82,7 @@ internal class AuthRepositoryImpl(
     override suspend fun patientLogin(email: String, password: String): AuthResult<Patient> {
         AppLog.i(TAG, "Patient login start email='${email.trim()}'")
         val result = api.patientLogin(
-            PatientLoginRequest(
+            ServerPatientLoginRequest(
                 email = email,
                 password = password,
             ),
@@ -127,7 +128,7 @@ private inline fun ApiResult<at.isg.eloquia.core.data.openapi.model.ServerLinkRe
         }
     }
 
-private inline fun ApiResult<at.isg.eloquia.core.data.auth.remote.PatientAuthResponse>.toPatientResult(
+private inline fun ApiResult<ServerLinkResponse>.toPatientResult(
     mapHttp: (status: Int, body: String?) -> AuthError,
 ): AuthResult<Patient> =
     when (this) {

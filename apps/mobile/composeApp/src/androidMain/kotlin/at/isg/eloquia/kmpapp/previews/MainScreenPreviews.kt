@@ -11,7 +11,6 @@ fun PreviewMainScreenWithDrawer() {
     EloquiaTheme {
         MainScreen(
             showWelcomeSnackbar = true,
-            userName = "Sergio Alvarez",
             onLogout = {},
         )
     }

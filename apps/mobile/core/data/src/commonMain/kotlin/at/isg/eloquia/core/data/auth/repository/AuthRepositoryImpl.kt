@@ -111,7 +111,7 @@ internal class AuthRepositoryImpl(
 
         val mapped: AuthResult<Patient> = when (result) {
             is ApiResult.Ok -> {
-                val patient = result.value.toDomainPatient()
+                val patient = result.value.patient?.toDomainPatient()
                 if (patient == null) {
                     AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
                 } else {

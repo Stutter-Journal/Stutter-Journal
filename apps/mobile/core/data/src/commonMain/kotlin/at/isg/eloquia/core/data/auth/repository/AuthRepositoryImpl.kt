@@ -104,6 +104,41 @@ internal class AuthRepositoryImpl(
         }
         return mapped
     }
+
+    override suspend fun patientMe(): AuthResult<Patient> {
+        AppLog.i(TAG, "Patient me start")
+        val result = api.patientMe()
+
+        val mapped: AuthResult<Patient> = when (result) {
+            is ApiResult.Ok -> {
+                val patient = result.value.toDomainPatient()
+                if (patient == null) {
+                    AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
+                } else {
+                    AuthResult.Success(patient)
+                }
+            }
+
+            is ApiResult.Err -> {
+                val authError = when (val error = result.error) {
+                    is NetworkError.Http -> when (error.status) {
+                        401 -> AuthError.Validation(parseServerErrorMessage(error.body) ?: "Your session has expired")
+                        else -> AuthError.Network(NetworkError.Http(error.status, error.body))
+                    }
+
+                    else -> AuthError.Network(error)
+                }
+                AuthResult.Failure(authError)
+            }
+        }
+
+        when (mapped) {
+            is AuthResult.Success -> AppLog.i(TAG, "Patient me success patientId=${mapped.value.id}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Patient me failed")
+        }
+
+        return mapped
+    }
 }
 
 private inline fun ApiResult<at.isg.eloquia.core.data.openapi.model.ServerLinkResponse>.toLinkRequestResult(

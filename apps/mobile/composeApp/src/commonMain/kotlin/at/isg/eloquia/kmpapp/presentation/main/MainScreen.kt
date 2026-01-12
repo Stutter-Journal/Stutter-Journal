@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,13 +23,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import at.isg.eloquia.core.domain.auth.usecase.ClearSessionUseCase
 import at.isg.eloquia.core.theme.components.EloquiaSnackbarHost
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
 import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.compose.koinInject
 
 @Serializable
 object EntriesDestination
@@ -63,6 +67,9 @@ fun MainScreen(
     val navController = rememberNavController()
     var currentTab by remember { mutableStateOf(MainTab.Entries) }
 
+    val clearSession: ClearSessionUseCase = koinInject()
+    val scope = rememberCoroutineScope()
+
     val snackbarHostState = remember { SnackbarHostState() }
     var welcomeShown by rememberSaveable { mutableStateOf(false) }
 
@@ -89,7 +96,12 @@ fun MainScreen(
         selectedTab = currentTab,
         onSelectTab = ::selectTab,
         onAddConnection = { /* TODO */ },
-        onLogout = onLogout,
+        onLogout = {
+            scope.launch {
+                clearSession()
+                onLogout()
+            }
+        },
         snackbarHost = { EloquiaSnackbarHost(hostState = snackbarHostState) },
     ) { contentModifier ->
         NavHost(

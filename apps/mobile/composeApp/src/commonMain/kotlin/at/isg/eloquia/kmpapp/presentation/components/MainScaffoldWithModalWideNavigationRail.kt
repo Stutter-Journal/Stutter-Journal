@@ -32,12 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -88,26 +88,26 @@ fun MainScaffoldWithModalWideNavigationRail(
                         // Header icon button should have a tooltip.
                         TooltipBox(
                             positionProvider =
-                                TooltipDefaults.rememberTooltipPositionProvider(
-                                    TooltipAnchorPosition.Above,
-                                ),
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above,
+                            ),
                             tooltip = { PlainTooltip { Text(headerDescription) } },
                             state = rememberTooltipState(),
                         ) {
                             IconButton(
                                 modifier =
-                                    Modifier
-                                        .padding(start = 24.dp)
-                                        .semantics {
-                                            // The button must announce the expanded or collapsed state of the
-                                            // rail for accessibility.
-                                            stateDescription =
-                                                if (railState.currentValue == WideNavigationRailValue.Expanded) {
-                                                    "Expanded"
-                                                } else {
-                                                    "Collapsed"
-                                                }
-                                        },
+                                Modifier
+                                    .padding(start = 24.dp)
+                                    .semantics {
+                                        // The button must announce the expanded or collapsed state of the
+                                        // rail for accessibility.
+                                        stateDescription =
+                                            if (railState.currentValue == WideNavigationRailValue.Expanded) {
+                                                "Expanded"
+                                            } else {
+                                                "Collapsed"
+                                            }
+                                    },
                                 onClick = {
                                     scope.launch {
                                         if (railState.targetValue == WideNavigationRailValue.Expanded) {

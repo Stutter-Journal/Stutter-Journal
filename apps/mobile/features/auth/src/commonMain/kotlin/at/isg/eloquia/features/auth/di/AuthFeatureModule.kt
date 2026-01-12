@@ -12,6 +12,10 @@ val authFeatureModule: Module = module {
         AuthLandingViewModel(
             patientLogin = get(),
             patientRegister = get(),
+            patientMe = get(),
+            getRememberMeEnabled = get(),
+            setRememberMeEnabled = get(),
+            clearSession = get(),
         )
     }
     viewModelOf(::LinkRequestViewModel)

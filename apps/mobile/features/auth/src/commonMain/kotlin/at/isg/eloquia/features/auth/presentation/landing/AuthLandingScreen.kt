@@ -38,6 +38,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +54,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -69,17 +69,17 @@ fun AuthLandingScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(state) {
         if (state is AuthLandingState.Success) onAuthenticated()
     }
 
-    LaunchedEffect(state.errorMessage) {
-        val msg = state.errorMessage
+    LaunchedEffect(state.toastMessage) {
+        val msg = state.toastMessage
         if (!msg.isNullOrBlank()) {
-            // Show a snackbar each time an error happens
+            // Toast-style message
             snackbarHostState.showSnackbar(message = msg)
+            viewModel.consumeToast()
         }
     }
 
@@ -108,6 +108,7 @@ fun AuthLandingScreen(
                         onEmailChange = viewModel::updateEmail,
                         onPasswordChange = viewModel::updatePassword,
                         onDisplayNameChange = viewModel::updateDisplayName,
+                        onRememberMeChange = viewModel::updateRememberMe,
                         onSubmit = viewModel::submit,
                         onToggleMode = viewModel::toggleMode,
                     )
@@ -125,6 +126,7 @@ private fun AuthLandingCardContent(
     onDisplayNameChange: (String) -> Unit,
     onSubmit: () -> Unit,
     onToggleMode: () -> Unit,
+    onRememberMeChange: (Boolean) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     val form = state.form
@@ -217,6 +219,28 @@ private fun AuthLandingCardContent(
                     enabled = !isSubmitting,
                     visualTransformation = PasswordVisualTransformation(),
                 )
+
+                if (mode == AuthMode.SignIn) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = form.rememberMe,
+                                onCheckedChange = { checked -> onRememberMeChange(checked) },
+                                enabled = !isSubmitting,
+                            )
+                            Text(
+                                text = "Remember me",
+                                color = colors.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
             }
         }
 

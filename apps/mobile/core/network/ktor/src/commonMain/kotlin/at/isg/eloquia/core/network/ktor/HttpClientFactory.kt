@@ -12,6 +12,7 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
+import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -32,6 +33,7 @@ internal fun buildHttpClient(
     engine: HttpClientEngine,
     baseUrl: Url,
     tokenProvider: () -> String?,
+    cookiesStorage: CookiesStorage,
     enableLogging: Boolean,
 ): HttpClient = HttpClient(engine) {
     expectSuccess = false
@@ -68,7 +70,7 @@ internal fun buildHttpClient(
     }
 
     install(HttpCookies) {
-        storage = AcceptAllCookiesStorage()
+        storage = cookiesStorage
     }
 
     install(HttpTimeout) {
@@ -112,10 +114,12 @@ fun createHttpClient(
     baseUrl: String,
     tokenProvider: () -> String? = { null },
     enableLogging: Boolean = false,
+    cookiesStorage: CookiesStorage = AcceptAllCookiesStorage(),
     engine: HttpClientEngine = defaultHttpClientEngine(enableLogging),
 ): HttpClient = buildHttpClient(
     engine = engine,
     baseUrl = URLBuilder().takeFrom(baseUrl).build(),
     tokenProvider = tokenProvider,
+    cookiesStorage = cookiesStorage,
     enableLogging = enableLogging,
 )

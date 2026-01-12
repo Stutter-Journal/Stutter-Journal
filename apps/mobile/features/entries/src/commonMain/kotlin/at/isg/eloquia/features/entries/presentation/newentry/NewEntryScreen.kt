@@ -146,7 +146,10 @@ fun NewEntryScreenContent(
         state = datePickerState,
         onConfirm = {
             datePickerState.selectedDateMillis?.let { millis ->
-                callbacks.onDateChange(millis.toLocalDateInSystemZone())
+                val newDate = millis.toLocalDateInSystemZone()
+                callbacks.onDateChange(newDate)
+                // Update the date picker state to reflect the new date
+                datePickerState.selectedDateMillis = newDate.toEpochMillisAtStart()
             }
             showDatePicker = false
         },
@@ -205,7 +208,7 @@ private fun EntryFormList(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        item {
+        item(key = state.date) {
             SectionCard(title = "Date", icon = Icons.Outlined.CalendarMonth) {
                 FormRow(
                     title = state.dateDisplay,

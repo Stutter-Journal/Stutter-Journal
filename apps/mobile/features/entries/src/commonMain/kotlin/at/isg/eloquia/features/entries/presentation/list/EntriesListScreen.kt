@@ -420,10 +420,24 @@ private data class EntryDisplayDetails(
 private fun JournalEntry.toDisplayDetails(): EntryDisplayDetails {
     val description = content.ifBlank { title }.ifBlank { "No notes yet" }
     val intensity = tags.firstNotNullOfOrNull(::parseIntensityTag) ?: DEFAULT_INTENSITY
+    
+    // Extract the date from tags, or fall back to createdAt
+    val displayDate = tags
+        .firstNotNullOfOrNull { tag ->
+            if (tag.startsWith("date:", ignoreCase = true)) {
+                try {
+                    kotlinx.datetime.LocalDate.parse(tag.substringAfter(":").trim())
+                } catch (_: Exception) {
+                    null
+                }
+            } else null
+        }
+        ?.toString() ?: createdAt.date.toString()
+    
     return EntryDisplayDetails(
         title = title,
         description = description,
-        dateLabel = createdAt.date.toString(),
+        dateLabel = displayDate,
         timeLabel = createdAt.formatTimeLabel(),
         intensity = intensity,
     )

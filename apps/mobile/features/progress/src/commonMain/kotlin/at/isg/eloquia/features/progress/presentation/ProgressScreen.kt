@@ -816,98 +816,87 @@ private fun ComparisonModeContent(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        // Situations section
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
+        CategoryComparisonCard(
+            title = "Situations / Triggers",
+            categories = availableSituations,
+            selectedCategories = selectedSituations,
+            onToggleCategory = onToggleSituation,
+            emptyMessage = "No situations available in this time range",
+            selectMessage = "Select situations to compare:",
+            chartTitle = "Average Intensity by Situation",
+            chartData = comparisonData.situationData,
+            chartColor = MaterialTheme.colorScheme.error,
+        )
+
+        CategoryComparisonCard(
+            title = "Techniques / Methods",
+            categories = availableTechniques,
+            selectedCategories = selectedTechniques,
+            onToggleCategory = onToggleTechnique,
+            emptyMessage = "No techniques available in this time range",
+            selectMessage = "Select techniques to compare:",
+            chartTitle = "Average Intensity by Technique",
+            chartData = comparisonData.techniqueData,
+            chartColor = MaterialTheme.colorScheme.tertiary,
+        )
+    }
+}
+
+@Composable
+private fun CategoryComparisonCard(
+    title: String,
+    categories: List<String>,
+    selectedCategories: Set<String>,
+    onToggleCategory: (String) -> Unit,
+    emptyMessage: String,
+    selectMessage: String,
+    chartTitle: String,
+    chartData: List<at.isg.eloquia.features.progress.presentation.model.ComparisonDataPoint>,
+    chartColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            if (categories.isEmpty()) {
                 Text(
-                    text = "Situations / Triggers",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    text = emptyMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    text = selectMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                if (availableSituations.isEmpty()) {
-                    Text(
-                        text = "No situations available in this time range",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                } else {
-                    Text(
-                        text = "Select situations to compare:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-
-                    CategorySelectionGrid(
-                        categories = availableSituations,
-                        selectedCategories = selectedSituations,
-                        onToggleCategory = onToggleSituation,
-                    )
-
-                    if (selectedSituations.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ComparisonChart(
-                            title = "Average Intensity by Situation",
-                            data = comparisonData.situationData,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                }
-            }
-        }
-
-        // Techniques section
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    text = "Techniques / Methods",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                CategorySelectionGrid(
+                    categories = categories,
+                    selectedCategories = selectedCategories,
+                    onToggleCategory = onToggleCategory,
                 )
 
-                if (availableTechniques.isEmpty()) {
-                    Text(
-                        text = "No techniques available in this time range",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                if (selectedCategories.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ComparisonChart(
+                        title = chartTitle,
+                        data = chartData,
+                        color = chartColor,
                     )
-                } else {
-                    Text(
-                        text = "Select techniques to compare:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-
-                    CategorySelectionGrid(
-                        categories = availableTechniques,
-                        selectedCategories = selectedTechniques,
-                        onToggleCategory = onToggleTechnique,
-                    )
-
-                    if (selectedTechniques.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ComparisonChart(
-                            title = "Average Intensity by Technique",
-                            data = comparisonData.techniqueData,
-                            color = MaterialTheme.colorScheme.tertiary,
-                        )
-                    }
                 }
             }
         }

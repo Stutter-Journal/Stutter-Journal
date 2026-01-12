@@ -44,12 +44,11 @@ class ProgressViewModel(
     private val _selectedTechniques = MutableStateFlow<Set<String>>(emptySet())
     val selectedTechniques: StateFlow<Set<String>> = _selectedTechniques
 
-    val state: StateFlow<ProgressUiState> = combine(
+    // Separate derived flow for availability data (depends on entries & timeRange)
+    private val availabilityData: StateFlow<AvailabilityData> = combine(
         observeEntriesUseCase(),
         _timeRange,
-        _selectedSituations,
-        _selectedTechniques,
-    ) { entries, range, selectedSituations, selectedTechniques ->
+    ) { entries, range ->
         // Parse intensity and date from tags
         val dataPoints = entries.mapNotNull { entry ->
             val intensity = entry.tags
@@ -96,48 +95,69 @@ class ProgressViewModel(
             else -> null
         }
 
-        if (startDate == null) return@combine ProgressUiState.Empty
-
-        val endDate = when (range) {
-            TimeRange.MAX -> dailyAverages.lastOrNull()?.date ?: today
-            else -> today
-        }
-
-        // Create SelectedTimeRange (single source of truth)
-        val selectedTimeRange = SelectedTimeRange(startDate = startDate, endDate = endDate)
-
-        // Keep daily granularity; no aggregation
-        val filteredData = dailyAverages.filter { it.date in startDate..endDate }
-
-        // Always fill the full time window to keep a continuous time axis
-        val finalData = if (filteredData.isNotEmpty()) {
-            fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
-        } else emptyList()
-        
-        // Compute frequency data for the selected time range
-        val frequencyData = computeFrequencyData(entries, selectedTimeRange)
-        
-        // Compute comparison data
-        val comparisonData = computeComparisonData(entries, selectedTimeRange, selectedSituations, selectedTechniques)
-        
-        // Get available situations and techniques
-        val availableSituations = extractAvailableCategories(entries, "trigger:", selectedTimeRange)
-        val availableTechniques = extractAvailableCategories(entries, "method:", selectedTimeRange)
-        
-        // Return UI state
-        if (finalData.isEmpty()) {
-            ProgressUiState.Empty
+        if (startDate == null) {
+            AvailabilityData.Empty
         } else {
-            ProgressUiState.Success(
+            val endDate = when (range) {
+                TimeRange.MAX -> dailyAverages.lastOrNull()?.date ?: today
+                else -> today
+            }
+
+            val selectedTimeRange = SelectedTimeRange(startDate = startDate, endDate = endDate)
+            val filteredData = dailyAverages.filter { it.date in startDate..endDate }
+            val finalData = if (filteredData.isNotEmpty()) {
+                fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
+            } else emptyList()
+            
+            val frequencyData = computeFrequencyData(entries, selectedTimeRange)
+            val availableSituations = extractAvailableCategories(entries, "trigger:", selectedTimeRange)
+            val availableTechniques = extractAvailableCategories(entries, "method:", selectedTimeRange)
+
+            AvailabilityData.Success(
                 dataPoints = finalData,
                 selectedTimeRange = selectedTimeRange,
                 frequencyData = frequencyData,
-                comparisonData = comparisonData,
                 availableSituations = availableSituations,
                 availableTechniques = availableTechniques,
+                entries = entries,
             )
         }
     }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AvailabilityData.Empty,
+    )
+
+    // Derived flow for comparison data (depends on availabilityData & selections)
+    val state: StateFlow<ProgressUiState> = combine(
+        availabilityData,
+        _selectedSituations,
+        _selectedTechniques,
+    ) { availability, selectedSituations, selectedTechniques ->
+        if (availability !is AvailabilityData.Success) {
+            return@combine ProgressUiState.Empty
+        }
+
+        val comparisonData = computeComparisonData(
+            availability.entries,
+            availability.selectedTimeRange,
+            selectedSituations,
+            selectedTechniques
+        )
+
+        ProgressUiState.Success(
+            dataPoints = availability.dataPoints,
+            selectedTimeRange = availability.selectedTimeRange,
+            frequencyData = availability.frequencyData,
+            comparisonData = comparisonData,
+            availableSituations = availability.availableSituations,
+            availableTechniques = availability.availableTechniques,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ProgressUiState.Loading,
+    ).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = ProgressUiState.Loading,
@@ -409,4 +429,22 @@ class ProgressViewModel(
         )
     }
 
+}
+
+/**
+ * Internal sealed class to hold availability data that is computed based on
+ * entries and time range. This is used to avoid redundant recomputation when
+ * only the selection (situations/techniques) changes.
+ */
+private sealed class AvailabilityData {
+    object Empty : AvailabilityData()
+
+    data class Success(
+        val dataPoints: List<IntensityDataPoint>,
+        val selectedTimeRange: SelectedTimeRange,
+        val frequencyData: FrequencyData,
+        val availableSituations: List<String>,
+        val availableTechniques: List<String>,
+        val entries: List<JournalEntry>,
+    ) : AvailabilityData()
 }

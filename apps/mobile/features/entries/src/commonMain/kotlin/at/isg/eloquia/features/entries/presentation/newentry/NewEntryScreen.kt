@@ -115,9 +115,11 @@ fun NewEntryScreenContent(
     modifier: Modifier = Modifier,
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState =
-        rememberDatePickerState(initialSelectedDateMillis = state.date.toEpochMillisAtStart())
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = state.date.toEpochMillisAtStart()
+    )
 
+    // Ensure the date picker stays in sync with the current state
     LaunchedEffect(state.date) {
         datePickerState.selectedDateMillis = state.date.toEpochMillisAtStart()
     }
@@ -148,7 +150,11 @@ fun NewEntryScreenContent(
             }
             showDatePicker = false
         },
-        onDismiss = { showDatePicker = false },
+        onDismiss = { 
+            // Reset date picker to current state when dismissed
+            datePickerState.selectedDateMillis = state.date.toEpochMillisAtStart()
+            showDatePicker = false 
+        },
     )
 }
 

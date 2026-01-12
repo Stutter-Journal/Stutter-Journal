@@ -53,13 +53,16 @@ fun ModalCollapsibleRailScaffold(
     onAddConnection: () -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
-    topBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    Box(modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+    ) {
         // Base layout: collapsed rail + content (content never shifts)
         Row(Modifier.fillMaxSize()) {
             CollapsedRail(
@@ -70,12 +73,11 @@ fun ModalCollapsibleRailScaffold(
             )
 
             Scaffold(
-                topBar = topBar,
                 snackbarHost = snackbarHost,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = MaterialTheme.colorScheme.surface,
             ) { padding ->
                 content(
-                    Modifier.padding(padding).fillMaxSize()
+                    Modifier.fillMaxSize()
                 )
             }
         }

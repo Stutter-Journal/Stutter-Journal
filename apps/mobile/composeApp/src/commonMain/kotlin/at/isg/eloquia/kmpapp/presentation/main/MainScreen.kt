@@ -119,7 +119,6 @@ fun MainScreen(
         onSelectTab = ::selectTab,
         onAddConnection = { /* TODO */ },
         onLogout = onLogout,
-        topBar = { /* optional, or keep empty */ },
         snackbarHost = { EloquiaSnackbarHost(hostState = snackbarHostState) },
     ) { contentModifier ->
         NavHost(

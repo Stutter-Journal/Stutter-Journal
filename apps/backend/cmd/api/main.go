@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"backend/internal/database"
-	"backend/internal/server/docs"
 	"backend/internal/server"
+	"backend/internal/server/docs"
 
 	"github.com/charmbracelet/lipgloss"
 	log "github.com/charmbracelet/log"

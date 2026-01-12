@@ -16,18 +16,18 @@ import (
 )
 
 type entryDTO struct {
-	ID               string    `json:"id"`
-	PatientID        string    `json:"patientId"`
-	HappenedAt       time.Time `json:"happenedAt"`
-	Situation        *string   `json:"situation,omitempty"`
+	ID               string           `json:"id"`
+	PatientID        string           `json:"patientId"`
+	HappenedAt       time.Time        `json:"happenedAt"`
+	Situation        *string          `json:"situation,omitempty"`
 	Emotions         []schema.Emotion `json:"emotions,omitempty"`
 	Triggers         []string         `json:"triggers,omitempty"`
 	Techniques       []string         `json:"techniques,omitempty"`
-	StutterFrequency *int      `json:"stutterFrequency,omitempty"`
-	Notes            *string   `json:"notes,omitempty"`
-	Tags             []string  `json:"tags,omitempty"`
-	CreatedAt        time.Time `json:"createdAt"`
-	UpdatedAt        time.Time `json:"updatedAt"`
+	StutterFrequency *int             `json:"stutterFrequency,omitempty"`
+	Notes            *string          `json:"notes,omitempty"`
+	Tags             []string         `json:"tags,omitempty"`
+	CreatedAt        time.Time        `json:"createdAt"`
+	UpdatedAt        time.Time        `json:"updatedAt"`
 }
 
 type entriesResponse struct {

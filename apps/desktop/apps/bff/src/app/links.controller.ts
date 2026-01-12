@@ -71,4 +71,44 @@ export class LinksController {
       },
     });
   }
+
+  @Post('pairing-code')
+  async createPairingCode(@Req() req: Request, @Res() res: Response) {
+    return this.bff.forward({
+      req,
+      res,
+      path: '/links/pairing-code',
+      method: 'POST',
+      schema: schemas.serverPairingCodeCreateResponseSchema,
+      schemasByStatus: {
+        201: schemas.serverPairingCodeCreateResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        500: schemas.serverErrorResponseSchema,
+      },
+    });
+  }
+
+  @Post('pairing-code/redeem')
+  async redeemPairingCode(
+    @Body() body: unknown,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    return this.bff.forward({
+      req,
+      res,
+      path: '/links/pairing-code/redeem',
+      method: 'POST',
+      body,
+      schema: contractsZod.postLinksPairingCodeRedeemResponse,
+      schemasByStatus: {
+        200: contractsZod.postLinksPairingCodeRedeemResponse,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        404: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
+        500: schemas.serverErrorResponseSchema,
+      },
+    });
+  }
 }

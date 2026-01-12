@@ -8,20 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import QRCode from 'qrcode';
 
 import { LinksClientService } from '@org/links-data-access';
-import { createRequestFlow, LoggerService } from '@org/util';
-import {
-  ServerLinkResponse,
-  ServerPatientDTO,
-  ServerLinkInviteRequest,
-} from '@org/contracts';
+import { LoggerService } from '@org/util';
+import { ServerPairingCodeCreateResponse } from '@org/contracts';
 
 import { toast } from 'ngx-sonner';
 
@@ -42,8 +33,6 @@ import { HlmFormFieldImports } from '@spartan-ng/helm/form-field';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-
     // spartan bundles
     HlmButtonImports,
     HlmInputImports,
@@ -70,86 +59,95 @@ export class AddPatient {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
 
-  private readonly dialogRef =
-    inject<BrnDialogRef<ServerPatientDTO | undefined>>(BrnDialogRef);
+  private readonly dialogRef = inject<BrnDialogRef<void>>(BrnDialogRef);
 
-  readonly form = new FormGroup({
-    displayName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    patientEmail: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    patientCode: new FormControl('', { nonNullable: true }),
-  });
+  readonly loading = signal(false);
+  readonly pairing = signal<ServerPairingCodeCreateResponse | null>(null);
+  readonly qrDataUrl = signal<string | null>(null);
+  readonly expiresInSeconds = signal<number | null>(null);
 
-  readonly submitting = signal(false);
+  private intervalId: number | null = null;
 
-  private readonly inviteFlow = createRequestFlow<
-    ServerLinkInviteRequest,
-    ServerLinkResponse
-  >({
-    request: async (payload) => {
-      this.links.clearError();
-      return await this.links.invitePatient(payload);
-    },
-  });
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.intervalId != null) {
+        window.clearInterval(this.intervalId);
+      }
+    });
 
-  async submit(): Promise<void> {
-    if (this.form.invalid || this.submitting()) {
-      this.form.markAllAsTouched();
+    // Generate immediately on open.
+    void this.generate();
+  }
+
+  async generate(): Promise<void> {
+    if (this.loading()) return;
+
+    this.loading.set(true);
+    this.links.clearError();
+
+    try {
+      const resp = await this.links.createPairingCode();
+      this.pairing.set(resp);
+
+      const qrText = (resp.qrText ?? resp.code ?? '').trim();
+      this.qrDataUrl.set(
+        qrText
+          ? await QRCode.toDataURL(qrText, { width: 240, margin: 1 })
+          : null,
+      );
+
+      this.startCountdown(resp.expiresAt);
+      this.cdr.markForCheck();
+    } catch (e) {
+      this.log.error('Create pairing code failed', { error: e });
+      toast.error('Could not generate code', {
+        description: 'Please try again.',
+      });
+    } finally {
+      this.loading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  copyCode(): void {
+    const code = this.pairing()?.code?.trim();
+    if (!code) return;
+
+    void navigator.clipboard
+      .writeText(code)
+      .then(() => toast.success('Code copied'))
+      .catch(() => toast.error('Could not copy code'));
+  }
+
+  close(): void {
+    this.dialogRef.close();
+  }
+
+  private startCountdown(expiresAt?: string): void {
+    if (this.intervalId != null) {
+      window.clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+
+    const expiryMs = expiresAt ? new Date(expiresAt).getTime() : NaN;
+    if (!Number.isFinite(expiryMs)) {
+      this.expiresInSeconds.set(null);
       return;
     }
 
-    const raw = this.form.getRawValue();
-    const payload = {
-      displayName: raw.displayName.trim(),
-      patientEmail: raw.patientEmail.trim(),
-      patientCode: raw.patientCode.trim() || undefined,
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((expiryMs - Date.now()) / 1000));
+      this.expiresInSeconds.set(remaining);
+      this.cdr.markForCheck();
     };
 
-    this.inviteFlow.submit(payload);
-  }
+    update();
 
-  constructor() {
-    this.inviteFlow.start();
-
-    let prev = this.inviteFlow.getSnapshot();
-    const unsubscribe = this.inviteFlow.subscribe((curr) => {
-      // The flow emits outside Angular; re-enter the zone so OnPush views update.
-      this.zone.run(() => {
-        this.submitting.set(curr.state === 'submitting');
-
-        if (prev.state !== 'success' && curr.state === 'success') {
-          const response = curr.result;
-          const patient = response?.patient;
-
-          toast.success('Invitation sent', {
-            description: patient?.displayName
-              ? `${patient.displayName} can connect via email or code.`
-              : 'The patient can connect via email or code.',
-          });
-
-          this.dialogRef.close(patient);
-        }
-
-        if (prev.state !== 'failure' && curr.state === 'failure') {
-          toast.error('Could not add patient', {
-            description: curr.error ?? 'Please try again.',
-          });
-          this.log.error('Invite patient failed', { error: curr.error });
-        }
-
-        prev = curr;
-        this.cdr.markForCheck();
-      });
-    });
-
-    this.destroyRef.onDestroy(() => {
-      unsubscribe();
-      this.inviteFlow.stop();
+    // Run outside Angular but re-enter for updates.
+    this.zone.runOutsideAngular(() => {
+      this.intervalId = window.setInterval(() => {
+        this.zone.run(update);
+      }, 250);
     });
   }
 }

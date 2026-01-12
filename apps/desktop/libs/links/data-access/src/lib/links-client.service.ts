@@ -3,6 +3,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ErrorResponse } from '@org/util';
 import {
   execute,
+  ServerPairingCodeCreateResponse,
+  ServerPairingCodeRedeemRequest,
   ServerLinkApproveResponse,
   ServerLinkInviteRequest,
   ServerLinkInviteRequestBody,
@@ -64,6 +66,34 @@ export class LinksClientService {
         this.http.post<ServerLinkApproveResponse>(
           `${this.base}/links/${linkId}/approve`,
           {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
+    );
+  }
+
+  async createPairingCode(): Promise<ServerPairingCodeCreateResponse> {
+    return await execute(
+      () =>
+        this.http.post<ServerPairingCodeCreateResponse>(
+          `${this.base}/links/pairing-code`,
+          {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
+    );
+  }
+
+  async redeemPairingCode(
+    payload: ServerPairingCodeRedeemRequest,
+  ): Promise<ServerLinkResponse> {
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/pairing-code/redeem`,
+          payload,
           { withCredentials: true },
         ),
       this.loadingSig,

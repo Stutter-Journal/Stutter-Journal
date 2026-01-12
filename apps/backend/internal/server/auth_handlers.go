@@ -114,7 +114,7 @@ func (s *Server) doctorRegisterHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} ErrorResponse
 // @Router /doctor/login [post]
 func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
-    if !s.ensureAuthReady(w) {
+	if !s.ensureAuthReady(w) {
 		return
 	}
 
@@ -135,7 +135,7 @@ func (s *Server) doctorLoginHandler(w http.ResponseWriter, r *http.Request) {
 		Only(r.Context())
 	if err != nil {
 		if ent.IsNotFound(err) {
-    		log.Error("doctor not found")
+			log.Error("doctor not found")
 			s.writeError(w, http.StatusUnauthorized, "invalid email or password")
 			return
 		}

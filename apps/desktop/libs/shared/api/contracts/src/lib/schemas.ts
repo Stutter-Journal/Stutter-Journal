@@ -26,6 +26,12 @@ export const serverLinkResponseSchema = z.object({
     .optional(),
 });
 
+export const serverPairingCodeCreateResponseSchema = z.object({
+  code: z.string().optional(),
+  expiresAt: z.string().optional(),
+  qrText: z.string().optional(),
+});
+
 // Practice (still manual until added to OpenAPI)
 export const serverPracticeResponseSchema = z.object({
   id: z.string().optional(),

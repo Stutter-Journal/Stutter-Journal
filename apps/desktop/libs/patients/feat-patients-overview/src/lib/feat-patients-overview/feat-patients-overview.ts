@@ -153,37 +153,11 @@ export class FeatPatientsOverview {
       contentClass: 'sm:!max-w-lg',
     });
 
-    ref.closed$
-      .pipe(take(1))
-      .subscribe((patient?: ServerPatientDTO) =>
-        this.onPatientCreated(patient),
-      );
+    // Pairing-code flow: closing the dialog does not create a patient locally.
+    ref.closed$.pipe(take(1)).subscribe();
   }
 
-  onPatientCreated(patient: ServerPatientDTO | null | undefined) {
-    if (!patient) return;
-
-    const id =
-      patient.id ??
-      (typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? crypto.randomUUID()
-        : `patient_${Date.now()}`);
-
-    const fullName = patient.displayName?.trim() || 'New patient';
-
-    this._patients.update((current) => [
-      {
-        id,
-        fullName,
-        status: 'pending',
-        dob: undefined,
-        lastEntryAt: undefined,
-      },
-      ...current,
-    ]);
-
-    this.page.set(1);
-  }
+  // TODO: When patient redeems a pairing code, refresh patients from API.
 
   onQueryInput(value: string) {
     this.query.set(value);

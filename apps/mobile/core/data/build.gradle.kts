@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.eloquia.kmp.library.no.desktop)
     alias(libs.plugins.eloquia.kmp.room)
     alias(libs.plugins.eloquia.openapi.models)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 dependencies {

@@ -84,6 +84,20 @@ definitions:
       patient:
         $ref: '#/definitions/server.patientDTO'
     type: object
+  server.PairingCodeCreateResponse:
+    properties:
+      code:
+        type: string
+      expiresAt:
+        type: string
+      qrText:
+        type: string
+    type: object
+  server.PairingCodeRedeemRequest:
+    properties:
+      code:
+        type: string
+    type: object
   server.PatientLoginRequest:
     properties:
       email:
@@ -413,6 +427,71 @@ paths:
       security:
       - SessionCookie: []
       summary: Invite a patient to link with the doctor
+      tags:
+      - Links
+  /links/pairing-code:
+    post:
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.PairingCodeCreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Create a short-lived patient pairing code
+      tags:
+      - Links
+  /links/pairing-code/redeem:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Redeem payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PairingCodeRedeemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.LinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Redeem a patient pairing code
       tags:
       - Links
   /links/request:

@@ -24,6 +24,8 @@ type Tx struct {
 	Entry *EntryClient
 	// EntryShare is the client for interacting with the EntryShare builders.
 	EntryShare *EntryShareClient
+	// PairingCode is the client for interacting with the PairingCode builders.
+	PairingCode *PairingCodeClient
 	// Patient is the client for interacting with the Patient builders.
 	Patient *PatientClient
 	// Practice is the client for interacting with the Practice builders.
@@ -165,6 +167,7 @@ func (tx *Tx) init() {
 	tx.DoctorPatientLink = NewDoctorPatientLinkClient(tx.config)
 	tx.Entry = NewEntryClient(tx.config)
 	tx.EntryShare = NewEntryShareClient(tx.config)
+	tx.PairingCode = NewPairingCodeClient(tx.config)
 	tx.Patient = NewPatientClient(tx.config)
 	tx.Practice = NewPracticeClient(tx.config)
 }

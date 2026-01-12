@@ -8,6 +8,7 @@ import (
 	"backend/ent/doctor"
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/practice"
 	"backend/ent/predicate"
 	"context"
@@ -136,6 +137,21 @@ func (_u *DoctorUpdate) AddPatientLinks(v ...*DoctorPatientLink) *DoctorUpdate {
 	return _u.AddPatientLinkIDs(ids...)
 }
 
+// AddPairingCodeIDs adds the "pairing_codes" edge to the PairingCode entity by IDs.
+func (_u *DoctorUpdate) AddPairingCodeIDs(ids ...uuid.UUID) *DoctorUpdate {
+	_u.mutation.AddPairingCodeIDs(ids...)
+	return _u
+}
+
+// AddPairingCodes adds the "pairing_codes" edges to the PairingCode entity.
+func (_u *DoctorUpdate) AddPairingCodes(v ...*PairingCode) *DoctorUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPairingCodeIDs(ids...)
+}
+
 // AddApprovedPatientLinkIDs adds the "approved_patient_links" edge to the DoctorPatientLink entity by IDs.
 func (_u *DoctorUpdate) AddApprovedPatientLinkIDs(ids ...uuid.UUID) *DoctorUpdate {
 	_u.mutation.AddApprovedPatientLinkIDs(ids...)
@@ -226,6 +242,27 @@ func (_u *DoctorUpdate) RemovePatientLinks(v ...*DoctorPatientLink) *DoctorUpdat
 		ids[i] = v[i].ID
 	}
 	return _u.RemovePatientLinkIDs(ids...)
+}
+
+// ClearPairingCodes clears all "pairing_codes" edges to the PairingCode entity.
+func (_u *DoctorUpdate) ClearPairingCodes() *DoctorUpdate {
+	_u.mutation.ClearPairingCodes()
+	return _u
+}
+
+// RemovePairingCodeIDs removes the "pairing_codes" edge to PairingCode entities by IDs.
+func (_u *DoctorUpdate) RemovePairingCodeIDs(ids ...uuid.UUID) *DoctorUpdate {
+	_u.mutation.RemovePairingCodeIDs(ids...)
+	return _u
+}
+
+// RemovePairingCodes removes "pairing_codes" edges to PairingCode entities.
+func (_u *DoctorUpdate) RemovePairingCodes(v ...*PairingCode) *DoctorUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePairingCodeIDs(ids...)
 }
 
 // ClearApprovedPatientLinks clears all "approved_patient_links" edges to the DoctorPatientLink entity.
@@ -467,6 +504,51 @@ func (_u *DoctorUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPairingCodesIDs(); len(nodes) > 0 && !_u.mutation.PairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -776,6 +858,21 @@ func (_u *DoctorUpdateOne) AddPatientLinks(v ...*DoctorPatientLink) *DoctorUpdat
 	return _u.AddPatientLinkIDs(ids...)
 }
 
+// AddPairingCodeIDs adds the "pairing_codes" edge to the PairingCode entity by IDs.
+func (_u *DoctorUpdateOne) AddPairingCodeIDs(ids ...uuid.UUID) *DoctorUpdateOne {
+	_u.mutation.AddPairingCodeIDs(ids...)
+	return _u
+}
+
+// AddPairingCodes adds the "pairing_codes" edges to the PairingCode entity.
+func (_u *DoctorUpdateOne) AddPairingCodes(v ...*PairingCode) *DoctorUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPairingCodeIDs(ids...)
+}
+
 // AddApprovedPatientLinkIDs adds the "approved_patient_links" edge to the DoctorPatientLink entity by IDs.
 func (_u *DoctorUpdateOne) AddApprovedPatientLinkIDs(ids ...uuid.UUID) *DoctorUpdateOne {
 	_u.mutation.AddApprovedPatientLinkIDs(ids...)
@@ -866,6 +963,27 @@ func (_u *DoctorUpdateOne) RemovePatientLinks(v ...*DoctorPatientLink) *DoctorUp
 		ids[i] = v[i].ID
 	}
 	return _u.RemovePatientLinkIDs(ids...)
+}
+
+// ClearPairingCodes clears all "pairing_codes" edges to the PairingCode entity.
+func (_u *DoctorUpdateOne) ClearPairingCodes() *DoctorUpdateOne {
+	_u.mutation.ClearPairingCodes()
+	return _u
+}
+
+// RemovePairingCodeIDs removes the "pairing_codes" edge to PairingCode entities by IDs.
+func (_u *DoctorUpdateOne) RemovePairingCodeIDs(ids ...uuid.UUID) *DoctorUpdateOne {
+	_u.mutation.RemovePairingCodeIDs(ids...)
+	return _u
+}
+
+// RemovePairingCodes removes "pairing_codes" edges to PairingCode entities.
+func (_u *DoctorUpdateOne) RemovePairingCodes(v ...*PairingCode) *DoctorUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePairingCodeIDs(ids...)
 }
 
 // ClearApprovedPatientLinks clears all "approved_patient_links" edges to the DoctorPatientLink entity.
@@ -1137,6 +1255,51 @@ func (_u *DoctorUpdateOne) sqlSave(ctx context.Context) (_node *Doctor, err erro
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPairingCodesIDs(); len(nodes) > 0 && !_u.mutation.PairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   doctor.PairingCodesTable,
+			Columns: []string{doctor.PairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

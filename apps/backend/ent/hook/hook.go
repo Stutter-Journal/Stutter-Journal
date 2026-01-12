@@ -80,6 +80,18 @@ func (f EntryShareFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EntryShareMutation", m)
 }
 
+// The PairingCodeFunc type is an adapter to allow the use of ordinary
+// function as PairingCode mutator.
+type PairingCodeFunc func(context.Context, *ent.PairingCodeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PairingCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PairingCodeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PairingCodeMutation", m)
+}
+
 // The PatientFunc type is an adapter to allow the use of ordinary
 // function as Patient mutator.
 type PatientFunc func(context.Context, *ent.PatientMutation) (ent.Value, error)

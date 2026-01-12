@@ -8,6 +8,7 @@ import (
 	"backend/ent/doctor"
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/practice"
 	"backend/ent/predicate"
 	"context"
@@ -31,6 +32,7 @@ type DoctorQuery struct {
 	predicates               []predicate.Doctor
 	withPractice             *PracticeQuery
 	withPatientLinks         *DoctorPatientLinkQuery
+	withPairingCodes         *PairingCodeQuery
 	withApprovedPatientLinks *DoctorPatientLinkQuery
 	withEntryShares          *EntryShareQuery
 	withComments             *CommentQuery
@@ -108,6 +110,28 @@ func (_q *DoctorQuery) QueryPatientLinks() *DoctorPatientLinkQuery {
 			sqlgraph.From(doctor.Table, doctor.FieldID, selector),
 			sqlgraph.To(doctorpatientlink.Table, doctorpatientlink.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, doctor.PatientLinksTable, doctor.PatientLinksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPairingCodes chains the current query on the "pairing_codes" edge.
+func (_q *DoctorQuery) QueryPairingCodes() *PairingCodeQuery {
+	query := (&PairingCodeClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(doctor.Table, doctor.FieldID, selector),
+			sqlgraph.To(pairingcode.Table, pairingcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, doctor.PairingCodesTable, doctor.PairingCodesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -397,6 +421,7 @@ func (_q *DoctorQuery) Clone() *DoctorQuery {
 		predicates:               append([]predicate.Doctor{}, _q.predicates...),
 		withPractice:             _q.withPractice.Clone(),
 		withPatientLinks:         _q.withPatientLinks.Clone(),
+		withPairingCodes:         _q.withPairingCodes.Clone(),
 		withApprovedPatientLinks: _q.withApprovedPatientLinks.Clone(),
 		withEntryShares:          _q.withEntryShares.Clone(),
 		withComments:             _q.withComments.Clone(),
@@ -426,6 +451,17 @@ func (_q *DoctorQuery) WithPatientLinks(opts ...func(*DoctorPatientLinkQuery)) *
 		opt(query)
 	}
 	_q.withPatientLinks = query
+	return _q
+}
+
+// WithPairingCodes tells the query-builder to eager-load the nodes that are connected to
+// the "pairing_codes" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DoctorQuery) WithPairingCodes(opts ...func(*PairingCodeQuery)) *DoctorQuery {
+	query := (&PairingCodeClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPairingCodes = query
 	return _q
 }
 
@@ -551,9 +587,10 @@ func (_q *DoctorQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Docto
 	var (
 		nodes       = []*Doctor{}
 		_spec       = _q.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [7]bool{
 			_q.withPractice != nil,
 			_q.withPatientLinks != nil,
+			_q.withPairingCodes != nil,
 			_q.withApprovedPatientLinks != nil,
 			_q.withEntryShares != nil,
 			_q.withComments != nil,
@@ -588,6 +625,13 @@ func (_q *DoctorQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Docto
 		if err := _q.loadPatientLinks(ctx, query, nodes,
 			func(n *Doctor) { n.Edges.PatientLinks = []*DoctorPatientLink{} },
 			func(n *Doctor, e *DoctorPatientLink) { n.Edges.PatientLinks = append(n.Edges.PatientLinks, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPairingCodes; query != nil {
+		if err := _q.loadPairingCodes(ctx, query, nodes,
+			func(n *Doctor) { n.Edges.PairingCodes = []*PairingCode{} },
+			func(n *Doctor, e *PairingCode) { n.Edges.PairingCodes = append(n.Edges.PairingCodes, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -671,6 +715,36 @@ func (_q *DoctorQuery) loadPatientLinks(ctx context.Context, query *DoctorPatien
 	}
 	query.Where(predicate.DoctorPatientLink(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(doctor.PatientLinksColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DoctorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "doctor_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *DoctorQuery) loadPairingCodes(ctx context.Context, query *PairingCodeQuery, nodes []*Doctor, init func(*Doctor), assign func(*Doctor, *PairingCode)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Doctor)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(pairingcode.FieldDoctorID)
+	}
+	query.Where(predicate.PairingCode(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(doctor.PairingCodesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

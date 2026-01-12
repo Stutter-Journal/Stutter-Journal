@@ -49,6 +49,7 @@ func (Doctor) Edges() []ent.Edge {
 			Comment("Doctor belongs to a practice (optional until onboarding)."),
 
 		edge.To("patient_links", DoctorPatientLink.Type),
+		edge.To("pairing_codes", PairingCode.Type),
 		edge.To("approved_patient_links", DoctorPatientLink.Type), // Add this line
 		edge.To("entry_shares", EntryShare.Type),
 		edge.To("comments", Comment.Type),

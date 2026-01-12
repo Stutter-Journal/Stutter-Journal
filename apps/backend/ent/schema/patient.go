@@ -54,6 +54,7 @@ func (Patient) Indexes() []ent.Index {
 func (Patient) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("doctor_links", DoctorPatientLink.Type),
+		edge.To("consumed_pairing_codes", PairingCode.Type),
 		edge.To("entries", Entry.Type),
 		edge.To("analysis_jobs", AnalysisJob.Type),
 		edge.To("entry_shares", EntryShare.Type),

@@ -34,6 +34,8 @@ const (
 	EdgePractice = "practice"
 	// EdgePatientLinks holds the string denoting the patient_links edge name in mutations.
 	EdgePatientLinks = "patient_links"
+	// EdgePairingCodes holds the string denoting the pairing_codes edge name in mutations.
+	EdgePairingCodes = "pairing_codes"
 	// EdgeApprovedPatientLinks holds the string denoting the approved_patient_links edge name in mutations.
 	EdgeApprovedPatientLinks = "approved_patient_links"
 	// EdgeEntryShares holds the string denoting the entry_shares edge name in mutations.
@@ -58,6 +60,13 @@ const (
 	PatientLinksInverseTable = "doctor_patient_links"
 	// PatientLinksColumn is the table column denoting the patient_links relation/edge.
 	PatientLinksColumn = "doctor_id"
+	// PairingCodesTable is the table that holds the pairing_codes relation/edge.
+	PairingCodesTable = "pairing_codes"
+	// PairingCodesInverseTable is the table name for the PairingCode entity.
+	// It exists in this package in order to avoid circular dependency with the "pairingcode" package.
+	PairingCodesInverseTable = "pairing_codes"
+	// PairingCodesColumn is the table column denoting the pairing_codes relation/edge.
+	PairingCodesColumn = "doctor_id"
 	// ApprovedPatientLinksTable is the table that holds the approved_patient_links relation/edge.
 	ApprovedPatientLinksTable = "doctor_patient_links"
 	// ApprovedPatientLinksInverseTable is the table name for the DoctorPatientLink entity.
@@ -217,6 +226,20 @@ func ByPatientLinks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByPairingCodesCount orders the results by pairing_codes count.
+func ByPairingCodesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPairingCodesStep(), opts...)
+	}
+}
+
+// ByPairingCodes orders the results by pairing_codes terms.
+func ByPairingCodes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPairingCodesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByApprovedPatientLinksCount orders the results by approved_patient_links count.
 func ByApprovedPatientLinksCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -284,6 +307,13 @@ func newPatientLinksStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PatientLinksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PatientLinksTable, PatientLinksColumn),
+	)
+}
+func newPairingCodesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PairingCodesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PairingCodesTable, PairingCodesColumn),
 	)
 }
 func newApprovedPatientLinksStep() *sqlgraph.Step {

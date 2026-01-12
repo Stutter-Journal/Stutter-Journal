@@ -7,6 +7,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"context"
 	"errors"
@@ -170,6 +171,21 @@ func (_c *PatientCreate) AddDoctorLinks(v ...*DoctorPatientLink) *PatientCreate 
 		ids[i] = v[i].ID
 	}
 	return _c.AddDoctorLinkIDs(ids...)
+}
+
+// AddConsumedPairingCodeIDs adds the "consumed_pairing_codes" edge to the PairingCode entity by IDs.
+func (_c *PatientCreate) AddConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientCreate {
+	_c.mutation.AddConsumedPairingCodeIDs(ids...)
+	return _c
+}
+
+// AddConsumedPairingCodes adds the "consumed_pairing_codes" edges to the PairingCode entity.
+func (_c *PatientCreate) AddConsumedPairingCodes(v ...*PairingCode) *PatientCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddConsumedPairingCodeIDs(ids...)
 }
 
 // AddEntryIDs adds the "entries" edge to the Entry entity by IDs.
@@ -374,6 +390,22 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ConsumedPairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

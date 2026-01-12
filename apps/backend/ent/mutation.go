@@ -9,6 +9,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"backend/ent/practice"
 	"backend/ent/predicate"
@@ -39,6 +40,7 @@ const (
 	TypeDoctorPatientLink = "DoctorPatientLink"
 	TypeEntry             = "Entry"
 	TypeEntryShare        = "EntryShare"
+	TypePairingCode       = "PairingCode"
 	TypePatient           = "Patient"
 	TypePractice          = "Practice"
 )
@@ -2021,6 +2023,9 @@ type DoctorMutation struct {
 	patient_links                 map[uuid.UUID]struct{}
 	removedpatient_links          map[uuid.UUID]struct{}
 	clearedpatient_links          bool
+	pairing_codes                 map[uuid.UUID]struct{}
+	removedpairing_codes          map[uuid.UUID]struct{}
+	clearedpairing_codes          bool
 	approved_patient_links        map[uuid.UUID]struct{}
 	removedapproved_patient_links map[uuid.UUID]struct{}
 	clearedapproved_patient_links bool
@@ -2488,6 +2493,60 @@ func (m *DoctorMutation) ResetPatientLinks() {
 	m.removedpatient_links = nil
 }
 
+// AddPairingCodeIDs adds the "pairing_codes" edge to the PairingCode entity by ids.
+func (m *DoctorMutation) AddPairingCodeIDs(ids ...uuid.UUID) {
+	if m.pairing_codes == nil {
+		m.pairing_codes = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.pairing_codes[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPairingCodes clears the "pairing_codes" edge to the PairingCode entity.
+func (m *DoctorMutation) ClearPairingCodes() {
+	m.clearedpairing_codes = true
+}
+
+// PairingCodesCleared reports if the "pairing_codes" edge to the PairingCode entity was cleared.
+func (m *DoctorMutation) PairingCodesCleared() bool {
+	return m.clearedpairing_codes
+}
+
+// RemovePairingCodeIDs removes the "pairing_codes" edge to the PairingCode entity by IDs.
+func (m *DoctorMutation) RemovePairingCodeIDs(ids ...uuid.UUID) {
+	if m.removedpairing_codes == nil {
+		m.removedpairing_codes = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.pairing_codes, ids[i])
+		m.removedpairing_codes[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPairingCodes returns the removed IDs of the "pairing_codes" edge to the PairingCode entity.
+func (m *DoctorMutation) RemovedPairingCodesIDs() (ids []uuid.UUID) {
+	for id := range m.removedpairing_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PairingCodesIDs returns the "pairing_codes" edge IDs in the mutation.
+func (m *DoctorMutation) PairingCodesIDs() (ids []uuid.UUID) {
+	for id := range m.pairing_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPairingCodes resets all changes to the "pairing_codes" edge.
+func (m *DoctorMutation) ResetPairingCodes() {
+	m.pairing_codes = nil
+	m.clearedpairing_codes = false
+	m.removedpairing_codes = nil
+}
+
 // AddApprovedPatientLinkIDs adds the "approved_patient_links" edge to the DoctorPatientLink entity by ids.
 func (m *DoctorMutation) AddApprovedPatientLinkIDs(ids ...uuid.UUID) {
 	if m.approved_patient_links == nil {
@@ -2948,12 +3007,15 @@ func (m *DoctorMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DoctorMutation) AddedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.practice != nil {
 		edges = append(edges, doctor.EdgePractice)
 	}
 	if m.patient_links != nil {
 		edges = append(edges, doctor.EdgePatientLinks)
+	}
+	if m.pairing_codes != nil {
+		edges = append(edges, doctor.EdgePairingCodes)
 	}
 	if m.approved_patient_links != nil {
 		edges = append(edges, doctor.EdgeApprovedPatientLinks)
@@ -2981,6 +3043,12 @@ func (m *DoctorMutation) AddedIDs(name string) []ent.Value {
 	case doctor.EdgePatientLinks:
 		ids := make([]ent.Value, 0, len(m.patient_links))
 		for id := range m.patient_links {
+			ids = append(ids, id)
+		}
+		return ids
+	case doctor.EdgePairingCodes:
+		ids := make([]ent.Value, 0, len(m.pairing_codes))
+		for id := range m.pairing_codes {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3014,9 +3082,12 @@ func (m *DoctorMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DoctorMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.removedpatient_links != nil {
 		edges = append(edges, doctor.EdgePatientLinks)
+	}
+	if m.removedpairing_codes != nil {
+		edges = append(edges, doctor.EdgePairingCodes)
 	}
 	if m.removedapproved_patient_links != nil {
 		edges = append(edges, doctor.EdgeApprovedPatientLinks)
@@ -3040,6 +3111,12 @@ func (m *DoctorMutation) RemovedIDs(name string) []ent.Value {
 	case doctor.EdgePatientLinks:
 		ids := make([]ent.Value, 0, len(m.removedpatient_links))
 		for id := range m.removedpatient_links {
+			ids = append(ids, id)
+		}
+		return ids
+	case doctor.EdgePairingCodes:
+		ids := make([]ent.Value, 0, len(m.removedpairing_codes))
+		for id := range m.removedpairing_codes {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3073,12 +3150,15 @@ func (m *DoctorMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DoctorMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.clearedpractice {
 		edges = append(edges, doctor.EdgePractice)
 	}
 	if m.clearedpatient_links {
 		edges = append(edges, doctor.EdgePatientLinks)
+	}
+	if m.clearedpairing_codes {
+		edges = append(edges, doctor.EdgePairingCodes)
 	}
 	if m.clearedapproved_patient_links {
 		edges = append(edges, doctor.EdgeApprovedPatientLinks)
@@ -3103,6 +3183,8 @@ func (m *DoctorMutation) EdgeCleared(name string) bool {
 		return m.clearedpractice
 	case doctor.EdgePatientLinks:
 		return m.clearedpatient_links
+	case doctor.EdgePairingCodes:
+		return m.clearedpairing_codes
 	case doctor.EdgeApprovedPatientLinks:
 		return m.clearedapproved_patient_links
 	case doctor.EdgeEntryShares:
@@ -3135,6 +3217,9 @@ func (m *DoctorMutation) ResetEdge(name string) error {
 		return nil
 	case doctor.EdgePatientLinks:
 		m.ResetPatientLinks()
+		return nil
+	case doctor.EdgePairingCodes:
+		m.ResetPairingCodes()
 		return nil
 	case doctor.EdgeApprovedPatientLinks:
 		m.ResetApprovedPatientLinks()
@@ -6304,37 +6389,837 @@ func (m *EntryShareMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown EntryShare edge %s", name)
 }
 
+// PairingCodeMutation represents an operation that mutates the PairingCode nodes in the graph.
+type PairingCodeMutation struct {
+	config
+	op                         Op
+	typ                        string
+	id                         *uuid.UUID
+	created_at                 *time.Time
+	updated_at                 *time.Time
+	code                       *string
+	expires_at                 *time.Time
+	consumed_at                *time.Time
+	clearedFields              map[string]struct{}
+	doctor                     *uuid.UUID
+	cleareddoctor              bool
+	consumed_by_patient        *uuid.UUID
+	clearedconsumed_by_patient bool
+	done                       bool
+	oldValue                   func(context.Context) (*PairingCode, error)
+	predicates                 []predicate.PairingCode
+}
+
+var _ ent.Mutation = (*PairingCodeMutation)(nil)
+
+// pairingcodeOption allows management of the mutation configuration using functional options.
+type pairingcodeOption func(*PairingCodeMutation)
+
+// newPairingCodeMutation creates new mutation for the PairingCode entity.
+func newPairingCodeMutation(c config, op Op, opts ...pairingcodeOption) *PairingCodeMutation {
+	m := &PairingCodeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePairingCode,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPairingCodeID sets the ID field of the mutation.
+func withPairingCodeID(id uuid.UUID) pairingcodeOption {
+	return func(m *PairingCodeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PairingCode
+		)
+		m.oldValue = func(ctx context.Context) (*PairingCode, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PairingCode.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPairingCode sets the old PairingCode of the mutation.
+func withPairingCode(node *PairingCode) pairingcodeOption {
+	return func(m *PairingCodeMutation) {
+		m.oldValue = func(context.Context) (*PairingCode, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PairingCodeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PairingCodeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of PairingCode entities.
+func (m *PairingCodeMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PairingCodeMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PairingCodeMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PairingCode.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PairingCodeMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PairingCodeMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PairingCodeMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PairingCodeMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PairingCodeMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PairingCodeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetCode sets the "code" field.
+func (m *PairingCodeMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *PairingCodeMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *PairingCodeMutation) ResetCode() {
+	m.code = nil
+}
+
+// SetDoctorID sets the "doctor_id" field.
+func (m *PairingCodeMutation) SetDoctorID(u uuid.UUID) {
+	m.doctor = &u
+}
+
+// DoctorID returns the value of the "doctor_id" field in the mutation.
+func (m *PairingCodeMutation) DoctorID() (r uuid.UUID, exists bool) {
+	v := m.doctor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDoctorID returns the old "doctor_id" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldDoctorID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDoctorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDoctorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDoctorID: %w", err)
+	}
+	return oldValue.DoctorID, nil
+}
+
+// ResetDoctorID resets all changes to the "doctor_id" field.
+func (m *PairingCodeMutation) ResetDoctorID() {
+	m.doctor = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *PairingCodeMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *PairingCodeMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *PairingCodeMutation) ResetExpiresAt() {
+	m.expires_at = nil
+}
+
+// SetConsumedAt sets the "consumed_at" field.
+func (m *PairingCodeMutation) SetConsumedAt(t time.Time) {
+	m.consumed_at = &t
+}
+
+// ConsumedAt returns the value of the "consumed_at" field in the mutation.
+func (m *PairingCodeMutation) ConsumedAt() (r time.Time, exists bool) {
+	v := m.consumed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConsumedAt returns the old "consumed_at" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldConsumedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConsumedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConsumedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConsumedAt: %w", err)
+	}
+	return oldValue.ConsumedAt, nil
+}
+
+// ClearConsumedAt clears the value of the "consumed_at" field.
+func (m *PairingCodeMutation) ClearConsumedAt() {
+	m.consumed_at = nil
+	m.clearedFields[pairingcode.FieldConsumedAt] = struct{}{}
+}
+
+// ConsumedAtCleared returns if the "consumed_at" field was cleared in this mutation.
+func (m *PairingCodeMutation) ConsumedAtCleared() bool {
+	_, ok := m.clearedFields[pairingcode.FieldConsumedAt]
+	return ok
+}
+
+// ResetConsumedAt resets all changes to the "consumed_at" field.
+func (m *PairingCodeMutation) ResetConsumedAt() {
+	m.consumed_at = nil
+	delete(m.clearedFields, pairingcode.FieldConsumedAt)
+}
+
+// SetConsumedByPatientID sets the "consumed_by_patient_id" field.
+func (m *PairingCodeMutation) SetConsumedByPatientID(u uuid.UUID) {
+	m.consumed_by_patient = &u
+}
+
+// ConsumedByPatientID returns the value of the "consumed_by_patient_id" field in the mutation.
+func (m *PairingCodeMutation) ConsumedByPatientID() (r uuid.UUID, exists bool) {
+	v := m.consumed_by_patient
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConsumedByPatientID returns the old "consumed_by_patient_id" field's value of the PairingCode entity.
+// If the PairingCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PairingCodeMutation) OldConsumedByPatientID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConsumedByPatientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConsumedByPatientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConsumedByPatientID: %w", err)
+	}
+	return oldValue.ConsumedByPatientID, nil
+}
+
+// ClearConsumedByPatientID clears the value of the "consumed_by_patient_id" field.
+func (m *PairingCodeMutation) ClearConsumedByPatientID() {
+	m.consumed_by_patient = nil
+	m.clearedFields[pairingcode.FieldConsumedByPatientID] = struct{}{}
+}
+
+// ConsumedByPatientIDCleared returns if the "consumed_by_patient_id" field was cleared in this mutation.
+func (m *PairingCodeMutation) ConsumedByPatientIDCleared() bool {
+	_, ok := m.clearedFields[pairingcode.FieldConsumedByPatientID]
+	return ok
+}
+
+// ResetConsumedByPatientID resets all changes to the "consumed_by_patient_id" field.
+func (m *PairingCodeMutation) ResetConsumedByPatientID() {
+	m.consumed_by_patient = nil
+	delete(m.clearedFields, pairingcode.FieldConsumedByPatientID)
+}
+
+// ClearDoctor clears the "doctor" edge to the Doctor entity.
+func (m *PairingCodeMutation) ClearDoctor() {
+	m.cleareddoctor = true
+	m.clearedFields[pairingcode.FieldDoctorID] = struct{}{}
+}
+
+// DoctorCleared reports if the "doctor" edge to the Doctor entity was cleared.
+func (m *PairingCodeMutation) DoctorCleared() bool {
+	return m.cleareddoctor
+}
+
+// DoctorIDs returns the "doctor" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DoctorID instead. It exists only for internal usage by the builders.
+func (m *PairingCodeMutation) DoctorIDs() (ids []uuid.UUID) {
+	if id := m.doctor; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDoctor resets all changes to the "doctor" edge.
+func (m *PairingCodeMutation) ResetDoctor() {
+	m.doctor = nil
+	m.cleareddoctor = false
+}
+
+// ClearConsumedByPatient clears the "consumed_by_patient" edge to the Patient entity.
+func (m *PairingCodeMutation) ClearConsumedByPatient() {
+	m.clearedconsumed_by_patient = true
+	m.clearedFields[pairingcode.FieldConsumedByPatientID] = struct{}{}
+}
+
+// ConsumedByPatientCleared reports if the "consumed_by_patient" edge to the Patient entity was cleared.
+func (m *PairingCodeMutation) ConsumedByPatientCleared() bool {
+	return m.ConsumedByPatientIDCleared() || m.clearedconsumed_by_patient
+}
+
+// ConsumedByPatientIDs returns the "consumed_by_patient" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ConsumedByPatientID instead. It exists only for internal usage by the builders.
+func (m *PairingCodeMutation) ConsumedByPatientIDs() (ids []uuid.UUID) {
+	if id := m.consumed_by_patient; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetConsumedByPatient resets all changes to the "consumed_by_patient" edge.
+func (m *PairingCodeMutation) ResetConsumedByPatient() {
+	m.consumed_by_patient = nil
+	m.clearedconsumed_by_patient = false
+}
+
+// Where appends a list predicates to the PairingCodeMutation builder.
+func (m *PairingCodeMutation) Where(ps ...predicate.PairingCode) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PairingCodeMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PairingCodeMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PairingCode, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PairingCodeMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PairingCodeMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PairingCode).
+func (m *PairingCodeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PairingCodeMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, pairingcode.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, pairingcode.FieldUpdatedAt)
+	}
+	if m.code != nil {
+		fields = append(fields, pairingcode.FieldCode)
+	}
+	if m.doctor != nil {
+		fields = append(fields, pairingcode.FieldDoctorID)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, pairingcode.FieldExpiresAt)
+	}
+	if m.consumed_at != nil {
+		fields = append(fields, pairingcode.FieldConsumedAt)
+	}
+	if m.consumed_by_patient != nil {
+		fields = append(fields, pairingcode.FieldConsumedByPatientID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PairingCodeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case pairingcode.FieldCreatedAt:
+		return m.CreatedAt()
+	case pairingcode.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case pairingcode.FieldCode:
+		return m.Code()
+	case pairingcode.FieldDoctorID:
+		return m.DoctorID()
+	case pairingcode.FieldExpiresAt:
+		return m.ExpiresAt()
+	case pairingcode.FieldConsumedAt:
+		return m.ConsumedAt()
+	case pairingcode.FieldConsumedByPatientID:
+		return m.ConsumedByPatientID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PairingCodeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case pairingcode.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case pairingcode.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case pairingcode.FieldCode:
+		return m.OldCode(ctx)
+	case pairingcode.FieldDoctorID:
+		return m.OldDoctorID(ctx)
+	case pairingcode.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	case pairingcode.FieldConsumedAt:
+		return m.OldConsumedAt(ctx)
+	case pairingcode.FieldConsumedByPatientID:
+		return m.OldConsumedByPatientID(ctx)
+	}
+	return nil, fmt.Errorf("unknown PairingCode field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PairingCodeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case pairingcode.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case pairingcode.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case pairingcode.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case pairingcode.FieldDoctorID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDoctorID(v)
+		return nil
+	case pairingcode.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	case pairingcode.FieldConsumedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConsumedAt(v)
+		return nil
+	case pairingcode.FieldConsumedByPatientID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConsumedByPatientID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PairingCode field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PairingCodeMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PairingCodeMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PairingCodeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown PairingCode numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PairingCodeMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(pairingcode.FieldConsumedAt) {
+		fields = append(fields, pairingcode.FieldConsumedAt)
+	}
+	if m.FieldCleared(pairingcode.FieldConsumedByPatientID) {
+		fields = append(fields, pairingcode.FieldConsumedByPatientID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PairingCodeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PairingCodeMutation) ClearField(name string) error {
+	switch name {
+	case pairingcode.FieldConsumedAt:
+		m.ClearConsumedAt()
+		return nil
+	case pairingcode.FieldConsumedByPatientID:
+		m.ClearConsumedByPatientID()
+		return nil
+	}
+	return fmt.Errorf("unknown PairingCode nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PairingCodeMutation) ResetField(name string) error {
+	switch name {
+	case pairingcode.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case pairingcode.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case pairingcode.FieldCode:
+		m.ResetCode()
+		return nil
+	case pairingcode.FieldDoctorID:
+		m.ResetDoctorID()
+		return nil
+	case pairingcode.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	case pairingcode.FieldConsumedAt:
+		m.ResetConsumedAt()
+		return nil
+	case pairingcode.FieldConsumedByPatientID:
+		m.ResetConsumedByPatientID()
+		return nil
+	}
+	return fmt.Errorf("unknown PairingCode field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PairingCodeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.doctor != nil {
+		edges = append(edges, pairingcode.EdgeDoctor)
+	}
+	if m.consumed_by_patient != nil {
+		edges = append(edges, pairingcode.EdgeConsumedByPatient)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PairingCodeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case pairingcode.EdgeDoctor:
+		if id := m.doctor; id != nil {
+			return []ent.Value{*id}
+		}
+	case pairingcode.EdgeConsumedByPatient:
+		if id := m.consumed_by_patient; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PairingCodeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PairingCodeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PairingCodeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.cleareddoctor {
+		edges = append(edges, pairingcode.EdgeDoctor)
+	}
+	if m.clearedconsumed_by_patient {
+		edges = append(edges, pairingcode.EdgeConsumedByPatient)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PairingCodeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case pairingcode.EdgeDoctor:
+		return m.cleareddoctor
+	case pairingcode.EdgeConsumedByPatient:
+		return m.clearedconsumed_by_patient
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PairingCodeMutation) ClearEdge(name string) error {
+	switch name {
+	case pairingcode.EdgeDoctor:
+		m.ClearDoctor()
+		return nil
+	case pairingcode.EdgeConsumedByPatient:
+		m.ClearConsumedByPatient()
+		return nil
+	}
+	return fmt.Errorf("unknown PairingCode unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PairingCodeMutation) ResetEdge(name string) error {
+	switch name {
+	case pairingcode.EdgeDoctor:
+		m.ResetDoctor()
+		return nil
+	case pairingcode.EdgeConsumedByPatient:
+		m.ResetConsumedByPatient()
+		return nil
+	}
+	return fmt.Errorf("unknown PairingCode edge %s", name)
+}
+
 // PatientMutation represents an operation that mutates the Patient nodes in the graph.
 type PatientMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *uuid.UUID
-	created_at           *time.Time
-	updated_at           *time.Time
-	display_name         *string
-	birth_date           *time.Time
-	status               *patient.Status
-	email                *string
-	password_hash        *string
-	patient_code         *string
-	last_entry_at        *time.Time
-	clearedFields        map[string]struct{}
-	doctor_links         map[uuid.UUID]struct{}
-	removeddoctor_links  map[uuid.UUID]struct{}
-	cleareddoctor_links  bool
-	entries              map[uuid.UUID]struct{}
-	removedentries       map[uuid.UUID]struct{}
-	clearedentries       bool
-	analysis_jobs        map[uuid.UUID]struct{}
-	removedanalysis_jobs map[uuid.UUID]struct{}
-	clearedanalysis_jobs bool
-	entry_shares         map[uuid.UUID]struct{}
-	removedentry_shares  map[uuid.UUID]struct{}
-	clearedentry_shares  bool
-	done                 bool
-	oldValue             func(context.Context) (*Patient, error)
-	predicates           []predicate.Patient
+	op                            Op
+	typ                           string
+	id                            *uuid.UUID
+	created_at                    *time.Time
+	updated_at                    *time.Time
+	display_name                  *string
+	birth_date                    *time.Time
+	status                        *patient.Status
+	email                         *string
+	password_hash                 *string
+	patient_code                  *string
+	last_entry_at                 *time.Time
+	clearedFields                 map[string]struct{}
+	doctor_links                  map[uuid.UUID]struct{}
+	removeddoctor_links           map[uuid.UUID]struct{}
+	cleareddoctor_links           bool
+	consumed_pairing_codes        map[uuid.UUID]struct{}
+	removedconsumed_pairing_codes map[uuid.UUID]struct{}
+	clearedconsumed_pairing_codes bool
+	entries                       map[uuid.UUID]struct{}
+	removedentries                map[uuid.UUID]struct{}
+	clearedentries                bool
+	analysis_jobs                 map[uuid.UUID]struct{}
+	removedanalysis_jobs          map[uuid.UUID]struct{}
+	clearedanalysis_jobs          bool
+	entry_shares                  map[uuid.UUID]struct{}
+	removedentry_shares           map[uuid.UUID]struct{}
+	clearedentry_shares           bool
+	done                          bool
+	oldValue                      func(context.Context) (*Patient, error)
+	predicates                    []predicate.Patient
 }
 
 var _ ent.Mutation = (*PatientMutation)(nil)
@@ -6884,6 +7769,60 @@ func (m *PatientMutation) ResetDoctorLinks() {
 	m.removeddoctor_links = nil
 }
 
+// AddConsumedPairingCodeIDs adds the "consumed_pairing_codes" edge to the PairingCode entity by ids.
+func (m *PatientMutation) AddConsumedPairingCodeIDs(ids ...uuid.UUID) {
+	if m.consumed_pairing_codes == nil {
+		m.consumed_pairing_codes = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.consumed_pairing_codes[ids[i]] = struct{}{}
+	}
+}
+
+// ClearConsumedPairingCodes clears the "consumed_pairing_codes" edge to the PairingCode entity.
+func (m *PatientMutation) ClearConsumedPairingCodes() {
+	m.clearedconsumed_pairing_codes = true
+}
+
+// ConsumedPairingCodesCleared reports if the "consumed_pairing_codes" edge to the PairingCode entity was cleared.
+func (m *PatientMutation) ConsumedPairingCodesCleared() bool {
+	return m.clearedconsumed_pairing_codes
+}
+
+// RemoveConsumedPairingCodeIDs removes the "consumed_pairing_codes" edge to the PairingCode entity by IDs.
+func (m *PatientMutation) RemoveConsumedPairingCodeIDs(ids ...uuid.UUID) {
+	if m.removedconsumed_pairing_codes == nil {
+		m.removedconsumed_pairing_codes = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.consumed_pairing_codes, ids[i])
+		m.removedconsumed_pairing_codes[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedConsumedPairingCodes returns the removed IDs of the "consumed_pairing_codes" edge to the PairingCode entity.
+func (m *PatientMutation) RemovedConsumedPairingCodesIDs() (ids []uuid.UUID) {
+	for id := range m.removedconsumed_pairing_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ConsumedPairingCodesIDs returns the "consumed_pairing_codes" edge IDs in the mutation.
+func (m *PatientMutation) ConsumedPairingCodesIDs() (ids []uuid.UUID) {
+	for id := range m.consumed_pairing_codes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetConsumedPairingCodes resets all changes to the "consumed_pairing_codes" edge.
+func (m *PatientMutation) ResetConsumedPairingCodes() {
+	m.consumed_pairing_codes = nil
+	m.clearedconsumed_pairing_codes = false
+	m.removedconsumed_pairing_codes = nil
+}
+
 // AddEntryIDs adds the "entries" edge to the Entry entity by ids.
 func (m *PatientMutation) AddEntryIDs(ids ...uuid.UUID) {
 	if m.entries == nil {
@@ -7348,9 +8287,12 @@ func (m *PatientMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PatientMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.doctor_links != nil {
 		edges = append(edges, patient.EdgeDoctorLinks)
+	}
+	if m.consumed_pairing_codes != nil {
+		edges = append(edges, patient.EdgeConsumedPairingCodes)
 	}
 	if m.entries != nil {
 		edges = append(edges, patient.EdgeEntries)
@@ -7371,6 +8313,12 @@ func (m *PatientMutation) AddedIDs(name string) []ent.Value {
 	case patient.EdgeDoctorLinks:
 		ids := make([]ent.Value, 0, len(m.doctor_links))
 		for id := range m.doctor_links {
+			ids = append(ids, id)
+		}
+		return ids
+	case patient.EdgeConsumedPairingCodes:
+		ids := make([]ent.Value, 0, len(m.consumed_pairing_codes))
+		for id := range m.consumed_pairing_codes {
 			ids = append(ids, id)
 		}
 		return ids
@@ -7398,9 +8346,12 @@ func (m *PatientMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PatientMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removeddoctor_links != nil {
 		edges = append(edges, patient.EdgeDoctorLinks)
+	}
+	if m.removedconsumed_pairing_codes != nil {
+		edges = append(edges, patient.EdgeConsumedPairingCodes)
 	}
 	if m.removedentries != nil {
 		edges = append(edges, patient.EdgeEntries)
@@ -7421,6 +8372,12 @@ func (m *PatientMutation) RemovedIDs(name string) []ent.Value {
 	case patient.EdgeDoctorLinks:
 		ids := make([]ent.Value, 0, len(m.removeddoctor_links))
 		for id := range m.removeddoctor_links {
+			ids = append(ids, id)
+		}
+		return ids
+	case patient.EdgeConsumedPairingCodes:
+		ids := make([]ent.Value, 0, len(m.removedconsumed_pairing_codes))
+		for id := range m.removedconsumed_pairing_codes {
 			ids = append(ids, id)
 		}
 		return ids
@@ -7448,9 +8405,12 @@ func (m *PatientMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PatientMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.cleareddoctor_links {
 		edges = append(edges, patient.EdgeDoctorLinks)
+	}
+	if m.clearedconsumed_pairing_codes {
+		edges = append(edges, patient.EdgeConsumedPairingCodes)
 	}
 	if m.clearedentries {
 		edges = append(edges, patient.EdgeEntries)
@@ -7470,6 +8430,8 @@ func (m *PatientMutation) EdgeCleared(name string) bool {
 	switch name {
 	case patient.EdgeDoctorLinks:
 		return m.cleareddoctor_links
+	case patient.EdgeConsumedPairingCodes:
+		return m.clearedconsumed_pairing_codes
 	case patient.EdgeEntries:
 		return m.clearedentries
 	case patient.EdgeAnalysisJobs:
@@ -7494,6 +8456,9 @@ func (m *PatientMutation) ResetEdge(name string) error {
 	switch name {
 	case patient.EdgeDoctorLinks:
 		m.ResetDoctorLinks()
+		return nil
+	case patient.EdgeConsumedPairingCodes:
+		m.ResetConsumedPairingCodes()
 		return nil
 	case patient.EdgeEntries:
 		m.ResetEntries()

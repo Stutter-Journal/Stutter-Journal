@@ -128,9 +128,15 @@ func (s *Server) registerLinkRoutes(r chi.Router) {
 		r.Use(s.requireDoctor)
 		r.Post("/links/invite", s.inviteLinkHandler)
 		r.Post("/links/request", s.requestLinkHandler)
+		r.Post("/links/pairing-code", s.createPairingCodeHandler)
 		r.Post("/links/{id}/approve", s.approveLinkHandler)
 		r.Get("/patients", s.listPatientsHandler)
 		r.Get("/patients/{id}/entries", s.patientEntriesHandler)
 		r.Get("/patients/{id}/analytics", s.analyticsHandler)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(s.requirePatient)
+		r.Post("/links/pairing-code/redeem", s.redeemPairingCodeHandler)
 	})
 }

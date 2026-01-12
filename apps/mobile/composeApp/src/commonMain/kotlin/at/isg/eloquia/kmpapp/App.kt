@@ -6,10 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import at.isg.eloquia.features.auth.presentation.landing.AuthLandingScreen
 import at.isg.eloquia.kmpapp.presentation.main.MainScreen
 import kotlinx.serialization.Serializable
-import androidx.navigation.toRoute
 
 @Serializable
 data class MainDestination(

@@ -1,12 +1,12 @@
 package at.isg.eloquia.features.auth.presentation.landing
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.toUserMessage
 import at.isg.eloquia.core.domain.auth.usecase.PatientLoginUseCase
 import at.isg.eloquia.core.domain.auth.usecase.PatientRegisterUseCase
 import at.isg.eloquia.core.domain.logging.AppLog
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -171,34 +171,31 @@ private fun validateRegister(form: AuthLandingForm): AuthLandingFieldErrors? {
     }
 }
 
-private inline fun AuthLandingState.withForm(transform: AuthLandingForm.() -> AuthLandingForm): AuthLandingState =
-    when (this) {
-        is AuthLandingState.Editing -> copy(form = form.transform())
-        is AuthLandingState.Submitting -> copy(form = form.transform())
-        AuthLandingState.Success -> this
-    }
+private inline fun AuthLandingState.withForm(transform: AuthLandingForm.() -> AuthLandingForm): AuthLandingState = when (this) {
+    is AuthLandingState.Editing -> copy(form = form.transform())
+    is AuthLandingState.Submitting -> copy(form = form.transform())
+    AuthLandingState.Success -> this
+}
 
-private fun AuthLandingState.clearError(): AuthLandingState =
-    when (this) {
-        is AuthLandingState.Editing -> copy(errorMessage = null)
-        is AuthLandingState.Submitting -> this
-        AuthLandingState.Success -> this
-    }
+private fun AuthLandingState.clearError(): AuthLandingState = when (this) {
+    is AuthLandingState.Editing -> copy(errorMessage = null)
+    is AuthLandingState.Submitting -> this
+    AuthLandingState.Success -> this
+}
 
 private fun AuthLandingState.clearFieldError(
     displayName: Boolean = false,
     email: Boolean = false,
     password: Boolean = false,
-): AuthLandingState =
-    when (this) {
-        is AuthLandingState.Editing -> copy(
-            fieldErrors = fieldErrors.copy(
-                displayName = if (displayName) null else fieldErrors.displayName,
-                email = if (email) null else fieldErrors.email,
-                password = if (password) null else fieldErrors.password,
-            ),
-        )
+): AuthLandingState = when (this) {
+    is AuthLandingState.Editing -> copy(
+        fieldErrors = fieldErrors.copy(
+            displayName = if (displayName) null else fieldErrors.displayName,
+            email = if (email) null else fieldErrors.email,
+            password = if (password) null else fieldErrors.password,
+        ),
+    )
 
-        is AuthLandingState.Submitting -> this
-        AuthLandingState.Success -> this
-    }
+    is AuthLandingState.Submitting -> this
+    AuthLandingState.Success -> this
+}

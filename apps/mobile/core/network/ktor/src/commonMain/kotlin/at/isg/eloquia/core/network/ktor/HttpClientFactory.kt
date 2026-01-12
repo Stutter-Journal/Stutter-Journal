@@ -34,7 +34,6 @@ internal fun buildHttpClient(
     tokenProvider: () -> String?,
     enableLogging: Boolean,
 ): HttpClient = HttpClient(engine) {
-
     expectSuccess = false
 
     HttpResponseValidator {
@@ -42,7 +41,9 @@ internal fun buildHttpClient(
             val extra = if (cause is ResponseException) {
                 val body = runCatching { cause.response.bodyAsText() }.getOrNull()
                 " status=${cause.response.status.value} body=$body"
-            } else ""
+            } else {
+                ""
+            }
             Napier.e(
                 message = "HTTP exception: ${request.method.value} ${request.url}$extra",
                 throwable = cause,

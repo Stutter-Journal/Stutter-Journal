@@ -1,8 +1,8 @@
 package at.isg.eloquia.core.data.auth.repository
 
+import at.isg.eloquia.core.data.auth.mapper.parseServerErrorMessage
 import at.isg.eloquia.core.data.auth.mapper.toDomain
 import at.isg.eloquia.core.data.auth.mapper.toDomainPatient
-import at.isg.eloquia.core.data.auth.mapper.parseServerErrorMessage
 import at.isg.eloquia.core.data.auth.remote.AuthApi
 import at.isg.eloquia.core.data.openapi.model.ServerLinkInviteRequest
 import at.isg.eloquia.core.data.openapi.model.ServerLinkResponse
@@ -108,54 +108,51 @@ internal class AuthRepositoryImpl(
 
 private inline fun ApiResult<at.isg.eloquia.core.data.openapi.model.ServerLinkResponse>.toLinkRequestResult(
     mapHttp: (status: Int, body: String?) -> AuthError,
-): AuthResult<LinkRequest> =
-    when (this) {
-        is ApiResult.Ok -> {
-            val linkRequest = value.toDomain()
-            if (linkRequest == null) {
-                AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
-            } else {
-                AuthResult.Success(linkRequest)
-            }
-        }
-
-        is ApiResult.Err -> {
-            val authError = when (val error = error) {
-                is NetworkError.Http -> mapHttp(error.status, error.body)
-                else -> AuthError.Network(error)
-            }
-            AuthResult.Failure(authError)
+): AuthResult<LinkRequest> = when (this) {
+    is ApiResult.Ok -> {
+        val linkRequest = value.toDomain()
+        if (linkRequest == null) {
+            AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
+        } else {
+            AuthResult.Success(linkRequest)
         }
     }
+
+    is ApiResult.Err -> {
+        val authError = when (val error = error) {
+            is NetworkError.Http -> mapHttp(error.status, error.body)
+            else -> AuthError.Network(error)
+        }
+        AuthResult.Failure(authError)
+    }
+}
 
 private inline fun ApiResult<ServerLinkResponse>.toPatientResult(
     mapHttp: (status: Int, body: String?) -> AuthError,
-): AuthResult<Patient> =
-    when (this) {
-        is ApiResult.Ok -> {
-            val patient = value.patient?.toDomainPatient()
-            if (patient == null) {
-                AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
-            } else {
-                AuthResult.Success(patient)
-            }
-        }
-
-        is ApiResult.Err -> {
-            val authError = when (val error = error) {
-                is NetworkError.Http -> mapHttp(error.status, error.body)
-                else -> AuthError.Network(error)
-            }
-            AuthResult.Failure(authError)
+): AuthResult<Patient> = when (this) {
+    is ApiResult.Ok -> {
+        val patient = value.patient?.toDomainPatient()
+        if (patient == null) {
+            AuthResult.Failure(AuthError.Unexpected("Invalid server payload"))
+        } else {
+            AuthResult.Success(patient)
         }
     }
 
-private fun NetworkError.toAuthError(): AuthError =
-    when (this) {
-        is NetworkError.Http -> AuthError.Network(this)
-        is NetworkError.Decode -> AuthError.Network(this)
-        is NetworkError.Timeout -> AuthError.Network(this)
-        is NetworkError.Offline -> AuthError.Network(this)
-        is NetworkError.Cancelled -> AuthError.Network(this)
-        is NetworkError.Unknown -> AuthError.Network(this)
+    is ApiResult.Err -> {
+        val authError = when (val error = error) {
+            is NetworkError.Http -> mapHttp(error.status, error.body)
+            else -> AuthError.Network(error)
+        }
+        AuthResult.Failure(authError)
     }
+}
+
+private fun NetworkError.toAuthError(): AuthError = when (this) {
+    is NetworkError.Http -> AuthError.Network(this)
+    is NetworkError.Decode -> AuthError.Network(this)
+    is NetworkError.Timeout -> AuthError.Network(this)
+    is NetworkError.Offline -> AuthError.Network(this)
+    is NetworkError.Cancelled -> AuthError.Network(this)
+    is NetworkError.Unknown -> AuthError.Network(this)
+}

@@ -7,6 +7,5 @@ import at.isg.eloquia.core.domain.auth.repository.AuthRepository
 class PatientLoginUseCase(
     private val repository: AuthRepository,
 ) {
-    suspend operator fun invoke(email: String, password: String): AuthResult<Patient> =
-        repository.patientLogin(email = email, password = password)
+    suspend operator fun invoke(email: String, password: String): AuthResult<Patient> = repository.patientLogin(email = email, password = password)
 }

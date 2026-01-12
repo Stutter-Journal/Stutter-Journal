@@ -65,22 +65,19 @@ class LinkRequestViewModel(
     }
 }
 
-private inline fun LinkRequestState.withForm(transform: LinkRequestForm.() -> LinkRequestForm): LinkRequestState =
-    when (this) {
-        is LinkRequestState.Editing -> copy(form = form.transform())
-        is LinkRequestState.Submitting -> copy(form = form.transform())
-        LinkRequestState.Success -> this
-    }
+private inline fun LinkRequestState.withForm(transform: LinkRequestForm.() -> LinkRequestForm): LinkRequestState = when (this) {
+    is LinkRequestState.Editing -> copy(form = form.transform())
+    is LinkRequestState.Submitting -> copy(form = form.transform())
+    LinkRequestState.Success -> this
+}
 
-private fun LinkRequestState.formOrNull(): LinkRequestForm? =
-    when (this) {
-        is LinkRequestState.Editing -> form
-        is LinkRequestState.Submitting -> form
-        LinkRequestState.Success -> null
-    }
+private fun LinkRequestState.formOrNull(): LinkRequestForm? = when (this) {
+    is LinkRequestState.Editing -> form
+    is LinkRequestState.Submitting -> form
+    LinkRequestState.Success -> null
+}
 
-private fun LinkRequestState.clearError(): LinkRequestState =
-    when (this) {
-        is LinkRequestState.Editing -> copy(errorMessage = null)
-        else -> this
-    }
+private fun LinkRequestState.clearError(): LinkRequestState = when (this) {
+    is LinkRequestState.Editing -> copy(errorMessage = null)
+    else -> this
+}

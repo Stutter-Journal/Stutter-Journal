@@ -276,9 +276,9 @@ private fun EntryFormList(
         }
 
         item {
-            val hasStutterFormError = state.errorMessage?.contains("stutter form", ignoreCase = true) == true && 
-                                       state.selectedStutterFormIds.isEmpty()
-            
+            val hasStutterFormError = state.errorMessage?.contains("stutter form", ignoreCase = true) == true &&
+                state.selectedStutterFormIds.isEmpty()
+
             SectionCard(title = "Stutter Form") {
                 Column {
                     MultiSelectSection(
@@ -286,7 +286,7 @@ private fun EntryFormList(
                         selectedIds = state.selectedStutterFormIds,
                         onToggle = callbacks.onToggleStutterForm,
                     )
-                    
+
                     if (hasStutterFormError) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Surface(

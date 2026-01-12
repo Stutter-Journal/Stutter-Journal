@@ -162,7 +162,7 @@ class NewEntryViewModel(
     fun saveEntry() {
         val current = _state.value
         if (current.isSaving) return
-        
+
         // Validate required fields
         val errors = mutableListOf<String>()
         if (current.selectedStutterFormIds.isEmpty()) {
@@ -171,7 +171,7 @@ class NewEntryViewModel(
         if (current.notes.isBlank()) {
             errors.add("Additional Notes is required")
         }
-        
+
         if (errors.isNotEmpty()) {
             _state.update { it.copy(errorMessage = errors.joinToString("; ")) }
             return
@@ -292,9 +292,11 @@ class NewEntryViewModel(
                 } catch (e: Exception) {
                     null
                 }
-            } else null
+            } else {
+                null
+            }
         } ?: this.createdAt.date
-        
+
         return NewEntryFormState(
             entryId = this.id,
             date = storedDate,

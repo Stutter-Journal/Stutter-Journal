@@ -10,12 +10,9 @@ import at.isg.eloquia.core.network.ktor.NetworkClient
 internal class AuthApi(
     private val networkClient: NetworkClient,
 ) {
-    suspend fun requestLink(request: ServerLinkInviteRequest): ApiResult<ServerLinkResponse> =
-        networkClient.post(path = "/links/request", body = request)
+    suspend fun requestLink(request: ServerLinkInviteRequest): ApiResult<ServerLinkResponse> = networkClient.post(path = "/links/request", body = request)
 
-    suspend fun patientRegister(request: ServerPatientRegisterRequest): ApiResult<ServerLinkResponse> =
-        networkClient.post(path = "/patient/register", body = request)
+    suspend fun patientRegister(request: ServerPatientRegisterRequest): ApiResult<ServerLinkResponse> = networkClient.post(path = "/patient/register", body = request)
 
-    suspend fun patientLogin(request: ServerPatientLoginRequest): ApiResult<ServerLinkResponse> =
-        networkClient.post(path = "/patient/login", body = request)
+    suspend fun patientLogin(request: ServerPatientLoginRequest): ApiResult<ServerLinkResponse> = networkClient.post(path = "/patient/login", body = request)
 }

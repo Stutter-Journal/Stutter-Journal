@@ -43,32 +43,31 @@ class NetworkClient(@PublishedApi internal val client: HttpClient) {
         headers: Map<String, String> = emptyMap(),
         queryParams: Map<String, String> = emptyMap(),
         crossinline block: HttpRequestBuilder.() -> Unit = {},
-    ): ApiResult<T> {
-        return try {
-            val response: HttpResponse = client.request(path) {
-                this.method = method
-                headers.forEach { (key, value) -> header(key, value) }
-                queryParams.forEach { (key, value) -> parameter(key, value) }
-                block()
-            }
-
-            val status = response.status.value
-            if (status in 200..299) {
-                val value: T = if ((status == 204 || status == 205) && T::class == Unit::class) {
-                    @Suppress("UNCHECKED_CAST") Unit as T
-                } else {
-                    response.body()
-                }
-                ApiResult.Ok(value, status)
-            } else {
-                val bodyText = runCatching { response.bodyAsText() }.getOrNull()
-                ApiResult.Err(NetworkError.Http(status, bodyText))
-            }
-        } catch (ce: CancellationException) {
-            ApiResult.Err(NetworkError.Cancelled(ce))
-        } catch (t: Throwable) {
-            ApiResult.Err(t.toNetworkError())
+    ): ApiResult<T> = try {
+        val response: HttpResponse = client.request(path) {
+            this.method = method
+            headers.forEach { (key, value) -> header(key, value) }
+            queryParams.forEach { (key, value) -> parameter(key, value) }
+            block()
         }
+
+        val status = response.status.value
+        if (status in 200..299) {
+            val value: T = if ((status == 204 || status == 205) && T::class == Unit::class) {
+                @Suppress("UNCHECKED_CAST")
+                Unit as T
+            } else {
+                response.body()
+            }
+            ApiResult.Ok(value, status)
+        } else {
+            val bodyText = runCatching { response.bodyAsText() }.getOrNull()
+            ApiResult.Err(NetworkError.Http(status, bodyText))
+        }
+    } catch (ce: CancellationException) {
+        ApiResult.Err(NetworkError.Cancelled(ce))
+    } catch (t: Throwable) {
+        ApiResult.Err(t.toNetworkError())
     }
 }
 

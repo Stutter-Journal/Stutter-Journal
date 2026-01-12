@@ -7,7 +7,7 @@ import at.isg.eloquia.core.network.ktor.di.networkKtorModule
 import org.koin.core.module.Module
 
 actual fun platformModules(): List<Module> = listOf(
-	networkKtorModule(baseUrl = BuildConfig.BASE_URL, enableLogging = BuildConfig.DEBUG),
-	entriesDataModule,
-	authDataModule,
+    networkKtorModule(baseUrl = BuildConfig.BASE_URL, enableLogging = BuildConfig.DEBUG),
+    entriesDataModule,
+    authDataModule,
 )

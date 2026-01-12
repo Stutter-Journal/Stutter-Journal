@@ -43,9 +43,11 @@ class ProgressViewModel(
                 .firstNotNullOfOrNull { tag ->
                     if (tag.startsWith("intensity:", ignoreCase = true)) {
                         tag.substringAfter(":").trim().toIntOrNull()
-                    } else null
+                    } else {
+                        null
+                    }
                 }
-            
+
             val date = entry.tags
                 .firstNotNullOfOrNull { tag ->
                     if (tag.startsWith("date:", ignoreCase = true)) {
@@ -54,14 +56,16 @@ class ProgressViewModel(
                         } catch (e: Exception) {
                             null
                         }
-                    } else null
+                    } else {
+                        null
+                    }
                 } ?: entry.createdAt.date
-            
+
             intensity?.let {
                 IntensityDataPoint(date = date, intensity = it.toFloat(), entryId = entry.id)
             }
         }
-        
+
         // Group by date and calculate daily average
         val dailyAverages = dataPoints
             .groupBy { it.date }
@@ -73,7 +77,7 @@ class ProgressViewModel(
                 )
             }
             .sortedBy { it.date }
-        
+
         // Determine rolling window boundaries
         val today = currentLocalDate()
         val startDate = when {
@@ -99,11 +103,13 @@ class ProgressViewModel(
         // Always fill the full time window to keep a continuous time axis
         val finalData = if (filteredData.isNotEmpty()) {
             fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
-        } else emptyList()
-        
+        } else {
+            emptyList()
+        }
+
         // Compute frequency data for the selected time range
         val frequencyData = computeFrequencyData(entries, selectedTimeRange)
-        
+
         // Return UI state
         if (finalData.isEmpty()) {
             ProgressUiState.Empty
@@ -128,12 +134,10 @@ class ProgressViewModel(
         _timeRange.value = range
     }
 
-    private fun currentLocalDate(): LocalDate {
-        return Clock.System
-            .now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
-    }
+    private fun currentLocalDate(): LocalDate = Clock.System
+        .now()
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
 
     private fun fillMissingDays(
         dataPoints: List<IntensityDataPoint>,
@@ -141,14 +145,14 @@ class ProgressViewModel(
         endDate: LocalDate? = null,
     ): List<IntensityDataPoint> {
         if (dataPoints.isEmpty()) return emptyList()
-        
+
         val sortedPoints = dataPoints.sortedBy { it.date }
         val firstDate = startDate ?: sortedPoints.first().date
         val lastDate = endDate ?: sortedPoints.last().date
-        
+
         val pointsMap = sortedPoints.associateBy { it.date }
         val result = mutableListOf<IntensityDataPoint>()
-        
+
         var currentDate = firstDate
         while (currentDate <= lastDate) {
             result.add(
@@ -156,11 +160,11 @@ class ProgressViewModel(
                     date = currentDate,
                     intensity = 0f,
                     entryId = null,
-                )
+                ),
             )
             currentDate = currentDate.plus(DatePeriod(days = 1))
         }
-        
+
         return result
     }
 
@@ -182,12 +186,14 @@ class ProgressViewModel(
                         } catch (e: Exception) {
                             null
                         }
-                    } else null
+                    } else {
+                        null
+                    }
                 } ?: entry.createdAt.date
-            
+
             entryDate in selectedTimeRange.startDate..selectedTimeRange.endDate
         }
-        
+
         // Aggregate triggers
         val triggerCounts = mutableMapOf<String, Int>()
         entriesInRange.forEach { entry ->
@@ -198,7 +204,7 @@ class ProgressViewModel(
                     triggerCounts[trigger] = (triggerCounts[trigger] ?: 0) + 1
                 }
         }
-        
+
         // Aggregate techniques (methods)
         val techniqueCounts = mutableMapOf<String, Int>()
         entriesInRange.forEach { entry ->
@@ -209,7 +215,7 @@ class ProgressViewModel(
                     techniqueCounts[technique] = (techniqueCounts[technique] ?: 0) + 1
                 }
         }
-        
+
         // Aggregate stutter forms
         val stutterFormCounts = mutableMapOf<String, Int>()
         entriesInRange.forEach { entry ->
@@ -220,25 +226,24 @@ class ProgressViewModel(
                     stutterFormCounts[form] = (stutterFormCounts[form] ?: 0) + 1
                 }
         }
-        
+
         // Convert to sorted lists (descending by frequency)
         val triggers = triggerCounts.entries
             .map { CategoryFrequency(it.key, it.value) }
             .sortedByDescending { it.count }
-        
+
         val techniques = techniqueCounts.entries
             .map { CategoryFrequency(it.key, it.value) }
             .sortedByDescending { it.count }
-        
+
         val stutterForms = stutterFormCounts.entries
             .map { CategoryFrequency(it.key, it.value) }
             .sortedByDescending { it.count }
-        
+
         return FrequencyData(
             triggers = triggers,
             techniques = techniques,
             stutterForms = stutterForms,
         )
     }
-
 }

@@ -89,7 +89,7 @@ fun AuthLandingScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = colors.surface
+        containerColor = colors.surface,
     ) { padding ->
         Surface(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -142,22 +142,23 @@ private fun AuthLandingCardContent(
         Icon(Icons.Outlined.Lock, null, tint = colors.primary)
         Text("Eloquia", style = MaterialTheme.typography.headlineMedium)
 
-        AnimatedContent(
-            targetState = form.mode, label = "auth_mode", transitionSpec = {
-                // Directional movement + fade/scale = “expressive”
-                val forward = targetState == AuthMode.Register
-                val slideIn = slideInHorizontally(
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    initialOffsetX = { full -> if (forward) full / 6 else -full / 6 })
-                val slideOut = slideOutHorizontally(
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    targetOffsetX = { full -> if (forward) -full / 6 else full / 6 })
-                (slideIn + fadeIn() + scaleIn(initialScale = 0.98f)).togetherWith(
-                    slideOut + fadeOut() + scaleOut(
-                        targetScale = 0.98f
-                    )
-                ).using(SizeTransform(clip = false))
-            }) { mode ->
+        AnimatedContent(targetState = form.mode, label = "auth_mode", transitionSpec = {
+            // Directional movement + fade/scale = “expressive”
+            val forward = targetState == AuthMode.Register
+            val slideIn = slideInHorizontally(
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                initialOffsetX = { full -> if (forward) full / 6 else -full / 6 },
+            )
+            val slideOut = slideOutHorizontally(
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                targetOffsetX = { full -> if (forward) -full / 6 else full / 6 },
+            )
+            (slideIn + fadeIn() + scaleIn(initialScale = 0.98f)).togetherWith(
+                slideOut + fadeOut() + scaleOut(
+                    targetScale = 0.98f,
+                ),
+            ).using(SizeTransform(clip = false))
+        }) { mode ->
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -249,7 +250,7 @@ private fun AuthLandingCardContent(
         ) {
             Text(
                 if (form.mode == AuthMode.SignIn) "Not a user?" else "Already a user?",
-                color = colors.onSurfaceVariant
+                color = colors.onSurfaceVariant,
             )
             TextButton(onClick = onToggleMode, enabled = !isSubmitting) {
                 Text(if (form.mode == AuthMode.SignIn) "Register" else "Sign in")
@@ -268,7 +269,7 @@ private fun AuthErrorBanner(
         visible = msg.isNotBlank(),
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut(),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Surface(
             color = MaterialTheme.colorScheme.errorContainer,
@@ -278,7 +279,7 @@ private fun AuthErrorBanner(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(Icons.Outlined.ErrorOutline, contentDescription = null)
                 Spacer(Modifier.size(10.dp))

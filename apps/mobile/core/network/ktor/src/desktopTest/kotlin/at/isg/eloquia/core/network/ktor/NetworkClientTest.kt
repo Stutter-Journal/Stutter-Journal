@@ -195,7 +195,6 @@ class NetworkClientTest {
             err.error.shouldBeInstanceOf<NetworkError.Unknown>()
         }
     }
-
 }
 
 @Serializable

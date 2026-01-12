@@ -6,13 +6,15 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
@@ -28,6 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
@@ -55,10 +59,12 @@ fun MainScaffoldWithModalWideNavigationRail(
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
-
     val scope = rememberCoroutineScope()
     val railExpanded by remember { androidx.compose.runtime.derivedStateOf { railState.targetValue == WideNavigationRailValue.Expanded } }
     val headerDescription = if (railExpanded) "Collapse rail" else "Expand rail"
+
+    val railContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val contentContainerColor = MaterialTheme.colorScheme.surface
 
     Scaffold(
         snackbarHost = snackbarHost,
@@ -69,24 +75,19 @@ fun MainScaffoldWithModalWideNavigationRail(
         ) {
             ModalWideNavigationRail(
                 state = railState,
-                // Align header elements better between expanded/collapsed.
-                expandedHeaderTopPadding = 64.dp,
+                colors = WideNavigationRailDefaults.colors(containerColor = railContainerColor),
                 header = {
                     Column(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.Start,
                     ) {
                         IconButton(
-                            modifier =
-                                Modifier.semantics {
-                                    stateDescription =
-                                        if (railState.currentValue == WideNavigationRailValue.Expanded) {
-                                            "Expanded"
-                                        } else {
-                                            "Collapsed"
-                                        }
-                                },
+                            modifier = Modifier.semantics {
+                                stateDescription =
+                                    if (railState.currentValue == WideNavigationRailValue.Expanded) {
+                                        "Expanded"
+                                    } else {
+                                        "Collapsed"
+                                    }
+                            },
                             onClick = {
                                 scope.launch {
                                     if (railState.targetValue == WideNavigationRailValue.Expanded) {
@@ -114,7 +115,12 @@ fun MainScaffoldWithModalWideNavigationRail(
                                         onAddConnection()
                                         scope.launch { railState.collapse() }
                                     },
-                                    icon = { Icon(Icons.Outlined.PersonAdd, contentDescription = null) },
+                                    icon = {
+                                        Icon(
+                                            Icons.Outlined.PersonAdd,
+                                            contentDescription = null,
+                                        )
+                                    },
                                     text = { Text("Add patient") },
                                 )
                             } else {
@@ -124,7 +130,10 @@ fun MainScaffoldWithModalWideNavigationRail(
                                         scope.launch { railState.collapse() }
                                     },
                                 ) {
-                                    Icon(Icons.Outlined.PersonAdd, contentDescription = "Add patient")
+                                    Icon(
+                                        Icons.Outlined.PersonAdd,
+                                        contentDescription = "Add patient",
+                                    )
                                 }
                             }
                         }
@@ -161,7 +170,12 @@ fun MainScaffoldWithModalWideNavigationRail(
                     ) {
                         WideNavigationRailItem(
                             railExpanded = railExpanded,
-                            icon = { Icon(Icons.AutoMirrored.Outlined.ExitToApp, contentDescription = "Logout") },
+                            icon = {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.ExitToApp,
+                                    contentDescription = "Logout",
+                                )
+                            },
                             label = { Text("Logout") },
                             selected = false,
                             onClick = {
@@ -178,7 +192,11 @@ fun MainScaffoldWithModalWideNavigationRail(
                 }
             }
 
-            content(Modifier.fillMaxSize())
+            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            content(
+                Modifier.fillMaxSize().background(contentContainerColor),
+            )
         }
     }
 }

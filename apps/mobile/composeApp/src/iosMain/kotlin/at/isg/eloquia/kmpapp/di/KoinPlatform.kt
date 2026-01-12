@@ -8,7 +8,7 @@ import org.koin.core.module.Module
 private const val BASE_URL = "http://10.0.2.2:8080/"
 
 actual fun platformModules(): List<Module> = listOf(
-	networkKtorModule(baseUrl = BASE_URL, enableLogging = false),
-	entriesDataModule,
-	authDataModule,
+    networkKtorModule(baseUrl = BASE_URL, enableLogging = false),
+    entriesDataModule,
+    authDataModule,
 )

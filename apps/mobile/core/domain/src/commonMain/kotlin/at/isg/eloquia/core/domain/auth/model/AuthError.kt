@@ -9,17 +9,16 @@ sealed interface AuthError {
     data class Unexpected(val message: String? = null) : AuthError
 }
 
-fun AuthError.toUserMessage(): String =
-    when (this) {
-        AuthError.InvalidCodeOrEmail -> "Invalid code or email"
-        is AuthError.Validation -> message
-        is AuthError.Network -> when (error) {
-            is NetworkError.Http -> "Request failed (${error.status})"
-            is NetworkError.Timeout -> "Request timed out"
-            is NetworkError.Offline -> "You seem to be offline"
-            is NetworkError.Cancelled -> "Request cancelled"
-            is NetworkError.Decode -> "Could not read server response"
-            is NetworkError.Unknown -> "Something went wrong"
-        }
-        is AuthError.Unexpected -> message ?: "Something went wrong"
+fun AuthError.toUserMessage(): String = when (this) {
+    AuthError.InvalidCodeOrEmail -> "Invalid code or email"
+    is AuthError.Validation -> message
+    is AuthError.Network -> when (error) {
+        is NetworkError.Http -> "Request failed (${error.status})"
+        is NetworkError.Timeout -> "Request timed out"
+        is NetworkError.Offline -> "You seem to be offline"
+        is NetworkError.Cancelled -> "Request cancelled"
+        is NetworkError.Decode -> "Could not read server response"
+        is NetworkError.Unknown -> "Something went wrong"
     }
+    is AuthError.Unexpected -> message ?: "Something went wrong"
+}

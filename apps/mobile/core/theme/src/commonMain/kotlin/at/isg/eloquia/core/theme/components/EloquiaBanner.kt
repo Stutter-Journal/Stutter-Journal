@@ -60,29 +60,29 @@ fun EloquiaBanner(
     AnimatedVisibility(
         visible = visible,
         enter =
-            slideInVertically(
+        slideInVertically(
+            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            initialOffsetY = { full -> -full / 2 },
+        ) +
+            expandVertically(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                initialOffsetY = { full -> -full / 2 },
+                expandFrom = Alignment.Top,
             ) +
-                expandVertically(
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    expandFrom = Alignment.Top,
-                ) +
-                fadeIn(
-                    animationSpec = spring(stiffness = Spring.StiffnessLow),
-                ),
+            fadeIn(
+                animationSpec = spring(stiffness = Spring.StiffnessLow),
+            ),
         exit =
-            slideOutVertically(
+        slideOutVertically(
+            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            targetOffsetY = { full -> -full / 2 },
+        ) +
+            shrinkVertically(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                targetOffsetY = { full -> -full / 2 },
+                shrinkTowards = Alignment.Top,
             ) +
-                shrinkVertically(
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    shrinkTowards = Alignment.Top,
-                ) +
-                fadeOut(
-                    animationSpec = spring(stiffness = Spring.StiffnessLow),
-                ),
+            fadeOut(
+                animationSpec = spring(stiffness = Spring.StiffnessLow),
+            ),
         modifier = modifier,
     ) {
         Card(

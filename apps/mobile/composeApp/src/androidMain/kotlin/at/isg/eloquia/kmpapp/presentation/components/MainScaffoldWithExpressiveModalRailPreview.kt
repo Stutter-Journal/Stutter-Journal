@@ -57,7 +57,7 @@ fun PreviewMainScaffoldWithModalWideNavigationRail_Expanded() {
             onSelectTab = { selectedTab = it },
             onAddConnection = {},
             onLogout = {},
-            railState = railState
+            railState = railState,
         ) { contentModifier ->
             Surface(modifier = contentModifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {

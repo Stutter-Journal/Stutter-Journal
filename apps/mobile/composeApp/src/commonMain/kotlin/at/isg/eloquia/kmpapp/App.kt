@@ -40,6 +40,13 @@ fun App() {
                 val destination = backStackEntry.toRoute<MainDestination>()
                 MainScreen(
                     showWelcomeSnackbar = destination.showWelcomeSnackbar,
+                    userName = "",
+                    onLogout = {
+                        navController.navigate(AuthLandingDestination) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                 )
             }
         }

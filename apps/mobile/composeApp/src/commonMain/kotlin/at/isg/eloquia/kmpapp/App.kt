@@ -9,9 +9,12 @@ import androidx.navigation.compose.rememberNavController
 import at.isg.eloquia.features.auth.presentation.landing.AuthLandingScreen
 import at.isg.eloquia.kmpapp.presentation.main.MainScreen
 import kotlinx.serialization.Serializable
+import androidx.navigation.toRoute
 
 @Serializable
-object MainDestination
+data class MainDestination(
+    val showWelcomeSnackbar: Boolean = false,
+)
 
 @Serializable
 object AuthLandingDestination
@@ -25,7 +28,7 @@ fun App() {
             composable<AuthLandingDestination> {
                 AuthLandingScreen(
                     onAuthenticated = {
-                        navController.navigate(MainDestination) {
+                        navController.navigate(MainDestination(showWelcomeSnackbar = true)) {
                             popUpTo(AuthLandingDestination) { inclusive = true }
                             launchSingleTop = true
                         }
@@ -33,8 +36,11 @@ fun App() {
                 )
             }
 
-            composable<MainDestination> {
-                MainScreen()
+            composable<MainDestination> { backStackEntry ->
+                val destination = backStackEntry.toRoute<MainDestination>()
+                MainScreen(
+                    showWelcomeSnackbar = destination.showWelcomeSnackbar,
+                )
             }
         }
     }

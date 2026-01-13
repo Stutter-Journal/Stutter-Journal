@@ -57,6 +57,8 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.ui)
                         implementation(compose.dependencies.components.resources)
 
+                        implementation(libs.qr.kit)
+
                         implementation(libs.bundles.navigation.lifecycle)
                         implementation(libs.jetbrains.compose.material.icons.extended)
                         implementation(libs.bundles.ktor.common)
@@ -66,6 +68,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
 
                         implementation(project(":core:theme"))
                         implementation(project(":core:domain"))
+                        implementation(project(":core:permissions"))
                         implementation(project(":features:entries"))
                         implementation(project(":features:auth"))
                         implementation(project(":features:progress"))

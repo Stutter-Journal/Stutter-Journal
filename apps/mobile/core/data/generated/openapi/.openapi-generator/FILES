@@ -8,6 +8,8 @@ src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerErrorResponse
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkApproveResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkInviteRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerLinkResponse.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPairingCodeCreateResponse.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPairingCodeRedeemRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientLoginRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientRegisterRequest.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerPatientResponse.kt

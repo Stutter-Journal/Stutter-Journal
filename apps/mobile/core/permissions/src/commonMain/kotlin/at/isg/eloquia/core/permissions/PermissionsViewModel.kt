@@ -6,10 +6,10 @@ import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.camera.CAMERA
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 sealed interface PermissionRequestState {

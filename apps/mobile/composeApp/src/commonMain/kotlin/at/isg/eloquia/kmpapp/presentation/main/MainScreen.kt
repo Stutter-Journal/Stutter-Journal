@@ -29,6 +29,7 @@ import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
+import at.isg.eloquia.kmpapp.presentation.components.AddConnectionDialog
 import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -67,6 +68,8 @@ fun MainScreen(
     val navController = rememberNavController()
     var currentTab by remember { mutableStateOf(MainTab.Entries) }
 
+    var showAddConnectionDialog by rememberSaveable { mutableStateOf(false) }
+
     val clearSession: ClearSessionUseCase = koinInject()
     val scope = rememberCoroutineScope()
 
@@ -95,7 +98,7 @@ fun MainScreen(
     MainScaffoldWithModalWideNavigationRail(
         selectedTab = currentTab,
         onSelectTab = ::selectTab,
-        onAddConnection = { /* TODO */ },
+        onAddConnection = { showAddConnectionDialog = true },
         onLogout = {
             scope.launch {
                 clearSession()
@@ -104,6 +107,21 @@ fun MainScreen(
         },
         snackbarHost = { EloquiaSnackbarHost(hostState = snackbarHostState) },
     ) { contentModifier ->
+        AddConnectionDialog(
+            open = showAddConnectionDialog,
+            onDismiss = { showAddConnectionDialog = false },
+            onCode = { code ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Code entered: $code",
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+                // TODO: redeem pairing code (patient) and refresh data.
+            },
+        )
+
         NavHost(
             navController = navController,
             startDestination = EntriesDestination,

@@ -1,0 +1,34 @@
+- name: Ensure state dir exists
+  file:
+    path: "{{ playbook_dir }}/../../.state"
+    state: directory
+
+- name: Check required CLIs exist
+  vars:
+    tools:
+      - docker
+      - ansible-playbook
+      - kubectl
+      - helm
+      - terraform
+  command: "command -v {{ item }}"
+  loop: "{{ tools }}"
+  changed_when: false
+
+- name: Verify Docker is running
+  command: docker info
+  changed_when: false
+
+- name: Verify kubectl can reach cluster
+  command: kubectl version --client
+  changed_when: false
+
+- name: Read current kubectl context
+  command: kubectl config current-context
+  register: kubectl_context
+  changed_when: false
+
+- name: Warn if not Docker Desktop context
+  debug:
+    msg: "kubectl context is '{{ kubectl_context.stdout }}' (expected something like 'docker-desktop')"
+  when: kubectl_context.stdout is not search('docker', ignorecase=True)

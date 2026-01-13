@@ -1,0 +1,9 @@
+node_modules
+.nx
+.tmp
+.tmp/
+tmp
+.tmp/**
+dist
+.DS_Store
+.git

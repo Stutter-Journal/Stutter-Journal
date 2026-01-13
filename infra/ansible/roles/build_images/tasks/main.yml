@@ -1,0 +1,193 @@
+- name: Build backend image (eloquia/backend:dev)
+  command:
+    argv:
+      - docker
+      - build
+      - -t
+      - eloquia/backend:dev
+      - -f
+      - Dockerfile
+      - .
+  args:
+    chdir: "{{ playbook_dir }}/../../../apps/backend"
+
+- name: Build desktop image (eloquia/desktop:dev)
+  command:
+    argv:
+      - docker
+      - build
+      - -t
+      - eloquia/desktop:dev
+      - -f
+      - Dockerfile
+      - .
+  args:
+    chdir: "{{ playbook_dir }}/../../../apps/desktop"
+
+- name: Detect Docker Desktop Kubernetes node container
+  command:
+    argv:
+      - docker
+      - ps
+      - --format
+      - "{{'{{'}}.Names{{'}}'}}"
+  register: eloquia_docker_ps_names
+  changed_when: false
+
+- name: Set k8s node container name (Docker Desktop)
+  set_fact:
+    eloquia_k8s_node_container: "{{ (eloquia_docker_ps_names.stdout_lines | select('equalto', 'desktop-control-plane') | list | first) | default('') }}"
+  changed_when: false
+
+- name: Import images into Kubernetes containerd (Docker Desktop)
+  when: eloquia_k8s_node_container != ""
+  command:
+    argv:
+      - sh
+      - -lc
+      - >-
+        docker save {{ item }}
+        | docker exec -i {{ eloquia_k8s_node_container }} ctr -n k8s.io images import -
+  loop:
+    - eloquia/backend:dev
+    - eloquia/desktop:dev
+
+- name: Pull postgres image locally (Docker Desktop)
+  when: eloquia_k8s_node_container != ""
+  command:
+    argv:
+      - docker
+      - pull
+      - postgres:18
+
+- name: Import postgres image into Kubernetes containerd (Docker Desktop)
+  when: eloquia_k8s_node_container != ""
+  command:
+    argv:
+      - sh
+      - -lc
+      - >-
+        docker save postgres:18
+        | docker exec -i {{ eloquia_k8s_node_container }} ctr -n k8s.io images import -
+
+- name: Verify images present in Kubernetes containerd (Docker Desktop)
+  when: eloquia_k8s_node_container != ""
+  command:
+    argv:
+      - docker
+      - exec
+      - "{{ eloquia_k8s_node_container }}"
+      - ctr
+      - -n
+      - k8s.io
+      - images
+      - ls
+  register: eloquia_ctr_images
+  changed_when: false
+
+- name: Assert imported images are visible to Kubernetes
+  when: eloquia_k8s_node_container != ""
+  assert:
+    that:
+      - "'eloquia/backend:dev' in eloquia_ctr_images.stdout"
+      - "'eloquia/desktop:dev' in eloquia_ctr_images.stdout"
+    fail_msg: "Images were built but are not visible to Kubernetes containerd; pods will fail with ImagePullBackOff."
+
+- name: Default to local image refs
+  set_fact:
+    eloquia_backend_image: "eloquia/backend:dev"
+    eloquia_desktop_image: "eloquia/desktop:dev"
+
+- name: Decide image mode (auto/local/ttl)
+  set_fact:
+    eloquia_image_mode_resolved: "{{ eloquia_image_mode | default('auto') }}"
+
+- name: Probe whether Kubernetes can use local images (Docker Desktop compatibility)
+  when: eloquia_image_mode_resolved == 'auto'
+  block:
+    - name: Clean up any prior image probe pod
+      command:
+        argv:
+          - kubectl
+          - delete
+          - pod
+          - eloquia-image-probe
+          - --ignore-not-found=true
+
+    - name: Create image probe pod (imagePullPolicy=Never)
+      command:
+        argv:
+          - kubectl
+          - run
+          - eloquia-image-probe
+          - --restart=Never
+          - --image=eloquia/backend:dev
+          - --image-pull-policy=Never
+          - --
+          - sh
+          - -c
+          - sleep 30
+
+    - name: Wait briefly for probe pod to become Ready
+      command:
+        argv:
+          - kubectl
+          - wait
+          - --for=condition=Ready
+          - pod/eloquia-image-probe
+          - --timeout=30s
+      register: eloquia_image_probe_wait
+      failed_when: false
+      changed_when: false
+
+    - name: Clean up image probe pod
+      command:
+        argv:
+          - kubectl
+          - delete
+          - pod
+          - eloquia-image-probe
+          - --ignore-not-found=true
+      changed_when: false
+
+    - name: Set image mode based on probe result
+      set_fact:
+        eloquia_image_mode_resolved: "{{ 'local' if (eloquia_image_probe_wait.rc | int) == 0 else 'ttl' }}"
+
+- name: Push images to ttl.sh when local images aren't visible to Kubernetes
+  when: eloquia_image_mode_resolved == 'ttl'
+  block:
+    - name: Generate unique ttl.sh tags
+      set_fact:
+        eloquia_backend_image: "ttl.sh/eloquia-backend-{{ lookup('pipe', 'date +%s') }}:1h"
+        eloquia_desktop_image: "ttl.sh/eloquia-desktop-{{ lookup('pipe', 'date +%s') }}:1h"
+
+    - name: Tag backend image for ttl.sh
+      command:
+        argv:
+          - docker
+          - tag
+          - eloquia/backend:dev
+          - "{{ eloquia_backend_image }}"
+
+    - name: Push backend image to ttl.sh
+      command:
+        argv:
+          - docker
+          - push
+          - "{{ eloquia_backend_image }}"
+
+    - name: Tag desktop image for ttl.sh
+      command:
+        argv:
+          - docker
+          - tag
+          - eloquia/desktop:dev
+          - "{{ eloquia_desktop_image }}"
+
+    - name: Push desktop image to ttl.sh
+      command:
+        argv:
+          - docker
+          - push
+          - "{{ eloquia_desktop_image }}"

@@ -1,0 +1,24 @@
+- name: Wait for ingress-nginx controller
+  command: kubectl -n {{ ingress_namespace }} rollout status deployment/ingress-nginx-controller --timeout=30s
+  changed_when: false
+
+- name: Wait for postgres statefulset
+  command: kubectl -n {{ k8s_namespace }} rollout status statefulset/eloquia-postgres --timeout=30s
+  changed_when: false
+
+- name: Wait for backend deployment
+  command: kubectl -n {{ k8s_namespace }} rollout status deployment/backend --timeout=30s
+  changed_when: false
+
+- name: Wait for desktop deployment
+  command: kubectl -n {{ k8s_namespace }} rollout status deployment/desktop --timeout=30s
+  changed_when: false
+
+- name: Print endpoints from .env.runtime
+  command: cat {{ playbook_dir }}/../../../.env.runtime
+  register: env_runtime
+  changed_when: false
+
+- name: Show endpoints
+  debug:
+    msg: "{{ env_runtime.stdout_lines }}"

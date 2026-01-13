@@ -1,0 +1,18 @@
+- name: Build images, choose DNS mode, terraform apply, wait for k8s
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    k8s_namespace: eloquia-dev
+    ingress_namespace: ingress-nginx
+    tf_state_path: "{{ playbook_dir }}/../../.state/terraform.tfstate"
+
+  roles:
+    - prereqs
+    - build_images
+    - dns_mode
+    - role: tf_apply
+      vars:
+        tf_action: apply
+    - k8s_wait

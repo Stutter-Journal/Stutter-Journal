@@ -1,0 +1,27 @@
+- name: Terraform destroy and cleanup
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    k8s_namespace: eloquia-dev
+    ingress_namespace: ingress-nginx
+    tf_state_path: "{{ playbook_dir }}/../../.state/terraform.tfstate"
+
+  roles:
+    - prereqs
+    - role: dns_mode
+      vars:
+        allow_fallback_to_node_ip: true
+    - role: tf_apply
+      vars:
+        tf_action: destroy
+
+  tasks:
+    - name: Remove generated env files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ playbook_dir }}/../../../.env.runtime"
+        - "{{ playbook_dir }}/../../.state/base_host"

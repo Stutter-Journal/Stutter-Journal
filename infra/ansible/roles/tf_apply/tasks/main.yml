@@ -1,0 +1,58 @@
+- name: Ensure terraform plugin dir exists
+  file:
+    path: "{{ playbook_dir }}/../../.state/.terraform"
+    state: directory
+
+- name: Terraform init
+  command:
+    argv:
+      - terraform
+      - -chdir={{ playbook_dir }}/../../terraform
+      - init
+      - -upgrade
+  environment:
+    TF_DATA_DIR: "{{ playbook_dir }}/../../.state/.terraform"
+
+- name: Ensure Helm repos exist (needed by Terraform helm provider)
+  command:
+    argv:
+      - helm
+      - repo
+      - add
+      - "{{ item.name }}"
+      - "{{ item.url }}"
+  loop:
+    - { name: ingress-nginx, url: "https://kubernetes.github.io/ingress-nginx" }
+  failed_when: false
+  changed_when: false
+
+- name: Helm repo update
+  command:
+    argv:
+      - helm
+      - repo
+      - update
+  changed_when: false
+
+- name: Terraform {{ tf_action | default('apply') }}
+  vars:
+    tf_action_resolved: "{{ tf_action | default('apply') }}"
+  command:
+    argv:
+      - terraform
+      - -chdir={{ playbook_dir }}/../../terraform
+      - "{{ tf_action_resolved }}"
+      - -auto-approve
+      - -state={{ tf_state_path }}
+      - -var
+      - namespace={{ k8s_namespace }}
+      - -var
+      - ingress_namespace={{ ingress_namespace }}
+      - -var
+      - base_host={{ eloquia_base_host }}
+      - -var
+      - backend_image={{ eloquia_backend_image | default('eloquia/backend:dev') }}
+      - -var
+      - desktop_image={{ eloquia_desktop_image | default('eloquia/desktop:dev') }}
+  environment:
+    TF_DATA_DIR: "{{ playbook_dir }}/../../.state/.terraform"

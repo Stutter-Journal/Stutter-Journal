@@ -11,4 +11,9 @@ android {
         // TODO: Make this environment-specific when needed (debug/release can diverge).
         buildConfigField("String", "BASE_URL", "\"http://api.eloquia.test/\"")
     }
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
 }

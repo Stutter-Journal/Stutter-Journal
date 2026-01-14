@@ -1,4 +1,16 @@
+- name: Determine base_host override
+  set_fact:
+    eloquia_base_host_override_resolved: "{{ eloquia_base_host_override | default(lookup('env', 'ELOQUIA_BASE_HOST') | default('', true)) | trim }}"
+  changed_when: false
+
+- name: "Set base_host from override (Mode B: local DNS)"
+  when: eloquia_base_host_override_resolved | length > 0
+  set_fact:
+    eloquia_ingress_endpoint: ""
+    eloquia_base_host: "{{ eloquia_base_host_override_resolved }}"
+
 - name: "Determine ingress endpoint IP (Mode A: sslip.io)"
+  when: eloquia_base_host_override_resolved | length == 0
   shell: |
     set -euo pipefail
 
@@ -30,6 +42,7 @@
   changed_when: false
 
 - name: Set base_host for Mode A
+  when: eloquia_base_host_override_resolved | length == 0
   set_fact:
     eloquia_ingress_endpoint: "{{ ingress_endpoint.stdout | trim }}"
     eloquia_base_host: "{{ (ingress_endpoint.stdout | trim) }}.sslip.io"

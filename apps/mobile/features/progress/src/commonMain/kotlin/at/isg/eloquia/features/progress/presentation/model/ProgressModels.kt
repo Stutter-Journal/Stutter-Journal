@@ -46,6 +46,25 @@ data class FrequencyData(
     val stutterForms: List<CategoryFrequency>,
 )
 
+/**
+ * Data point for comparison charts showing average intensity per category.
+ */
+@Immutable
+data class ComparisonDataPoint(
+    val category: String,
+    val averageIntensity: Float,
+    val count: Int,
+)
+
+/**
+ * Container for comparison mode data.
+ */
+@Immutable
+data class ComparisonData(
+    val situationData: List<ComparisonDataPoint>,
+    val techniqueData: List<ComparisonDataPoint>,
+)
+
 sealed interface ProgressUiState {
     data object Loading : ProgressUiState
     data object Empty : ProgressUiState
@@ -53,5 +72,8 @@ sealed interface ProgressUiState {
         val dataPoints: List<IntensityDataPoint>,
         val selectedTimeRange: SelectedTimeRange,
         val frequencyData: FrequencyData,
+        val comparisonData: ComparisonData,
+        val availableSituations: List<String>,
+        val availableTechniques: List<String>,
     ) : ProgressUiState
 }

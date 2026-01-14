@@ -63,13 +63,22 @@ fun ProgressScreen(
     val state by viewModel.state.collectAsState()
     val showEmptyDays by viewModel.showEmptyDays.collectAsState()
     val timeRange by viewModel.timeRange.collectAsState()
+    val comparisonMode by viewModel.comparisonMode.collectAsState()
+    val selectedSituations by viewModel.selectedSituations.collectAsState()
+    val selectedTechniques by viewModel.selectedTechniques.collectAsState()
 
     ProgressScreenContent(
         state = state,
         showEmptyDays = showEmptyDays,
         timeRange = timeRange,
+        comparisonMode = comparisonMode,
+        selectedSituations = selectedSituations,
+        selectedTechniques = selectedTechniques,
         onToggleEmptyDays = viewModel::toggleShowEmptyDays,
         onTimeRangeChange = viewModel::setTimeRange,
+        onToggleComparisonMode = viewModel::toggleComparisonMode,
+        onToggleSituation = viewModel::toggleSituation,
+        onToggleTechnique = viewModel::toggleTechnique,
         modifier = modifier,
     )
 }
@@ -80,8 +89,14 @@ private fun ProgressScreenContent(
     state: ProgressUiState,
     showEmptyDays: Boolean,
     timeRange: TimeRange,
+    comparisonMode: Boolean,
+    selectedSituations: Set<String>,
+    selectedTechniques: Set<String>,
     onToggleEmptyDays: () -> Unit,
     onTimeRangeChange: (TimeRange) -> Unit,
+    onToggleComparisonMode: () -> Unit,
+    onToggleSituation: (String) -> Unit,
+    onToggleTechnique: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -114,10 +129,19 @@ private fun ProgressScreenContent(
                     dataPoints = state.dataPoints,
                     selectedTimeRange = state.selectedTimeRange,
                     frequencyData = state.frequencyData,
+                    comparisonData = state.comparisonData,
+                    availableSituations = state.availableSituations,
+                    availableTechniques = state.availableTechniques,
                     showEmptyDays = showEmptyDays,
                     timeRange = timeRange,
+                    comparisonMode = comparisonMode,
+                    selectedSituations = selectedSituations,
+                    selectedTechniques = selectedTechniques,
                     onToggleEmptyDays = onToggleEmptyDays,
                     onTimeRangeChange = onTimeRangeChange,
+                    onToggleComparisonMode = onToggleComparisonMode,
+                    onToggleSituation = onToggleSituation,
+                    onToggleTechnique = onToggleTechnique,
                     modifier = Modifier.fillMaxSize().padding(padding),
                 )
             }
@@ -130,10 +154,19 @@ private fun ProgressContent(
     dataPoints: List<IntensityDataPoint>,
     selectedTimeRange: at.isg.eloquia.features.progress.presentation.model.SelectedTimeRange,
     frequencyData: at.isg.eloquia.features.progress.presentation.model.FrequencyData,
+    comparisonData: at.isg.eloquia.features.progress.presentation.model.ComparisonData,
+    availableSituations: List<String>,
+    availableTechniques: List<String>,
     showEmptyDays: Boolean,
     timeRange: TimeRange,
+    comparisonMode: Boolean,
+    selectedSituations: Set<String>,
+    selectedTechniques: Set<String>,
     onToggleEmptyDays: () -> Unit,
     onTimeRangeChange: (TimeRange) -> Unit,
+    onToggleComparisonMode: () -> Unit,
+    onToggleSituation: (String) -> Unit,
+    onToggleTechnique: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -177,14 +210,23 @@ private fun ProgressContent(
             StatisticsCards(dataPoints = dataPoints)
         }
 
-        // Frequency charts section
+        // Mode toggle and content
         item {
-            Text(
-                text = "Category Frequencies",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp),
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = if (comparisonMode) "Comparison Mode" else "Category Frequencies",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                Switch(
+                    checked = comparisonMode,
+                    onCheckedChange = { onToggleComparisonMode() },
+                )
+            }
         }
 
         item {
@@ -195,31 +237,47 @@ private fun ProgressContent(
             )
         }
 
-        item {
-            FrequencyBarChart(
-                title = "Triggers",
-                data = frequencyData.triggers,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        if (comparisonMode) {
+            // Comparison mode UI
+            item {
+                ComparisonModeContent(
+                    comparisonData = comparisonData,
+                    availableSituations = availableSituations,
+                    availableTechniques = availableTechniques,
+                    selectedSituations = selectedSituations,
+                    selectedTechniques = selectedTechniques,
+                    onToggleSituation = onToggleSituation,
+                    onToggleTechnique = onToggleTechnique,
+                )
+            }
+        } else {
+            // Frequency charts
+            item {
+                FrequencyBarChart(
+                    title = "Triggers",
+                    data = frequencyData.triggers,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-        item {
-            FrequencyBarChart(
-                title = "Techniques",
-                data = frequencyData.techniques,
-                color = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+            item {
+                FrequencyBarChart(
+                    title = "Techniques",
+                    data = frequencyData.techniques,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-        item {
-            FrequencyBarChart(
-                title = "Stutter Forms",
-                data = frequencyData.stutterForms,
-                color = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            item {
+                FrequencyBarChart(
+                    title = "Stutter Forms",
+                    data = frequencyData.stutterForms,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
@@ -733,6 +791,265 @@ private fun FrequencyBarItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fraction)
+                    .fillMaxHeight()
+                    .background(
+                        color = color,
+                        shape = MaterialTheme.shapes.small,
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun ComparisonModeContent(
+    comparisonData: at.isg.eloquia.features.progress.presentation.model.ComparisonData,
+    availableSituations: List<String>,
+    availableTechniques: List<String>,
+    selectedSituations: Set<String>,
+    selectedTechniques: Set<String>,
+    onToggleSituation: (String) -> Unit,
+    onToggleTechnique: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        CategoryComparisonCard(
+            title = "Situations / Triggers",
+            categories = availableSituations,
+            selectedCategories = selectedSituations,
+            onToggleCategory = onToggleSituation,
+            emptyMessage = "No situations available in this time range",
+            selectMessage = "Select situations to compare:",
+            chartTitle = "Average Intensity by Situation",
+            chartData = comparisonData.situationData,
+            chartColor = MaterialTheme.colorScheme.error,
+        )
+
+        CategoryComparisonCard(
+            title = "Techniques / Methods",
+            categories = availableTechniques,
+            selectedCategories = selectedTechniques,
+            onToggleCategory = onToggleTechnique,
+            emptyMessage = "No techniques available in this time range",
+            selectMessage = "Select techniques to compare:",
+            chartTitle = "Average Intensity by Technique",
+            chartData = comparisonData.techniqueData,
+            chartColor = MaterialTheme.colorScheme.tertiary,
+        )
+    }
+}
+
+@Composable
+private fun CategoryComparisonCard(
+    title: String,
+    categories: List<String>,
+    selectedCategories: Set<String>,
+    onToggleCategory: (String) -> Unit,
+    emptyMessage: String,
+    selectMessage: String,
+    chartTitle: String,
+    chartData: List<at.isg.eloquia.features.progress.presentation.model.ComparisonDataPoint>,
+    chartColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            if (categories.isEmpty()) {
+                Text(
+                    text = emptyMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    text = selectMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                CategorySelectionGrid(
+                    categories = categories,
+                    selectedCategories = selectedCategories,
+                    onToggleCategory = onToggleCategory,
+                )
+
+                if (selectedCategories.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ComparisonChart(
+                        title = chartTitle,
+                        data = chartData,
+                        color = chartColor,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategorySelectionGrid(
+    categories: List<String>,
+    selectedCategories: Set<String>,
+    onToggleCategory: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        // Create rows with 2 items each
+        categories.chunked(2).forEach { rowCategories ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                rowCategories.forEach { category ->
+                    FilterChip(
+                        selected = category in selectedCategories,
+                        onClick = { onToggleCategory(category) },
+                        label = { Text(category) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                // Add spacer if row has only one item
+                if (rowCategories.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComparisonChart(
+    title: String,
+    data: List<at.isg.eloquia.features.progress.presentation.model.ComparisonDataPoint>,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    if (data.isEmpty()) {
+        Card(
+            modifier = modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "No data available for selected categories",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        return
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Medium,
+        )
+
+        val maxIntensity = 10f // Fixed scale 0-10
+
+        data.forEach { item ->
+            ComparisonBarItem(
+                category = item.category,
+                averageIntensity = item.averageIntensity,
+                count = item.count,
+                maxIntensity = maxIntensity,
+                color = color,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ComparisonBarItem(
+    category: String,
+    averageIntensity: Float,
+    count: Int,
+    maxIntensity: Float,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = category,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    text = "$count ${if (count == 1) "entry" else "entries"}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(
+                text = run {
+                    val rounded = kotlin.math.round(averageIntensity * 10) / 10
+                    rounded.toString()
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = color,
+            )
+        }
+
+        // Horizontal bar
+        val fraction = if (maxIntensity > 0) averageIntensity / maxIntensity else 0f
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(12.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.small,
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
                     .fillMaxHeight()
                     .background(
                         color = color,

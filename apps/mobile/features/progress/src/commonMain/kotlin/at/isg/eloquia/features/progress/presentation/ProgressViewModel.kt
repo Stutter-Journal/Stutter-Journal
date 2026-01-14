@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import at.isg.eloquia.core.domain.entries.model.JournalEntry
 import at.isg.eloquia.core.domain.entries.usecase.ObserveJournalEntriesUseCase
 import at.isg.eloquia.features.progress.presentation.model.CategoryFrequency
+import at.isg.eloquia.features.progress.presentation.model.ComparisonData
+import at.isg.eloquia.features.progress.presentation.model.ComparisonDataPoint
 import at.isg.eloquia.features.progress.presentation.model.FrequencyData
 import at.isg.eloquia.features.progress.presentation.model.IntensityDataPoint
 import at.isg.eloquia.features.progress.presentation.model.ProgressUiState
@@ -33,7 +35,17 @@ class ProgressViewModel(
     private val _timeRange = MutableStateFlow(TimeRange.MONTH)
     val timeRange: StateFlow<TimeRange> = _timeRange
 
-    val state: StateFlow<ProgressUiState> = combine(
+    private val _comparisonMode = MutableStateFlow(false)
+    val comparisonMode: StateFlow<Boolean> = _comparisonMode
+
+    private val _selectedSituations = MutableStateFlow<Set<String>>(emptySet())
+    val selectedSituations: StateFlow<Set<String>> = _selectedSituations
+
+    private val _selectedTechniques = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTechniques: StateFlow<Set<String>> = _selectedTechniques
+
+    // Separate derived flow for availability data (depends on entries & timeRange)
+    private val availabilityData: StateFlow<AvailabilityData> = combine(
         observeEntriesUseCase(),
         _timeRange,
     ) { entries, range ->
@@ -51,7 +63,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null
@@ -83,38 +95,69 @@ class ProgressViewModel(
             else -> null
         }
 
-        if (startDate == null) return@combine ProgressUiState.Empty
-
-        val endDate = when (range) {
-            TimeRange.MAX -> dailyAverages.lastOrNull()?.date ?: today
-            else -> today
-        }
-
-        // Create SelectedTimeRange (single source of truth)
-        val selectedTimeRange = SelectedTimeRange(startDate = startDate, endDate = endDate)
-
-        // Keep daily granularity; no aggregation
-        val filteredData = dailyAverages.filter { it.date in startDate..endDate }
-
-        // Always fill the full time window to keep a continuous time axis
-        val finalData = if (filteredData.isNotEmpty()) {
-            fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
-        } else emptyList()
-        
-        // Compute frequency data for the selected time range
-        val frequencyData = computeFrequencyData(entries, selectedTimeRange)
-        
-        // Return UI state
-        if (finalData.isEmpty()) {
-            ProgressUiState.Empty
+        if (startDate == null) {
+            AvailabilityData.Empty
         } else {
-            ProgressUiState.Success(
+            val endDate = when (range) {
+                TimeRange.MAX -> dailyAverages.lastOrNull()?.date ?: today
+                else -> today
+            }
+
+            val selectedTimeRange = SelectedTimeRange(startDate = startDate, endDate = endDate)
+            val filteredData = dailyAverages.filter { it.date in startDate..endDate }
+            val finalData = if (filteredData.isNotEmpty()) {
+                fillMissingDays(filteredData, startDate = startDate, endDate = endDate)
+            } else emptyList()
+            
+            val frequencyData = computeFrequencyData(entries, selectedTimeRange)
+            val availableSituations = extractAvailableCategories(entries, "trigger:", selectedTimeRange)
+            val availableTechniques = extractAvailableCategories(entries, "method:", selectedTimeRange)
+
+            AvailabilityData.Success(
                 dataPoints = finalData,
                 selectedTimeRange = selectedTimeRange,
                 frequencyData = frequencyData,
+                availableSituations = availableSituations,
+                availableTechniques = availableTechniques,
+                entries = entries,
             )
         }
     }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AvailabilityData.Empty,
+    )
+
+    // Derived flow for comparison data (depends on availabilityData & selections)
+    val state: StateFlow<ProgressUiState> = combine(
+        availabilityData,
+        _selectedSituations,
+        _selectedTechniques,
+    ) { availability, selectedSituations, selectedTechniques ->
+        if (availability !is AvailabilityData.Success) {
+            return@combine ProgressUiState.Empty
+        }
+
+        val comparisonData = computeComparisonData(
+            availability.entries,
+            availability.selectedTimeRange,
+            selectedSituations,
+            selectedTechniques
+        )
+
+        ProgressUiState.Success(
+            dataPoints = availability.dataPoints,
+            selectedTimeRange = availability.selectedTimeRange,
+            frequencyData = availability.frequencyData,
+            comparisonData = comparisonData,
+            availableSituations = availability.availableSituations,
+            availableTechniques = availability.availableTechniques,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ProgressUiState.Loading,
+    ).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = ProgressUiState.Loading,
@@ -126,6 +169,26 @@ class ProgressViewModel(
 
     fun setTimeRange(range: TimeRange) {
         _timeRange.value = range
+    }
+
+    fun toggleComparisonMode() {
+        _comparisonMode.value = !_comparisonMode.value
+    }
+
+    fun toggleSituation(situation: String) {
+        _selectedSituations.value = if (situation in _selectedSituations.value) {
+            _selectedSituations.value - situation
+        } else {
+            _selectedSituations.value + situation
+        }
+    }
+
+    fun toggleTechnique(technique: String) {
+        _selectedTechniques.value = if (technique in _selectedTechniques.value) {
+            _selectedTechniques.value - technique
+        } else {
+            _selectedTechniques.value + technique
+        }
     }
 
     private fun currentLocalDate(): LocalDate {
@@ -179,7 +242,7 @@ class ProgressViewModel(
                     if (tag.startsWith("date:", ignoreCase = true)) {
                         try {
                             LocalDate.parse(tag.substringAfter(":").trim())
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             null
                         }
                     } else null
@@ -241,4 +304,147 @@ class ProgressViewModel(
         )
     }
 
+    /**
+     * Extracts all available categories of a given type from entries in the selected time range.
+     */
+    private fun extractAvailableCategories(
+        entries: List<JournalEntry>,
+        prefix: String,
+        selectedTimeRange: SelectedTimeRange,
+    ): List<String> {
+        val entriesInRange = entries.filter { entry ->
+            val entryDate = entry.tags
+                .firstNotNullOfOrNull { tag ->
+                    if (tag.startsWith("date:", ignoreCase = true)) {
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (_: Exception) {
+                            null
+                        }
+                    } else null
+                } ?: entry.createdAt.date
+            
+            entryDate in selectedTimeRange.startDate..selectedTimeRange.endDate
+        }
+        
+        return entriesInRange
+            .flatMap { entry ->
+                entry.tags.filter { it.startsWith(prefix, ignoreCase = true) }
+                    .map { it.substringAfter(":").trim() }
+            }
+            .distinct()
+            .sorted()
+    }
+
+    /**
+     * Computes comparison data showing average intensity per situation and technique.
+     */
+    private fun computeComparisonData(
+        entries: List<JournalEntry>,
+        selectedTimeRange: SelectedTimeRange,
+        selectedSituations: Set<String>,
+        selectedTechniques: Set<String>,
+    ): ComparisonData {
+        // Filter entries within the selected time range
+        val entriesInRange = entries.filter { entry ->
+            val entryDate = entry.tags
+                .firstNotNullOfOrNull { tag ->
+                    if (tag.startsWith("date:", ignoreCase = true)) {
+                        try {
+                            LocalDate.parse(tag.substringAfter(":").trim())
+                        } catch (_: Exception) {
+                            null
+                        }
+                    } else null
+                } ?: entry.createdAt.date
+            
+            entryDate in selectedTimeRange.startDate..selectedTimeRange.endDate
+        }
+        
+        // Compute situation comparison data
+        val situationData = if (selectedSituations.isEmpty()) {
+            emptyList()
+        } else {
+            selectedSituations.mapNotNull { situation ->
+                val matchingEntries = entriesInRange.filter { entry ->
+                    entry.tags.any { tag ->
+                        tag.startsWith("trigger:", ignoreCase = true) &&
+                        tag.substringAfter(":").trim() == situation
+                    }
+                }
+                
+                val intensities = matchingEntries.mapNotNull { entry ->
+                    entry.tags
+                        .firstNotNullOfOrNull { tag ->
+                            if (tag.startsWith("intensity:", ignoreCase = true)) {
+                                tag.substringAfter(":").trim().toFloatOrNull()
+                            } else null
+                        }
+                }
+                
+                if (intensities.isNotEmpty()) {
+                    ComparisonDataPoint(
+                        category = situation,
+                        averageIntensity = intensities.average().toFloat(),
+                        count = intensities.size,
+                    )
+                } else null
+            }.sortedByDescending { it.averageIntensity }
+        }
+        
+        // Compute technique comparison data
+        val techniqueData = if (selectedTechniques.isEmpty()) {
+            emptyList()
+        } else {
+            selectedTechniques.mapNotNull { technique ->
+                val matchingEntries = entriesInRange.filter { entry ->
+                    entry.tags.any { tag ->
+                        tag.startsWith("method:", ignoreCase = true) &&
+                        tag.substringAfter(":").trim() == technique
+                    }
+                }
+                
+                val intensities = matchingEntries.mapNotNull { entry ->
+                    entry.tags
+                        .firstNotNullOfOrNull { tag ->
+                            if (tag.startsWith("intensity:", ignoreCase = true)) {
+                                tag.substringAfter(":").trim().toFloatOrNull()
+                            } else null
+                        }
+                }
+                
+                if (intensities.isNotEmpty()) {
+                    ComparisonDataPoint(
+                        category = technique,
+                        averageIntensity = intensities.average().toFloat(),
+                        count = intensities.size,
+                    )
+                } else null
+            }.sortedByDescending { it.averageIntensity }
+        }
+        
+        return ComparisonData(
+            situationData = situationData,
+            techniqueData = techniqueData,
+        )
+    }
+
+}
+
+/**
+ * Internal sealed class to hold availability data that is computed based on
+ * entries and time range. This is used to avoid redundant recomputation when
+ * only the selection (situations/techniques) changes.
+ */
+private sealed class AvailabilityData {
+    object Empty : AvailabilityData()
+
+    data class Success(
+        val dataPoints: List<IntensityDataPoint>,
+        val selectedTimeRange: SelectedTimeRange,
+        val frequencyData: FrequencyData,
+        val availableSituations: List<String>,
+        val availableTechniques: List<String>,
+        val entries: List<JournalEntry>,
+    ) : AvailabilityData()
 }

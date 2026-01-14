@@ -113,12 +113,11 @@ fun MainScreen(
             onCode = { code ->
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Code entered: $code",
+                        message = "Connected with code $code",
                         withDismissAction = true,
                         duration = SnackbarDuration.Short,
                     )
                 }
-                // TODO: redeem pairing code (patient) and refresh data.
             },
         )
 

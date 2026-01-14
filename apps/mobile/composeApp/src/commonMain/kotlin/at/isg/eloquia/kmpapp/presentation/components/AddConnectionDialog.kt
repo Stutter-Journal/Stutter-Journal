@@ -40,7 +40,9 @@ import at.isg.eloquia.core.permissions.BindPermissionsEffect
 import at.isg.eloquia.core.permissions.PermissionRequestState
 import at.isg.eloquia.core.permissions.PermissionsViewModel
 import at.isg.eloquia.core.permissions.rememberEloquiaPermissionsControllerFactory
+import at.isg.eloquia.kmpapp.presentation.states.AddConnectionState
 import io.github.aakira.napier.Napier
+import org.koin.compose.viewmodel.koinViewModel
 import qrscanner.CameraLens
 import qrscanner.QrScanner
 
@@ -53,6 +55,9 @@ fun AddConnectionDialog(
     if (!open) return
 
     val logTag = "AddConnectionDialog"
+
+    val viewModel: AddConnectionViewModel = koinViewModel()
+    val state by viewModel.state.collectAsState()
 
     val factory = rememberEloquiaPermissionsControllerFactory()
     val permissionsViewModel = remember(factory) {
@@ -76,10 +81,30 @@ fun AddConnectionDialog(
         if (open) {
             Napier.d(tag = logTag) { "Dialog opened; resetting state" }
             errorText = null
+            viewModel.reset()
             permissionsViewModel.resetCamera()
             scanning = false
             flashlightOn = false
             openImagePicker = false
+        }
+    }
+
+    LaunchedEffect(state) {
+        when (state) {
+            AddConnectionState.Success -> {
+                val submitted = code.trim().filter(Char::isDigit).take(6)
+                if (submitted.length == 6) {
+                    onCode(submitted)
+                }
+                onDismiss()
+            }
+
+            is AddConnectionState.Editing -> {
+                val msg = (state as AddConnectionState.Editing).errorMessage
+                if (!msg.isNullOrBlank()) errorText = msg
+            }
+
+            is AddConnectionState.Submitting -> Unit
         }
     }
 
@@ -134,6 +159,7 @@ fun AddConnectionDialog(
                             val next = it.filter(Char::isDigit).take(6)
                             code = next
                             errorText = null
+                            viewModel.updateCode(next)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Code") },
@@ -180,8 +206,14 @@ fun AddConnectionDialog(
                                 Napier.d(tag = logTag) { "QR scan completion: raw='$raw'" }
                                 val scanned = raw.trim()
                                 val extracted = Regex("\\b\\d{6}\\b").find(scanned)?.value ?: scanned
-                                onCode(extracted)
-                                onDismiss()
+                                val normalized = extracted.trim().filter(Char::isDigit).take(6)
+                                code = normalized
+                                viewModel.updateCode(normalized)
+
+                                scanning = false
+                                flashlightOn = false
+                                openImagePicker = false
+                                viewModel.submit(codeOverride = normalized)
                             },
                             imagePickerHandler = { open ->
                                 Napier.d(tag = logTag) { "imagePickerHandler(open=$open)" }
@@ -243,19 +275,15 @@ fun AddConnectionDialog(
             }
         },
         confirmButton = {
+            val submitting = state is AddConnectionState.Submitting
             Button(
                 onClick = {
-                    val trimmed = code.trim()
-                    if (trimmed.length != 6) {
-                        errorText = "Enter a 6-digit code"
-                    } else {
-                        onCode(trimmed)
-                        onDismiss()
-                    }
+                    errorText = null
+                    viewModel.submit()
                 },
-                enabled = !scanning && code.trim().isNotEmpty(),
+                enabled = !scanning && code.trim().isNotEmpty() && !submitting,
             ) {
-                Text("Continue")
+                Text(if (submitting) "Connecting..." else "Continue")
             }
         },
         dismissButton = {

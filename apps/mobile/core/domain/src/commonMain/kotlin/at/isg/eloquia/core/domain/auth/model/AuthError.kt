@@ -3,6 +3,7 @@ package at.isg.eloquia.core.domain.auth.model
 import at.isg.eloquia.core.network.api.NetworkError
 
 sealed interface AuthError {
+    data object InvalidCode : AuthError
     data object InvalidCodeOrEmail : AuthError
     data class Validation(val message: String) : AuthError
     data class Network(val error: NetworkError) : AuthError
@@ -10,6 +11,7 @@ sealed interface AuthError {
 }
 
 fun AuthError.toUserMessage(): String = when (this) {
+    AuthError.InvalidCode -> "Invalid code"
     AuthError.InvalidCodeOrEmail -> "Invalid code or email"
     is AuthError.Validation -> message
     is AuthError.Network -> when (error) {

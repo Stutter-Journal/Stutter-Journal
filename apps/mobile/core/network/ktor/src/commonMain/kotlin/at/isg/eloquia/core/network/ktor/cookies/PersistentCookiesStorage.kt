@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+// TODO: dafuq, what the mutex for, this is absolutely unnecessary...
 class PersistentCookiesStorage(
     private val prefs: KeyValueStore,
     private val rememberMeKey: String = "auth.rememberMe.enabled",

@@ -6,6 +6,7 @@ import at.isg.eloquia.core.data.auth.mapper.toDomainPatient
 import at.isg.eloquia.core.data.auth.remote.AuthApi
 import at.isg.eloquia.core.data.openapi.model.ServerLinkInviteRequest
 import at.isg.eloquia.core.data.openapi.model.ServerLinkResponse
+import at.isg.eloquia.core.data.openapi.model.ServerPairingCodeRedeemRequest
 import at.isg.eloquia.core.data.openapi.model.ServerPatientLoginRequest
 import at.isg.eloquia.core.data.openapi.model.ServerPatientRegisterRequest
 import at.isg.eloquia.core.domain.auth.model.AuthError
@@ -49,6 +50,36 @@ internal class AuthRepositoryImpl(
             is AuthResult.Success -> AppLog.i(TAG, "Request link success linkId=${mapped.value.linkId}")
             is AuthResult.Failure -> AppLog.w(TAG, "Request link failed")
         }
+        return mapped
+    }
+
+    override suspend fun redeemPairingCode(code: String): AuthResult<LinkRequest> {
+        val normalized = code.trim()
+        AppLog.i(TAG, "Redeem pairing code start codeLen=${normalized.length}")
+
+        val result = api.redeemPairingCode(
+            ServerPairingCodeRedeemRequest(
+                code = normalized,
+            ),
+        )
+
+        val mapped = result.toLinkRequestResult(
+            mapHttp = { status, body ->
+                when (status) {
+                    400 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Invalid code")
+                    401 -> AuthError.Network(NetworkError.Http(status, body))
+                    404 -> AuthError.InvalidCode
+                    409 -> AuthError.Validation(parseServerErrorMessage(body) ?: "Conflict")
+                    else -> AuthError.Network(NetworkError.Http(status, body))
+                }
+            },
+        )
+
+        when (mapped) {
+            is AuthResult.Success -> AppLog.i(TAG, "Redeem pairing code success linkId=${mapped.value.linkId} status=${mapped.value.status}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Redeem pairing code failed")
+        }
+
         return mapped
     }
 

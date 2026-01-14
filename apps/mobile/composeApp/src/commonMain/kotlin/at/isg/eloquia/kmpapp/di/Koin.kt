@@ -5,6 +5,7 @@ import at.isg.eloquia.core.domain.entries.di.entriesDomainModule
 import at.isg.eloquia.features.auth.di.authFeatureModule
 import at.isg.eloquia.features.entries.di.entriesFeatureModule
 import at.isg.eloquia.features.progress.di.progressFeatureModule
+import at.isg.eloquia.kmpapp.di.kmpAppModule
 import at.isg.eloquia.kmpapp.logging.initLogging
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -33,6 +34,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
             entriesFeatureModule,
             authFeatureModule,
             progressFeatureModule,
+            kmpAppModule,
         )
         modules(platformModules())
     }

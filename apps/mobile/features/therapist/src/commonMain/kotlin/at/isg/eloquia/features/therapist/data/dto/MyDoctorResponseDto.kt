@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MyDoctorResponseDto(
-    @SerialName("doctor") val doctor: DoctorDto
+    @SerialName("doctor") val doctor: DoctorDto,
 )
-

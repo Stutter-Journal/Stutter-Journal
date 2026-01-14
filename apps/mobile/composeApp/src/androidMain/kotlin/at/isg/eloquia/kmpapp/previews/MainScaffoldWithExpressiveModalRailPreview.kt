@@ -35,7 +35,7 @@ fun PreviewMainScaffoldWithModalWideNavigationRail_Collapsed() {
         ) { contentModifier ->
             Surface(
                 modifier = contentModifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surface
+                color = MaterialTheme.colorScheme.surface,
             ) {
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text("Content area")
@@ -65,7 +65,7 @@ fun PreviewMainScaffoldWithModalWideNavigationRail_Expanded() {
         ) { contentModifier ->
             Surface(
                 modifier = contentModifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surface
+                color = MaterialTheme.colorScheme.surface,
             ) {
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text("Content area")

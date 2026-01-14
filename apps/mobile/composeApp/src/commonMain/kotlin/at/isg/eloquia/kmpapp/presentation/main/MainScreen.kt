@@ -63,7 +63,7 @@ enum class MainTab(
 
     Support(SupportDestination, Icons.Default.Favorite, "Support"),
 
-    Therapist(TherapistDestination, Icons.Default.Medication, "Therapist")
+    Therapist(TherapistDestination, Icons.Default.Medication, "Therapist"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

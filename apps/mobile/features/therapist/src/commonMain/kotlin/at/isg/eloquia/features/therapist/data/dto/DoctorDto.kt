@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class DoctorDto(
     @SerialName("email") val email: String,
     @SerialName("displayName") val displayName: String,
-    @SerialName("myDoctorPractice") val practice: PracticeDto
+    @SerialName("myDoctorPractice") val practice: PracticeDto,
 )

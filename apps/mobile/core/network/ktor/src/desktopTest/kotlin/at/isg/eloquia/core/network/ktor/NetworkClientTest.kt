@@ -10,7 +10,6 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
@@ -19,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 class NetworkClientTest {
 
-    private val baseUrl = "http://10.0.2.2:8080/"
+    private val baseUrl = "http://api.eloquia.test:8080/"
 
     @Nested
     inner class OkCases {
@@ -47,7 +46,7 @@ class NetworkClientTest {
         @Test
         fun `includes baseUrl and default headers`() = runTest {
             val engine = MockEngine { request ->
-                request.url.host shouldBe "10.0.2.2"
+                request.url.host shouldBe "api.eloquia.test"
                 request.url.port shouldBe 8080
                 request.url.encodedPath shouldBe "/user/1"
 
@@ -153,7 +152,7 @@ class NetworkClientTest {
         @Test
         fun `maps io exception to Offline`() = runTest {
             val engine = MockEngine { _ ->
-                throw IOException("offline")
+                throw kotlinx.io.IOException("offline")
             }
 
             val http = createHttpClient(baseUrl = baseUrl, engine = engine)

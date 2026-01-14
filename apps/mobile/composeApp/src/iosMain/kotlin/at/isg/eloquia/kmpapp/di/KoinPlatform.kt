@@ -8,7 +8,7 @@ import at.isg.eloquia.core.network.ktor.prefs.KeyValueStore
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-private const val BASE_URL = "http://10.0.2.2:8080/"
+private const val BASE_URL = "http://api.eloquia.test:8080/"
 
 actual fun platformModules(): List<Module> = listOf(
     module {

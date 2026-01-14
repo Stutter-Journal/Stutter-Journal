@@ -111,6 +111,7 @@ func (s *Server) registerPatientRoutes(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(s.requirePatient)
 			r.Get("/me", s.patientMeHandler)
+			r.Get("/mydoctor", s.myDoctorHandler)
 			r.Post("/logout", s.patientLogoutHandler)
 		})
 	})

@@ -1,15 +1,15 @@
 package server
 
 import (
-    "net/http"
+	"net/http"
 
-    "backend/ent/doctorpatientlink"
+	"backend/ent/doctorpatientlink"
 
-    "github.com/charmbracelet/log"
+	"github.com/charmbracelet/log"
 )
 
 type revokeLinksResponse struct {
-    Revoked int `json:"revoked"`
+	Revoked int `json:"revoked"`
 }
 
 // revokeMyLinksHandler revokes (disconnects) the current patient's approved doctor links.
@@ -25,27 +25,27 @@ type revokeLinksResponse struct {
 // @Failure 500 {object} ErrorResponse
 // @Router /links/revoke [post]
 func (s *Server) revokeMyLinksHandler(w http.ResponseWriter, r *http.Request) {
-    p, ok := currentPatient(r.Context())
-    if !ok {
-        s.writeError(w, http.StatusUnauthorized, "unauthorized")
-        return
-    }
+	p, ok := currentPatient(r.Context())
+	if !ok {
+		s.writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-    ctx := r.Context()
+	ctx := r.Context()
 
-    revoked, err := s.Db.Ent().DoctorPatientLink.
-        Update().
-        Where(
-            doctorpatientlink.PatientIDEQ(p.ID),
-            doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
-        ).
-        SetStatus(doctorpatientlink.StatusRevoked).
-        Save(ctx)
-    if err != nil {
-        log.Error("failed to revoke links", "err", err)
-        s.writeError(w, http.StatusInternalServerError, "could not revoke link")
-        return
-    }
+	revoked, err := s.Db.Ent().DoctorPatientLink.
+		Update().
+		Where(
+			doctorpatientlink.PatientIDEQ(p.ID),
+			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+		).
+		SetStatus(doctorpatientlink.StatusRevoked).
+		Save(ctx)
+	if err != nil {
+		log.Error("failed to revoke links", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not revoke link")
+		return
+	}
 
-    s.writeJSON(w, http.StatusOK, revokeLinksResponse{Revoked: revoked})
+	s.writeJSON(w, http.StatusOK, revokeLinksResponse{Revoked: revoked})
 }

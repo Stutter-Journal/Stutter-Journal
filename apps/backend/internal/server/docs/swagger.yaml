@@ -233,6 +233,22 @@ definitions:
       status:
         type: string
     type: object
+  server.myDoctorPracticeResponse:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+    type: object
+  server.myDoctorResponse:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      myDoctorPractice:
+        $ref: '#/definitions/server.myDoctorPracticeResponse'
+    type: object
   server.patientDTO:
     properties:
       displayName:
@@ -619,6 +635,30 @@ paths:
       security:
       - SessionCookie: []
       summary: Fetch the current patient
+      tags:
+      - Patient
+  /patient/mydoctor:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.myDoctorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Retrieve the patients' assigned therapist
       tags:
       - Patient
   /patient/register:

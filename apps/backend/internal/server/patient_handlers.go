@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"backend/ent"
+	"backend/ent/doctorpatientlink"
 	"backend/ent/patient"
 	"backend/internal/auth"
 
@@ -33,6 +34,86 @@ type patientResponse struct {
 	Email       string `json:"email"`
 	DisplayName string `json:"displayName"`
 	Status      string `json:"status"`
+}
+
+type myDoctorPracticeResponse struct {
+	Name    string  `json:"name"`
+	Address *string `json:"address,omitempty"`
+}
+
+type myDoctorResponse struct {
+	Email       string                   `json:"email"`
+	DisplayName string                   `json:"displayName"`
+	Practice    myDoctorPracticeResponse `json:"myDoctorPractice"`
+}
+
+// myDoctorHandler retrieves the patients' assigned therapist
+// @Summary Retrieve the patients' assigned therapist
+// @Tags Patient
+// @Accept json
+// @Produce json
+// @Security SessionCookie
+// @Success 200 {object} myDoctorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /patient/mydoctor [get]
+func (s *Server) myDoctorHandler(w http.ResponseWriter, r *http.Request) {
+	if !s.ensureAuthReady(w) {
+		return
+	}
+
+	p, ok := currentPatient(r.Context())
+	if !ok {
+		s.writeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	link, err := s.Db.Ent().DoctorPatientLink.
+		Query().
+		Where(
+			doctorpatientlink.PatientIDEQ(p.ID),
+			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+		).
+		WithDoctor(func(q *ent.DoctorQuery) {
+			q.WithPractice()
+		}).
+		Order(ent.Desc(doctorpatientlink.FieldApprovedAt)).
+		First(r.Context())
+	if ent.IsNotFound(err) {
+		s.writeError(w, http.StatusNotFound, "no doctor assigned")
+		return
+	}
+	if err != nil {
+		log.Error("failed to query patient doctor link", "err", err)
+		s.writeError(w, http.StatusInternalServerError, "could not retrieve doctor information")
+		return
+	}
+
+	doc := link.Edges.Doctor
+	if doc == nil {
+		log.Error("doctor link missing doctor edge", "link_id", link.ID)
+		s.writeError(w, http.StatusInternalServerError, "could not retrieve doctor information")
+		return
+	}
+
+	// Build the response
+	practice := myDoctorPracticeResponse{}
+	if doc.Edges.Practice != nil {
+		practice = myDoctorPracticeResponse{
+			Name:    doc.Edges.Practice.Name,
+			Address: doc.Edges.Practice.Address,
+		}
+	}
+
+	response := myDoctorResponse{
+		Email:       doc.Email,
+		DisplayName: doc.DisplayName,
+		Practice:    practice,
+	}
+
+	s.writeJSON(w, http.StatusOK, map[string]any{
+		"doctor": response,
+	})
 }
 
 // patientRegisterHandler registers a new patient account.

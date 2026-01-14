@@ -244,6 +244,11 @@ definitions:
       patientCode:
         type: string
     type: object
+  server.revokeLinksResponse:
+    properties:
+      revoked:
+        type: integer
+    type: object
   server.trendPoint:
     properties:
       avgStutterFrequency:
@@ -527,6 +532,28 @@ paths:
       security:
       - SessionCookie: []
       summary: Patient-side link request (placeholder)
+      tags:
+      - Links
+  /links/revoke:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.revokeLinksResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Revoke linked doctors for the current patient
       tags:
       - Links
   /patient/login:

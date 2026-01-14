@@ -138,5 +138,6 @@ func (s *Server) registerLinkRoutes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(s.requirePatient)
 		r.Post("/links/pairing-code/redeem", s.redeemPairingCodeHandler)
+		r.Post("/links/revoke", s.revokeMyLinksHandler)
 	})
 }

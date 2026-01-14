@@ -401,6 +401,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/links/revoke": {
+            "post": {
+                "security": [
+                    {
+                        "SessionCookie": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Links"
+                ],
+                "summary": "Revoke linked doctors for the current patient",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.revokeLinksResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/links/{id}/approve": {
             "post": {
                 "security": [
@@ -1205,6 +1241,14 @@ const docTemplate = `{
                 },
                 "patientCode": {
                     "type": "string"
+                }
+            }
+        },
+        "server.revokeLinksResponse": {
+            "type": "object",
+            "properties": {
+                "revoked": {
+                    "type": "integer"
                 }
             }
         },

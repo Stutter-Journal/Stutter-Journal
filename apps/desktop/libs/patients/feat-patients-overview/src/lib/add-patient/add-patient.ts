@@ -67,6 +67,7 @@ export class AddPatient {
   readonly pairing = signal<ServerPairingCodeCreateResponse | null>(null);
   readonly qrDataUrl = signal<string | null>(null);
   readonly expiresInSeconds = signal<number | null>(null);
+  readonly waitingForPatient = signal(false);
 
   private countdownIntervalId: number | null = null;
   private watchIntervalId: number | null = null;
@@ -126,6 +127,8 @@ export class AddPatient {
   }
 
   close(): void {
+    this.waitingForPatient.set(false);
+    this.clearIntervals();
     this.dialogRef.close();
   }
 
@@ -144,6 +147,15 @@ export class AddPatient {
     const update = () => {
       const remaining = Math.max(0, Math.ceil((expiryMs - Date.now()) / 1000));
       this.expiresInSeconds.set(remaining);
+
+      if (remaining === 0) {
+        this.waitingForPatient.set(false);
+        if (this.watchIntervalId != null) {
+          window.clearInterval(this.watchIntervalId);
+          this.watchIntervalId = null;
+        }
+      }
+
       this.cdr.markForCheck();
     };
 
@@ -162,6 +174,7 @@ export class AddPatient {
       window.clearInterval(this.countdownIntervalId);
       this.countdownIntervalId = null;
     }
+
     if (this.watchIntervalId != null) {
       window.clearInterval(this.watchIntervalId);
       this.watchIntervalId = null;
@@ -187,6 +200,7 @@ export class AddPatient {
     }
 
     // Poll the doctor patient list; redeeming a pairing code creates an approved link.
+    this.waitingForPatient.set(true);
     this.zone.runOutsideAngular(() => {
       this.watchIntervalId = window.setInterval(() => {
         if (this.watchInFlight) return;
@@ -209,6 +223,7 @@ export class AddPatient {
       const approvedCount = resp.patients?.length ?? 0;
       if (approvedCount > baseline) {
         this.zone.run(() => {
+          this.waitingForPatient.set(false);
           toast.success('Patient connected');
           this.close();
         });

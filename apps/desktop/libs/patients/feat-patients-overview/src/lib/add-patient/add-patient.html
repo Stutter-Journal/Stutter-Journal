@@ -23,19 +23,27 @@
       }
   </hlm-form-field>
 
-  @if(qrDataUrl()) {
-    <div class="flex items-center justify-center">
-      <img [src]="qrDataUrl()!" alt="Pairing code QR" class="h-60 w-60 rounded-md border bg-white p-2" />
+  @if(waitingForPatient() && (expiresInSeconds() ?? 0) > 0) {
+    <div class="flex items-center justify-center gap-3 rounded-md border bg-muted/30 px-4 py-3 text-sm">
+      <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground">
+      </div>
+      <span>Waiting for the patient to connect…</span>
     </div>
     }
 
-    <hlm-dialog-footer>
-      <button brnDialogClose hlmBtn type="button" variant="outline">
-        Close
-      </button>
+    @if(qrDataUrl()) {
+      <div class="flex items-center justify-center">
+        <img [src]="qrDataUrl()!" alt="Pairing code QR" class="h-60 w-60 rounded-md border bg-white p-2" />
+      </div>
+      }
 
-      <button hlmBtn type="button" (click)="generate()" [disabled]="loading()">
-        {{ loading() ? 'Generating…' : 'Regenerate' }}
-      </button>
-    </hlm-dialog-footer>
+      <hlm-dialog-footer>
+        <button brnDialogClose hlmBtn type="button" variant="outline">
+          Close
+        </button>
+
+        <button hlmBtn type="button" (click)="generate()" [disabled]="loading()">
+          {{ loading() ? 'Generating…' : 'Regenerate' }}
+        </button>
+      </hlm-dialog-footer>
 </div>

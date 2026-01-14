@@ -143,7 +143,7 @@ fun MainScaffoldWithModalWideNavigationRail(
                                             contentDescription = null,
                                         )
                                     },
-                                    text = { Text("Add patient") },
+                                    text = { Text("Add therapist") },
                                 )
                             } else {
                                 FloatingActionButton(
@@ -155,7 +155,7 @@ fun MainScaffoldWithModalWideNavigationRail(
                                 ) {
                                     Icon(
                                         Icons.Outlined.PersonAdd,
-                                        contentDescription = "Add patient",
+                                        contentDescription = "Add therapist",
                                     )
                                 }
                             }

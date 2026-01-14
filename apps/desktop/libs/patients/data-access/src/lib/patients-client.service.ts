@@ -15,6 +15,7 @@ export interface PatientFilters {
 @Injectable({ providedIn: 'root' })
 export class PatientsClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -35,7 +36,7 @@ export class PatientsClientService {
 
     return await execute(
       () =>
-        this.http.get<ServerPatientsResponse>('/patients', {
+        this.http.get<ServerPatientsResponse>(`${this.base}/patients`, {
           params,
           withCredentials: true,
         }),

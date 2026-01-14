@@ -32,8 +32,51 @@ resource "kubernetes_config_map_v1" "backend" {
   }
 }
 
+resource "kubernetes_job_v1" "migrate" {
+  wait_for_completion = true
+
+  metadata {
+    name      = "backend-migrate"
+    namespace = var.namespace
+
+    labels = {
+      app = "backend-migrate"
+    }
+  }
+
+  spec {
+    backoff_limit = 2
+
+    template {
+      metadata {
+        labels = {
+          app = "backend-migrate"
+        }
+      }
+
+      spec {
+        restart_policy = "Never"
+
+        container {
+          name              = "atlas"
+          image             = var.migrate_image
+          image_pull_policy = "IfNotPresent"
+
+          env_from {
+            secret_ref {
+              name = kubernetes_secret_v1.backend.metadata[0].name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 resource "kubernetes_deployment_v1" "backend" {
   wait_for_rollout = false
+
+  depends_on = [kubernetes_job_v1.migrate]
 
   metadata {
     name      = "backend"

@@ -27,6 +27,12 @@ variable "backend_image" {
   default     = "eloquia/backend:dev"
 }
 
+variable "backend_migrate_image" {
+  type        = string
+  description = "Backend migration job image (Atlas + migration files)."
+  default     = "eloquia/backend-migrate:dev"
+}
+
 variable "desktop_image" {
   type        = string
   description = "Desktop container image (contains both portal + bff)."

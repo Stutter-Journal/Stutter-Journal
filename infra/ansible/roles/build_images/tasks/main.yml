@@ -11,6 +11,19 @@
   args:
     chdir: "{{ playbook_dir }}/../../../apps/backend"
 
+- name: Build backend migration image (eloquia/backend-migrate:dev)
+  command:
+    argv:
+      - docker
+      - build
+      - -t
+      - eloquia/backend-migrate:dev
+      - -f
+      - Dockerfile.migrate
+      - .
+  args:
+    chdir: "{{ playbook_dir }}/../../../apps/backend"
+
 - name: Build desktop image (eloquia/desktop:dev)
   command:
     argv:
@@ -50,6 +63,7 @@
         | docker exec -i {{ eloquia_k8s_node_container }} ctr -n k8s.io images import -
   loop:
     - eloquia/backend:dev
+    - eloquia/backend-migrate:dev
     - eloquia/desktop:dev
 
 - name: Pull postgres image locally (Docker Desktop)
@@ -90,12 +104,14 @@
   assert:
     that:
       - "'eloquia/backend:dev' in eloquia_ctr_images.stdout"
+      - "'eloquia/backend-migrate:dev' in eloquia_ctr_images.stdout"
       - "'eloquia/desktop:dev' in eloquia_ctr_images.stdout"
     fail_msg: "Images were built but are not visible to Kubernetes containerd; pods will fail with ImagePullBackOff."
 
 - name: Default to local image refs
   set_fact:
     eloquia_backend_image: "eloquia/backend:dev"
+    eloquia_backend_migrate_image: "eloquia/backend-migrate:dev"
     eloquia_desktop_image: "eloquia/desktop:dev"
 
 - name: Decide image mode (auto/local/ttl)
@@ -160,6 +176,7 @@
     - name: Generate unique ttl.sh tags
       set_fact:
         eloquia_backend_image: "ttl.sh/eloquia-backend-{{ lookup('pipe', 'date +%s') }}:1h"
+        eloquia_backend_migrate_image: "ttl.sh/eloquia-backend-migrate-{{ lookup('pipe', 'date +%s') }}:1h"
         eloquia_desktop_image: "ttl.sh/eloquia-desktop-{{ lookup('pipe', 'date +%s') }}:1h"
 
     - name: Tag backend image for ttl.sh
@@ -185,9 +202,24 @@
           - eloquia/desktop:dev
           - "{{ eloquia_desktop_image }}"
 
+    - name: Tag backend migrate image for ttl.sh
+      command:
+        argv:
+          - docker
+          - tag
+          - eloquia/backend-migrate:dev
+          - "{{ eloquia_backend_migrate_image }}"
+
     - name: Push desktop image to ttl.sh
       command:
         argv:
           - docker
           - push
           - "{{ eloquia_desktop_image }}"
+
+    - name: Push backend migrate image to ttl.sh
+      command:
+        argv:
+          - docker
+          - push
+          - "{{ eloquia_backend_migrate_image }}"

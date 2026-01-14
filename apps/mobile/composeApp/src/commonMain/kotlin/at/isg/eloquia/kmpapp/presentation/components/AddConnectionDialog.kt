@@ -27,7 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,9 +37,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import at.isg.eloquia.core.permissions.BindPermissionsEffect
-import at.isg.eloquia.core.permissions.PermissionsViewModel
 import at.isg.eloquia.core.permissions.PermissionRequestState
+import at.isg.eloquia.core.permissions.PermissionsViewModel
 import at.isg.eloquia.core.permissions.rememberEloquiaPermissionsControllerFactory
+import io.github.aakira.napier.Napier
 import qrscanner.CameraLens
 import qrscanner.QrScanner
 
@@ -50,6 +51,8 @@ fun AddConnectionDialog(
     onCode: (String) -> Unit,
 ) {
     if (!open) return
+
+    val logTag = "AddConnectionDialog"
 
     val factory = rememberEloquiaPermissionsControllerFactory()
     val permissionsViewModel = remember(factory) {
@@ -65,12 +68,13 @@ fun AddConnectionDialog(
     var flashlightOn by remember { mutableStateOf(false) }
     var openImagePicker by remember { mutableStateOf(false) }
 
-    val isCameraGranted by remember {
-        derivedStateOf { permissionsViewModel.camera.value == PermissionRequestState.Granted }
-    }
+    // IMPORTANT: collect StateFlow as Compose state; reading `.value` won't trigger recomposition.
+    val cameraState by permissionsViewModel.camera.collectAsState()
+    val isCameraGranted = cameraState == PermissionRequestState.Granted
 
     LaunchedEffect(open) {
         if (open) {
+            Napier.d(tag = logTag) { "Dialog opened; resetting state" }
             errorText = null
             permissionsViewModel.resetCamera()
             scanning = false
@@ -79,10 +83,12 @@ fun AddConnectionDialog(
         }
     }
 
-    LaunchedEffect(permissionsViewModel.camera.value) {
-        when (permissionsViewModel.camera.value) {
+    LaunchedEffect(cameraState) {
+        Napier.d(tag = logTag) { "Camera permission state: $cameraState" }
+        when (cameraState) {
             PermissionRequestState.Granted -> {
                 errorText = null
+                // Open camera when permission is granted
                 scanning = true
             }
             PermissionRequestState.DeniedAlways -> {
@@ -95,6 +101,10 @@ fun AddConnectionDialog(
             }
             else -> Unit
         }
+    }
+
+    LaunchedEffect(scanning) {
+        Napier.d(tag = logTag) { "Scanner active: $scanning" }
     }
 
     AlertDialog(
@@ -135,9 +145,17 @@ fun AddConnectionDialog(
                     FilledTonalButton(
                         onClick = {
                             if (isCameraGranted) {
+                                Napier.d(tag = logTag) { "Scan QR clicked; permission already granted" }
                                 scanning = true
                             } else {
-                                permissionsViewModel.requestCameraPermission()
+                                Napier.d(tag = logTag) { "Scan QR clicked; requesting camera permission" }
+                                permissionsViewModel.requestCameraPermission(
+                                    onGranted = {
+                                        Napier.d(tag = logTag) { "Permission callback onGranted; opening scanner" }
+                                        errorText = null
+                                        scanning = true
+                                    },
+                                )
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -159,19 +177,20 @@ fun AddConnectionDialog(
                             cameraLens = CameraLens.Back,
                             openImagePicker = openImagePicker,
                             onCompletion = { raw ->
+                                Napier.d(tag = logTag) { "QR scan completion: raw='$raw'" }
                                 val scanned = raw.trim()
                                 val extracted = Regex("\\b\\d{6}\\b").find(scanned)?.value ?: scanned
                                 onCode(extracted)
                                 onDismiss()
                             },
                             imagePickerHandler = { open ->
+                                Napier.d(tag = logTag) { "imagePickerHandler(open=$open)" }
                                 openImagePicker = open
                             },
                             onFailure = { message ->
-                                errorText = if (message.isBlank()) {
+                                Napier.w(tag = logTag) { "QrScanner failure: '$message'" }
+                                errorText = message.ifBlank {
                                     "Invalid QR code"
-                                } else {
-                                    message
                                 }
                             },
                         )

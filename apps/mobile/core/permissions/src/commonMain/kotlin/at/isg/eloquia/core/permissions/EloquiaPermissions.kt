@@ -11,8 +11,7 @@ import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
  * Small wrapper so feature code depends on `core:permissions` instead of directly on moko APIs.
  */
 @Composable
-fun rememberEloquiaPermissionsControllerFactory(): PermissionsControllerFactory =
-    rememberPermissionsControllerFactory()
+fun rememberEloquiaPermissionsControllerFactory(): PermissionsControllerFactory = rememberPermissionsControllerFactory()
 
 @Composable
 fun rememberEloquiaPermissionsController(

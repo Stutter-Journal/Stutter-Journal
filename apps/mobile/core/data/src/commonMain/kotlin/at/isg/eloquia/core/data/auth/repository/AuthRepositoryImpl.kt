@@ -12,6 +12,7 @@ import at.isg.eloquia.core.data.openapi.model.ServerPatientRegisterRequest
 import at.isg.eloquia.core.domain.auth.model.AuthError
 import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.LinkRequest
+import at.isg.eloquia.core.domain.auth.model.LinkRevocation
 import at.isg.eloquia.core.domain.auth.model.Patient
 import at.isg.eloquia.core.domain.auth.repository.AuthRepository
 import at.isg.eloquia.core.domain.logging.AppLog
@@ -78,6 +79,34 @@ internal class AuthRepositoryImpl(
         when (mapped) {
             is AuthResult.Success -> AppLog.i(TAG, "Redeem pairing code success linkId=${mapped.value.linkId} status=${mapped.value.status}")
             is AuthResult.Failure -> AppLog.w(TAG, "Redeem pairing code failed")
+        }
+
+        return mapped
+    }
+
+    override suspend fun revokeLinks(): AuthResult<LinkRevocation> {
+        AppLog.i(TAG, "Revoke links start")
+        val result = api.revokeLinks()
+
+        val mapped: AuthResult<LinkRevocation> = when (result) {
+            is ApiResult.Ok -> AuthResult.Success(LinkRevocation(revokedCount = result.value.revoked))
+
+            is ApiResult.Err -> {
+                val authError = when (val error = result.error) {
+                    is NetworkError.Http -> when (error.status) {
+                        401 -> AuthError.Validation(parseServerErrorMessage(error.body) ?: "Your session has expired")
+                        else -> AuthError.Network(NetworkError.Http(error.status, error.body))
+                    }
+
+                    else -> AuthError.Network(error)
+                }
+                AuthResult.Failure(authError)
+            }
+        }
+
+        when (mapped) {
+            is AuthResult.Success -> AppLog.i(TAG, "Revoke links success revoked=${mapped.value.revokedCount}")
+            is AuthResult.Failure -> AppLog.w(TAG, "Revoke links failed")
         }
 
         return mapped

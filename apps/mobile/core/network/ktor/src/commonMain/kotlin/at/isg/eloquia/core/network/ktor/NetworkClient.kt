@@ -37,6 +37,12 @@ class NetworkClient(@PublishedApi internal val client: HttpClient) {
         setBody(body)
     }
 
+    suspend inline fun <reified T : Any> post(
+        path: String,
+        headers: Map<String, String> = emptyMap(),
+        queryParams: Map<String, String> = emptyMap(),
+    ): ApiResult<T> = request(HttpMethod.Post, path, headers, queryParams)
+
     suspend inline fun <reified T : Any> request(
         method: HttpMethod,
         path: String,

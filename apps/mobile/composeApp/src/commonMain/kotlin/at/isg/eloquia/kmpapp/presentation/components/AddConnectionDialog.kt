@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +52,7 @@ fun AddConnectionDialog(
     open: Boolean,
     onDismiss: () -> Unit,
     onCode: (String) -> Unit,
+    onDisconnected: (revokedCount: Int) -> Unit = {},
 ) {
     if (!open) return
 
@@ -73,6 +75,8 @@ fun AddConnectionDialog(
     var flashlightOn by remember { mutableStateOf(false) }
     var openImagePicker by remember { mutableStateOf(false) }
 
+    var confirmRemove by remember { mutableStateOf(false) }
+
     // IMPORTANT: collect StateFlow as Compose state; reading `.value` won't trigger recomposition.
     val cameraState by permissionsViewModel.camera.collectAsState()
     val isCameraGranted = cameraState == PermissionRequestState.Granted
@@ -86,6 +90,7 @@ fun AddConnectionDialog(
             scanning = false
             flashlightOn = false
             openImagePicker = false
+            confirmRemove = false
         }
     }
 
@@ -99,13 +104,44 @@ fun AddConnectionDialog(
                 onDismiss()
             }
 
+            is AddConnectionState.Disconnected -> {
+                onDisconnected((state as AddConnectionState.Disconnected).revokedCount)
+                onDismiss()
+            }
+
             is AddConnectionState.Editing -> {
                 val msg = (state as AddConnectionState.Editing).errorMessage
                 if (!msg.isNullOrBlank()) errorText = msg
             }
 
             is AddConnectionState.Submitting -> Unit
+            is AddConnectionState.Revoking -> Unit
         }
+    }
+
+    if (confirmRemove) {
+        AlertDialog(
+            onDismissRequest = { confirmRemove = false },
+            title = { Text("Remove therapist?") },
+            text = { Text("This will disconnect your therapist from viewing your data.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        confirmRemove = false
+                        errorText = null
+                        viewModel.revoke()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Text("Remove")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmRemove = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
     }
 
     LaunchedEffect(cameraState) {
@@ -272,10 +308,20 @@ fun AddConnectionDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+
+                if (!scanning) {
+                    TextButton(
+                        onClick = { confirmRemove = true },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Remove therapist")
+                    }
+                }
             }
         },
         confirmButton = {
-            val submitting = state is AddConnectionState.Submitting
+            val submitting = state is AddConnectionState.Submitting || state is AddConnectionState.Revoking
             Button(
                 onClick = {
                     errorText = null

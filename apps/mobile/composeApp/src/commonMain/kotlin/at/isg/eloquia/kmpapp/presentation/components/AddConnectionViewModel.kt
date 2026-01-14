@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import at.isg.eloquia.core.domain.auth.model.AuthResult
 import at.isg.eloquia.core.domain.auth.model.toUserMessage
 import at.isg.eloquia.core.domain.auth.usecase.RedeemPairingCodeUseCase
+import at.isg.eloquia.core.domain.auth.usecase.RevokeLinksUseCase
 import at.isg.eloquia.kmpapp.presentation.states.AddConnectionState
 import at.isg.eloquia.kmpapp.presentation.states.clearError
 import at.isg.eloquia.kmpapp.presentation.states.formOrNull
@@ -20,6 +21,7 @@ data class AddConnectionForm(
 
 class AddConnectionViewModel(
     private val redeemPairingCode: RedeemPairingCodeUseCase,
+    private val revokeLinks: RevokeLinksUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AddConnectionState>(AddConnectionState.Editing(AddConnectionForm()))
@@ -45,6 +47,17 @@ class AddConnectionViewModel(
             when (val result = redeemPairingCode(code)) {
                 is AuthResult.Success -> _state.value = AddConnectionState.Success
                 is AuthResult.Failure -> _state.value = AddConnectionState.Editing(form = form.copy(code = code), errorMessage = result.error.toUserMessage())
+            }
+        }
+    }
+
+    fun revoke() {
+        val form = _state.value.formOrNull() ?: AddConnectionForm(code = "")
+        _state.value = AddConnectionState.Revoking(form)
+        viewModelScope.launch {
+            when (val result = revokeLinks()) {
+                is AuthResult.Success -> _state.value = AddConnectionState.Disconnected(revokedCount = result.value.revokedCount)
+                is AuthResult.Failure -> _state.value = AddConnectionState.Editing(form = form, errorMessage = result.error.toUserMessage())
             }
         }
     }

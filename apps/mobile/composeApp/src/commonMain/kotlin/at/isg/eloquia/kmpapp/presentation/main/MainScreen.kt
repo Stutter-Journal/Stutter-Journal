@@ -113,7 +113,21 @@ fun MainScreen(
             onCode = { code ->
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Connected with code $code",
+                        message = "Connected!",
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            },
+            onDisconnected = { revokedCount ->
+                scope.launch {
+                    val msg = if (revokedCount > 0) {
+                        "Therapist removed"
+                    } else {
+                        "No therapist connected"
+                    }
+                    snackbarHostState.showSnackbar(
+                        message = msg,
                         withDismissAction = true,
                         duration = SnackbarDuration.Short,
                     )

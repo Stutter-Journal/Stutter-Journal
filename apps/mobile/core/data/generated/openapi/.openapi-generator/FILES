@@ -22,4 +22,5 @@ src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServeranalyticsDist
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerentryDTO.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerlinkDTO.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerpatientDTO.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerrevokeLinksResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServertrendPoint.kt

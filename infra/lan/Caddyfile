@@ -1,0 +1,13 @@
+{
+	# Keep it simple for LAN dev; adjust if you want TLS.
+	auto_https off
+}
+
+# These hostnames should resolve (via your LAN DNS) to your Mac.
+api.eloquia.test {
+	reverse_proxy 127.0.0.1:80
+}
+
+app.eloquia.test {
+	reverse_proxy 127.0.0.1:80
+}

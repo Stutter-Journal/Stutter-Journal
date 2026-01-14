@@ -26,12 +26,14 @@ export class PatientsClientService {
     this.errorSig.set(null);
   }
 
-  async getPatients(filters?: PatientFilters): Promise<ServerPatientDTO[]> {
+  async getPatientsResponse(
+    filters?: PatientFilters,
+  ): Promise<ServerPatientsResponse> {
     const params = new HttpParams({
       fromObject: { search: filters?.search ?? '' },
     });
 
-    const response = await execute(
+    return await execute(
       () =>
         this.http.get<ServerPatientsResponse>('/patients', {
           params,
@@ -40,7 +42,10 @@ export class PatientsClientService {
       this.loadingSig,
       this.errorSig,
     );
+  }
 
+  async getPatients(filters?: PatientFilters): Promise<ServerPatientDTO[]> {
+    const response = await this.getPatientsResponse(filters);
     return response.patients ?? [];
   }
 }

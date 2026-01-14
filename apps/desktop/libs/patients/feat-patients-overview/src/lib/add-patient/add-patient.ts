@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 
 import { LinksClientService } from '@org/links-data-access';
+import { PatientsClientService } from '@org/patients-data-access';
 import { LoggerService } from '@org/util';
 import { ServerPairingCodeCreateResponse } from '@org/contracts';
 
@@ -54,6 +55,7 @@ import { HlmFormFieldImports } from '@spartan-ng/helm/form-field';
 })
 export class AddPatient {
   private readonly links = inject(LinksClientService);
+  private readonly patients = inject(PatientsClientService);
   private readonly log = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -66,13 +68,14 @@ export class AddPatient {
   readonly qrDataUrl = signal<string | null>(null);
   readonly expiresInSeconds = signal<number | null>(null);
 
-  private intervalId: number | null = null;
+  private countdownIntervalId: number | null = null;
+  private watchIntervalId: number | null = null;
+  private watchInFlight = false;
+  private baselineApprovedCount: number | null = null;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      if (this.intervalId != null) {
-        window.clearInterval(this.intervalId);
-      }
+      this.clearIntervals();
     });
 
     // Generate immediately on open.
@@ -86,6 +89,8 @@ export class AddPatient {
     this.links.clearError();
 
     try {
+      await this.ensureBaselineApprovedCount();
+
       const resp = await this.links.createPairingCode();
       this.pairing.set(resp);
 
@@ -97,6 +102,7 @@ export class AddPatient {
       );
 
       this.startCountdown(resp.expiresAt);
+      this.startLinkWatch();
       this.cdr.markForCheck();
     } catch (e) {
       this.log.error('Create pairing code failed', { error: e });
@@ -124,9 +130,9 @@ export class AddPatient {
   }
 
   private startCountdown(expiresAt?: string): void {
-    if (this.intervalId != null) {
-      window.clearInterval(this.intervalId);
-      this.intervalId = null;
+    if (this.countdownIntervalId != null) {
+      window.clearInterval(this.countdownIntervalId);
+      this.countdownIntervalId = null;
     }
 
     const expiryMs = expiresAt ? new Date(expiresAt).getTime() : NaN;
@@ -145,9 +151,71 @@ export class AddPatient {
 
     // Run outside Angular but re-enter for updates.
     this.zone.runOutsideAngular(() => {
-      this.intervalId = window.setInterval(() => {
+      this.countdownIntervalId = window.setInterval(() => {
         this.zone.run(update);
       }, 250);
     });
+  }
+
+  private clearIntervals(): void {
+    if (this.countdownIntervalId != null) {
+      window.clearInterval(this.countdownIntervalId);
+      this.countdownIntervalId = null;
+    }
+    if (this.watchIntervalId != null) {
+      window.clearInterval(this.watchIntervalId);
+      this.watchIntervalId = null;
+    }
+  }
+
+  private async ensureBaselineApprovedCount(): Promise<void> {
+    if (this.baselineApprovedCount != null) return;
+
+    try {
+      const resp = await this.patients.getPatientsResponse();
+      this.baselineApprovedCount = resp.patients?.length ?? 0;
+    } catch (e) {
+      this.log.warn('Could not load baseline patients count', { error: e });
+      this.baselineApprovedCount = 0;
+    }
+  }
+
+  private startLinkWatch(): void {
+    if (this.watchIntervalId != null) {
+      window.clearInterval(this.watchIntervalId);
+      this.watchIntervalId = null;
+    }
+
+    // Poll the doctor patient list; redeeming a pairing code creates an approved link.
+    this.zone.runOutsideAngular(() => {
+      this.watchIntervalId = window.setInterval(() => {
+        if (this.watchInFlight) return;
+        if (this.baselineApprovedCount == null) return;
+
+        this.watchInFlight = true;
+        void this.checkForApprovedIncrease().finally(() => {
+          this.watchInFlight = false;
+        });
+      }, 1000);
+    });
+  }
+
+  private async checkForApprovedIncrease(): Promise<void> {
+    const baseline = this.baselineApprovedCount;
+    if (baseline == null) return;
+
+    try {
+      const resp = await this.patients.getPatientsResponse();
+      const approvedCount = resp.patients?.length ?? 0;
+      if (approvedCount > baseline) {
+        this.zone.run(() => {
+          toast.success('Patient connected');
+          this.close();
+        });
+      }
+    } catch (e) {
+      // Non-fatal; keep polling until expiry/dismiss.
+      this.log.warn('Polling patients failed', { error: e });
+    }
   }
 }

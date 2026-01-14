@@ -5,6 +5,7 @@ package at.isg.eloquia.kmpapp.presentation.main
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
@@ -29,6 +30,7 @@ import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
+import at.isg.eloquia.features.therapist.presentation.TherapistScreen
 import at.isg.eloquia.kmpapp.presentation.components.AddConnectionDialog
 import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
 import kotlinx.coroutines.launch
@@ -47,6 +49,9 @@ object ProgressDestination
 @Serializable
 object SupportDestination
 
+@Serializable
+object TherapistDestination
+
 enum class MainTab(
     val destination: Any,
     val icon: ImageVector,
@@ -57,6 +62,8 @@ enum class MainTab(
     Progress(ProgressDestination, Icons.Default.Timeline, "Progress"),
 
     Support(SupportDestination, Icons.Default.Favorite, "Support"),
+
+    Therapist(TherapistDestination, Icons.Default.Medication, "Therapist")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,6 +133,7 @@ fun MainScreen(
                     } else {
                         "No therapist connected"
                     }
+
                     snackbarHostState.showSnackbar(
                         message = msg,
                         withDismissAction = true,
@@ -151,28 +159,33 @@ fun MainScreen(
                     },
                 )
             }
+
             composable<NewEntryDestination> { backStackEntry ->
                 val destination = backStackEntry.toRoute<NewEntryDestination>()
                 NewEntryScreen(
                     entryId = destination.entryId,
                     onClose = {
-                        currentTab = MainTab.Entries
                         navController.popBackStack()
                     },
                     onEntrySaved = {
-                        currentTab = MainTab.Entries
                         navController.popBackStack()
                     },
                 )
             }
+
             composable<ProgressDestination> {
                 ProgressScreen()
             }
+
             composable<SupportDestination> {
                 val uriHandler = LocalUriHandler.current
                 SupportScreen(
                     onResourceClick = { resource -> uriHandler.openUri(resource.url) },
                 )
+            }
+
+            composable<TherapistDestination> {
+                TherapistScreen()
             }
         }
     }

@@ -73,6 +73,7 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(project(":features:auth"))
                         implementation(project(":features:progress"))
                         implementation(project(":features:support"))
+                        implementation(project(":features:therapist"))
                     }
                 }
             }

@@ -27,6 +27,7 @@ class ArchitectureTestsConventionPlugin : Plugin<Project> {
                 "testImplementation"(project(":features:entries"))
                 "testImplementation"(project(":features:progress"))
                 "testImplementation"(project(":features:support"))
+                "testImplementation"(project(":features:therapist"))
             }
 
             tasks.withType<Test>().configureEach {

@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.presentation.components
+package at.isg.eloquia.kmpapp.previews
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import at.isg.eloquia.core.theme.EloquiaTheme
 import at.isg.eloquia.core.theme.components.EloquiaPreview
+import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
 import at.isg.eloquia.kmpapp.presentation.main.MainTab
 
 @EloquiaPreview
@@ -32,7 +33,10 @@ fun PreviewMainScaffoldWithModalWideNavigationRail_Collapsed() {
             onAddConnection = {},
             onLogout = {},
         ) { contentModifier ->
-            Surface(modifier = contentModifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+            Surface(
+                modifier = contentModifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface
+            ) {
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text("Content area")
                 }
@@ -59,7 +63,10 @@ fun PreviewMainScaffoldWithModalWideNavigationRail_Expanded() {
             onLogout = {},
             railState = railState,
         ) { contentModifier ->
-            Surface(modifier = contentModifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+            Surface(
+                modifier = contentModifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface
+            ) {
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text("Content area")
                 }

@@ -1,4 +1,4 @@
-package at.isg.eloquia.kmpapp.presentation.components
+package at.isg.eloquia.kmpapp.previews
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +17,9 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import at.isg.eloquia.core.theme.EloquiaTheme
 import at.isg.eloquia.core.theme.components.EloquiaPreview
+import at.isg.eloquia.kmpapp.presentation.components.MainNavigationDrawer
 import at.isg.eloquia.kmpapp.presentation.main.MainTab
 
 @OptIn(ExperimentalMaterial3Api::class)

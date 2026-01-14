@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 class NetworkClientTest {
 
-    private val baseUrl = "http://api.eloquia.test:8080/"
+    private val baseUrl = "http://api.eloquia.test/"
 
     @Nested
     inner class OkCases {

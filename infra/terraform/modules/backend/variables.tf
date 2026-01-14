@@ -6,6 +6,10 @@ variable "image" {
   type = string
 }
 
+variable "migrate_image" {
+  type = string
+}
+
 variable "replicas" {
   type    = number
   default = 1

@@ -53,6 +53,8 @@
       - -var
       - backend_image={{ eloquia_backend_image | default('eloquia/backend:dev') }}
       - -var
+      - backend_migrate_image={{ eloquia_backend_migrate_image | default('eloquia/backend-migrate:dev') }}
+      - -var
       - desktop_image={{ eloquia_desktop_image | default('eloquia/desktop:dev') }}
   environment:
     TF_DATA_DIR: "{{ playbook_dir }}/../../.state/.terraform"

@@ -27,6 +27,7 @@ module "backend" {
   namespace = module.namespace.name
 
   image            = var.backend_image
+  migrate_image    = var.backend_migrate_image
   environment      = var.environment
   apply_migrations = false
 

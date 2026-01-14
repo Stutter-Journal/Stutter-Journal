@@ -30,7 +30,7 @@ import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
-import at.isg.eloquia.features.therapist.presentation.TherapistScreen
+import at.isg.eloquia.features.therapist.presentation.MyTherapistScreen
 import at.isg.eloquia.kmpapp.presentation.components.AddConnectionDialog
 import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
 import kotlinx.coroutines.launch
@@ -185,7 +185,7 @@ fun MainScreen(
             }
 
             composable<TherapistDestination> {
-                TherapistScreen()
+                MyTherapistScreen()
             }
         }
     }

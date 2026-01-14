@@ -61,7 +61,7 @@ func (s *Server) createPairingCodeHandler(w http.ResponseWriter, r *http.Request
 		Save(r.Context())
 
 	// Generate a collision-free code among currently-active codes.
-	for attempt := 0; attempt < 25; attempt++ {
+	for range 25 {
 		code, err := generateSixDigitCode()
 		if err != nil {
 			log.Error("failed to generate pairing code", "err", err)

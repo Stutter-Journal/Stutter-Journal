@@ -1,8 +1,13 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ServerPatientDTO } from '@org/contracts';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import {
+  ServerLinkDTO,
+  ServerPatientDTO,
+  ServerPatientsResponse,
+} from '@org/contracts';
+import { PatientsClientService } from '@org/patients-data-access';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -91,31 +96,15 @@ interface Patient {
     provideIcons({ lucideMoreHorizontal, lucideUserPlus, lucideUsers }),
   ],
 })
-export class FeatPatientsOverview {
+export class FeatPatientsOverview implements OnInit {
   private readonly dialog = inject(HlmDialogService);
+  private readonly patientsClient = inject(PatientsClientService);
 
-  // TODO: Replace this with your API/store later.
-  private readonly _patients = signal<Patient[]>([
-    {
-      id: 'p_001',
-      fullName: 'Anna Müller',
-      dob: '1994-03-12',
-      status: 'active',
-      lastEntryAt: '2026-01-05T10:15:00Z',
-    },
-    {
-      id: 'p_002',
-      fullName: 'Lukas Steiner',
-      dob: '2016-09-21',
-      status: 'pending',
-    },
-    {
-      id: 'p_003',
-      fullName: 'Mina Novak',
-      status: 'archived',
-      lastEntryAt: '2025-12-12T08:00:00Z',
-    },
-  ]);
+  private readonly patientsSig = signal<Patient[]>([]);
+  private lastRequestId = 0;
+
+  readonly loading = this.patientsClient.loading;
+  readonly error = this.patientsClient.error;
 
   // UI state
   readonly query = signal('');
@@ -125,12 +114,13 @@ export class FeatPatientsOverview {
   readonly pageSize = signal(10);
 
   readonly filteredPatients = computed(() => {
-    const q = this.query().trim().toLowerCase();
     const sf = this.statusFilter();
 
-    return this._patients()
-      .filter((p) => (sf === 'all' ? true : p.status === sf))
-      .filter((p) => (q ? p.fullName.toLowerCase().includes(q) : true));
+    // Search is handled server-side via `getPatientsResponse({ search })`.
+    // We only filter by status locally.
+    return this.patientsSig().filter((p) =>
+      sf === 'all' ? true : p.status === sf,
+    );
   });
 
   readonly totalItems = computed(() => this.filteredPatients().length);
@@ -152,15 +142,84 @@ export class FeatPatientsOverview {
       contentClass: 'sm:!max-w-lg',
     });
 
-    // Pairing-code flow: closing the dialog does not create a patient locally.
-    ref.closed$.pipe(take(1)).subscribe();
+    // Refresh the list after the dialog closes (pairing-code flow may have changed it).
+    ref.closed$
+      .pipe(take(1))
+      .subscribe(() => void this.refreshPatients());
   }
 
-  // TODO: When patient redeems a pairing code, refresh patients from API.
+  async ngOnInit(): Promise<void> {
+    await this.refreshPatients();
+  }
+
+  private mapResponseToPatients(response: ServerPatientsResponse): Patient[] {
+    const approved = (response.patients ?? []).map((p, idx) =>
+      this.mapApprovedPatient(p, idx),
+    );
+
+    const pending = (response.pendingLinks ?? []).map((l, idx) =>
+      this.mapPendingLink(l, idx),
+    );
+
+    return [...approved, ...pending];
+  }
+
+  private mapApprovedPatient(dto: ServerPatientDTO, index: number): Patient {
+    const rawStatus = (dto as { status?: string }).status?.toLowerCase();
+    const status: PatientStatus = rawStatus?.includes('inactive')
+      ? 'archived'
+      : 'active';
+
+    const fullName =
+      dto.displayName?.trim() || dto.email?.trim() || dto.id || `Patient ${index + 1}`;
+
+    // Contracts currently don't include `birthDate/lastEntryAt`, but the backend might.
+    const anyDto = dto as unknown as {
+      birthDate?: string;
+      dob?: string;
+      lastEntryAt?: string;
+    };
+
+    return {
+      id: dto.id ?? `patient_${index}`,
+      fullName,
+      dob: anyDto.birthDate ?? anyDto.dob,
+      status,
+      lastEntryAt: anyDto.lastEntryAt,
+    };
+  }
+
+  private mapPendingLink(dto: ServerLinkDTO, index: number): Patient {
+    const label = dto.patientId ? `Pending (${dto.patientId})` : 'Pending patient';
+    return {
+      id: dto.id ?? dto.patientId ?? `pending_${index}`,
+      fullName: label,
+      status: 'pending',
+    };
+  }
+
+  private async refreshPatients(): Promise<void> {
+    const requestId = ++this.lastRequestId;
+
+    try {
+      const response = await this.patientsClient.getPatientsResponse({
+        search: this.query().trim(),
+      });
+
+      // Prevent out-of-order responses from clobbering newer results.
+      if (requestId !== this.lastRequestId) return;
+
+      this.patientsSig.set(this.mapResponseToPatients(response));
+    } catch {
+      // Error state is already handled by PatientsClientService; keep old list.
+      if (requestId !== this.lastRequestId) return;
+    }
+  }
 
   onQueryInput(value: string) {
     this.query.set(value);
     this.page.set(1);
+    void this.refreshPatients();
   }
 
   setStatusFilter(value: PatientStatus | 'all') {

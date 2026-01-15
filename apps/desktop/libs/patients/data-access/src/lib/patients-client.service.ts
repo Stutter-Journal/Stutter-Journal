@@ -23,10 +23,6 @@ export class PatientsClientService {
   readonly loading = computed(() => this.loadingSig());
   readonly error = computed(() => this.errorSig());
 
-  clearError(): void {
-    this.errorSig.set(null);
-  }
-
   async getPatientsResponse(
     filters?: PatientFilters,
   ): Promise<ServerPatientsResponse> {

@@ -39,7 +39,7 @@ describe('add patient', () => {
       });
     }).as('patients');
 
-    cy.visit('/app/patients');
+    cy.visit('/app/landing');
     cy.wait('@me');
 
     cy.contains('button', 'Add patient').click();

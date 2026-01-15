@@ -12,7 +12,6 @@ type UiState = 'checking' | 'auth' | 'onboarding';
   selector: 'lib-feat-landing',
   imports: [NgOptimizedImage, FeatCascade, FeatPracticeSetup],
   templateUrl: './feat-landing.html',
-  styleUrl: './feat-landing.css',
 })
 export class FeatLanding implements OnInit {
   private readonly auth = inject(AuthClientService);

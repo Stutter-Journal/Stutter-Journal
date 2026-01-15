@@ -31,7 +31,6 @@ import { LoggerService } from '@org/util';
     HlmButton,
   ],
   templateUrl: './feat-register.html',
-  styleUrl: './feat-register.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatRegister {

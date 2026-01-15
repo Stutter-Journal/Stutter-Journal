@@ -70,7 +70,6 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
     NgIcon,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
   providers: [
     provideIcons({
       lucideLayoutDashboard,

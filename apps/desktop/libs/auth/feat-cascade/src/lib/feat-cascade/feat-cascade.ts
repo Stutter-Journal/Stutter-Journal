@@ -15,7 +15,6 @@ type Mode = 'login' | 'register';
   selector: 'lib-feat-cascade',
   imports: [CommonModule, FeatLogin, FeatRegister],
   templateUrl: './feat-cascade.html',
-  styleUrl: './feat-cascade.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatCascade {

@@ -94,7 +94,6 @@ interface AddPatientGenerated {
     class: 'flex flex-col gap-5', // recommended pattern in dynamic content example
   },
   templateUrl: './add-patient.html',
-  styleUrl: './add-patient.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ lucideCheck })],
 })

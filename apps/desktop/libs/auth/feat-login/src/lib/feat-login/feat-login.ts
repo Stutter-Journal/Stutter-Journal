@@ -33,7 +33,6 @@ import { createRequestFlow, LoggerService } from '@org/util';
     HlmButton,
   ],
   templateUrl: './feat-login.html',
-  styleUrl: './feat-login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeatLogin {

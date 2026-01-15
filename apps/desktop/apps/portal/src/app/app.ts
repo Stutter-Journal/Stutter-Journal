@@ -6,7 +6,6 @@ import { HlmToaster } from '@spartan-ng/helm/sonner';
   imports: [RouterModule, HlmToaster],
   selector: 'app-root',
   templateUrl: './app.html',
-  styleUrl: './app.css',
 })
 export class App {
   protected title = 'portal';

@@ -87,7 +87,6 @@ interface Patient {
     HlmDropdownMenuSeparator,
   ],
   templateUrl: './feat-patients-overview.html',
-  styleUrl: './feat-patients-overview.css',
   providers: [
     provideIcons({ lucideMoreHorizontal, lucideUserPlus, lucideUsers }),
   ],

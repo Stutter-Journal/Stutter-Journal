@@ -12,10 +12,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
 import { AuthClientService } from '@org/auth-data-access';
 import { HlmError, HlmFormField, HlmHint } from '@spartan-ng/helm/form-field';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -28,10 +24,6 @@ import { LoggerService } from '@org/util';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    CheckboxModule,
     HlmFormField,
     HlmInput,
     HlmError,

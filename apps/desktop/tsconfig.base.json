@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@org/mock-api": ["libs/mock/api/src/index.ts"],
       "@org/portal-shared-ui": ["libs/portal/shared-ui/src/index.ts"],
       "@org/util": ["libs/shared/util/src/index.ts"],
       "@org/models": ["libs/shared/models/src/index.ts"],

@@ -11,7 +11,14 @@ import {
 import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, exhaustMap, from, interval, startWith, timer } from 'rxjs';
+import {
+  Subscription,
+  exhaustMap,
+  from,
+  interval,
+  startWith,
+  timer,
+} from 'rxjs';
 import { assign, createActor, createMachine, fromPromise } from 'xstate';
 
 import { LinksClientService } from '@org/links-data-access';

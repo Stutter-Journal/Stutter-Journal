@@ -8,9 +8,8 @@ describe('Api', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Api]
-    })
-    .compileComponents();
+      imports: [Api],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Api);
     component = fixture.componentInstance;

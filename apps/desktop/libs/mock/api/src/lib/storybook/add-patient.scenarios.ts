@@ -41,7 +41,11 @@ export function scenarioWaiting(options?: {
 }): AddPatientMockScenario {
   return {
     pairingCode: {
-      responses: [pairingResponse(options?.code ?? '123456', { expiresInMs: options?.expiresInMs })],
+      responses: [
+        pairingResponse(options?.code ?? '123456', {
+          expiresInMs: options?.expiresInMs,
+        }),
+      ],
     },
     patients: {
       responses: [patientsResponse(options?.baselinePatients ?? 0)],

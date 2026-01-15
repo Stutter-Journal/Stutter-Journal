@@ -10,7 +10,11 @@ import { LoggerService } from '@org/util';
 
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 
-import { createAsyncSequence, delay, type AsyncSequenceItem } from './async-sequence';
+import {
+  createAsyncSequence,
+  delay,
+  type AsyncSequenceItem,
+} from './async-sequence';
 import type { AddPatientMockScenario } from './add-patient.scenarios';
 
 export interface AddPatientMockRefs {

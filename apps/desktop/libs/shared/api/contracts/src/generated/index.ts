@@ -113,11 +113,11 @@ export interface ServerStatusResponse {
   status?: string;
 }
 
-export type ServerAnalyticsDistributionsEmotions = {[key: string]: number};
+export type ServerAnalyticsDistributionsEmotions = { [key: string]: number };
 
-export type ServerAnalyticsDistributionsTechniques = {[key: string]: number};
+export type ServerAnalyticsDistributionsTechniques = { [key: string]: number };
 
-export type ServerAnalyticsDistributionsTriggers = {[key: string]: number};
+export type ServerAnalyticsDistributionsTriggers = { [key: string]: number };
 
 export interface ServerAnalyticsDistributions {
   emotions?: ServerAnalyticsDistributionsEmotions;
@@ -168,1067 +168,1096 @@ export interface ServerTrendPoint {
 export type ServerLinkInviteRequestBody = ServerLinkInviteRequest;
 
 export type GetPatientsIdAnalyticsParams = {
-/**
- * Range in days (7, 30, or 90). Defaults to 7.
- */
-range?: string;
+  /**
+   * Range in days (7, 30, or 90). Defaults to 7.
+   */
+  range?: string;
 };
 
 export type GetPatientsIdEntriesParams = {
-/**
- * ISO timestamp (RFC3339) lower bound
- */
-from?: string;
-/**
- * ISO timestamp (RFC3339) upper bound
- */
-to?: string;
+  /**
+   * ISO timestamp (RFC3339) lower bound
+   */
+  from?: string;
+  /**
+   * ISO timestamp (RFC3339) upper bound
+   */
+  to?: string;
 };
 
 /**
  * @summary Authenticate a doctor
  */
 export type postDoctorLoginResponse200 = {
-  data: ServerDoctorResponse
-  status: 200
-}
+  data: ServerDoctorResponse;
+  status: 200;
+};
 
 export type postDoctorLoginResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postDoctorLoginResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type postDoctorLoginResponseSuccess = (postDoctorLoginResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type postDoctorLoginResponseSuccess = postDoctorLoginResponse200 & {
   headers: Headers;
 };
-export type postDoctorLoginResponseError = (postDoctorLoginResponse400 | postDoctorLoginResponse401) & {
+export type postDoctorLoginResponseError = (
+  | postDoctorLoginResponse400
+  | postDoctorLoginResponse401
+) & {
   headers: Headers;
 };
 
-export type postDoctorLoginResponse = (postDoctorLoginResponseSuccess | postDoctorLoginResponseError)
+export type postDoctorLoginResponse =
+  | postDoctorLoginResponseSuccess
+  | postDoctorLoginResponseError;
 
 export const getPostDoctorLoginUrl = () => {
+  return `http://localhost:8080/doctor/login`;
+};
 
-
-  
-
-  return `http://localhost:8080/doctor/login`
-}
-
-export const postDoctorLogin = async (serverDoctorLoginRequest: ServerDoctorLoginRequest, options?: RequestInit): Promise<postDoctorLoginResponse> => {
-  
-  const res = await fetch(getPostDoctorLoginUrl(),
-  {      
+export const postDoctorLogin = async (
+  serverDoctorLoginRequest: ServerDoctorLoginRequest,
+  options?: RequestInit,
+): Promise<postDoctorLoginResponse> => {
+  const res = await fetch(getPostDoctorLoginUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverDoctorLoginRequest,)
-  }
-)
+    body: JSON.stringify(serverDoctorLoginRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postDoctorLoginResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postDoctorLoginResponse
-}
 
-
+  const data: postDoctorLoginResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postDoctorLoginResponse;
+};
 
 /**
  * @summary Terminate the current session
  */
 export type postDoctorLogoutResponse200 = {
-  data: ServerStatusResponse
-  status: 200
-}
+  data: ServerStatusResponse;
+  status: 200;
+};
 
 export type postDoctorLogoutResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type postDoctorLogoutResponseSuccess = (postDoctorLogoutResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type postDoctorLogoutResponseSuccess = postDoctorLogoutResponse200 & {
   headers: Headers;
 };
-export type postDoctorLogoutResponseError = (postDoctorLogoutResponse401) & {
+export type postDoctorLogoutResponseError = postDoctorLogoutResponse401 & {
   headers: Headers;
 };
 
-export type postDoctorLogoutResponse = (postDoctorLogoutResponseSuccess | postDoctorLogoutResponseError)
+export type postDoctorLogoutResponse =
+  | postDoctorLogoutResponseSuccess
+  | postDoctorLogoutResponseError;
 
 export const getPostDoctorLogoutUrl = () => {
+  return `http://localhost:8080/doctor/logout`;
+};
 
-
-  
-
-  return `http://localhost:8080/doctor/logout`
-}
-
-export const postDoctorLogout = async ( options?: RequestInit): Promise<postDoctorLogoutResponse> => {
-  
-  const res = await fetch(getPostDoctorLogoutUrl(),
-  {      
+export const postDoctorLogout = async (
+  options?: RequestInit,
+): Promise<postDoctorLogoutResponse> => {
+  const res = await fetch(getPostDoctorLogoutUrl(), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: 'POST',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postDoctorLogoutResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postDoctorLogoutResponse
-}
 
-
+  const data: postDoctorLogoutResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postDoctorLogoutResponse;
+};
 
 /**
  * @summary Fetch the current doctor
  */
 export type getDoctorMeResponse200 = {
-  data: ServerDoctorResponse
-  status: 200
-}
+  data: ServerDoctorResponse;
+  status: 200;
+};
 
 export type getDoctorMeResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type getDoctorMeResponseSuccess = (getDoctorMeResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type getDoctorMeResponseSuccess = getDoctorMeResponse200 & {
   headers: Headers;
 };
-export type getDoctorMeResponseError = (getDoctorMeResponse401) & {
+export type getDoctorMeResponseError = getDoctorMeResponse401 & {
   headers: Headers;
 };
 
-export type getDoctorMeResponse = (getDoctorMeResponseSuccess | getDoctorMeResponseError)
+export type getDoctorMeResponse =
+  | getDoctorMeResponseSuccess
+  | getDoctorMeResponseError;
 
 export const getGetDoctorMeUrl = () => {
+  return `http://localhost:8080/doctor/me`;
+};
 
-
-  
-
-  return `http://localhost:8080/doctor/me`
-}
-
-export const getDoctorMe = async ( options?: RequestInit): Promise<getDoctorMeResponse> => {
-  
-  const res = await fetch(getGetDoctorMeUrl(),
-  {      
+export const getDoctorMe = async (
+  options?: RequestInit,
+): Promise<getDoctorMeResponse> => {
+  const res = await fetch(getGetDoctorMeUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getDoctorMeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getDoctorMeResponse
-}
 
-
+  const data: getDoctorMeResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getDoctorMeResponse;
+};
 
 /**
  * @summary Register a doctor account
  */
 export type postDoctorRegisterResponse201 = {
-  data: ServerDoctorResponse
-  status: 201
-}
+  data: ServerDoctorResponse;
+  status: 201;
+};
 
 export type postDoctorRegisterResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postDoctorRegisterResponse409 = {
-  data: ServerErrorResponse
-  status: 409
-}
-    
-export type postDoctorRegisterResponseSuccess = (postDoctorRegisterResponse201) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 409;
 };
-export type postDoctorRegisterResponseError = (postDoctorRegisterResponse400 | postDoctorRegisterResponse409) & {
+
+export type postDoctorRegisterResponseSuccess =
+  postDoctorRegisterResponse201 & {
+    headers: Headers;
+  };
+export type postDoctorRegisterResponseError = (
+  | postDoctorRegisterResponse400
+  | postDoctorRegisterResponse409
+) & {
   headers: Headers;
 };
 
-export type postDoctorRegisterResponse = (postDoctorRegisterResponseSuccess | postDoctorRegisterResponseError)
+export type postDoctorRegisterResponse =
+  | postDoctorRegisterResponseSuccess
+  | postDoctorRegisterResponseError;
 
 export const getPostDoctorRegisterUrl = () => {
+  return `http://localhost:8080/doctor/register`;
+};
 
-
-  
-
-  return `http://localhost:8080/doctor/register`
-}
-
-export const postDoctorRegister = async (serverDoctorRegisterRequest: ServerDoctorRegisterRequest, options?: RequestInit): Promise<postDoctorRegisterResponse> => {
-  
-  const res = await fetch(getPostDoctorRegisterUrl(),
-  {      
+export const postDoctorRegister = async (
+  serverDoctorRegisterRequest: ServerDoctorRegisterRequest,
+  options?: RequestInit,
+): Promise<postDoctorRegisterResponse> => {
+  const res = await fetch(getPostDoctorRegisterUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverDoctorRegisterRequest,)
-  }
-)
+    body: JSON.stringify(serverDoctorRegisterRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postDoctorRegisterResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postDoctorRegisterResponse
-}
 
-
+  const data: postDoctorRegisterResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postDoctorRegisterResponse;
+};
 
 /**
  * @summary Liveness probe
  */
 export type getHealthResponse200 = {
-  data: ServerStatusResponse
-  status: 200
-}
-    
-export type getHealthResponseSuccess = (getHealthResponse200) & {
+  data: ServerStatusResponse;
+  status: 200;
+};
+
+export type getHealthResponseSuccess = getHealthResponse200 & {
   headers: Headers;
 };
-;
-
-export type getHealthResponse = (getHealthResponseSuccess)
+export type getHealthResponse = getHealthResponseSuccess;
 
 export const getGetHealthUrl = () => {
+  return `http://localhost:8080/health`;
+};
 
-
-  
-
-  return `http://localhost:8080/health`
-}
-
-export const getHealth = async ( options?: RequestInit): Promise<getHealthResponse> => {
-  
-  const res = await fetch(getGetHealthUrl(),
-  {      
+export const getHealth = async (
+  options?: RequestInit,
+): Promise<getHealthResponse> => {
+  const res = await fetch(getGetHealthUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getHealthResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getHealthResponse
-}
 
-
+  const data: getHealthResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getHealthResponse;
+};
 
 /**
  * @summary Invite a patient to link with the doctor
  */
 export type postLinksInviteResponse201 = {
-  data: ServerLinkResponse
-  status: 201
-}
+  data: ServerLinkResponse;
+  status: 201;
+};
 
 export type postLinksInviteResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postLinksInviteResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type postLinksInviteResponse409 = {
-  data: ServerErrorResponse
-  status: 409
-}
-    
-export type postLinksInviteResponseSuccess = (postLinksInviteResponse201) & {
+  data: ServerErrorResponse;
+  status: 409;
+};
+
+export type postLinksInviteResponseSuccess = postLinksInviteResponse201 & {
   headers: Headers;
 };
-export type postLinksInviteResponseError = (postLinksInviteResponse400 | postLinksInviteResponse401 | postLinksInviteResponse409) & {
+export type postLinksInviteResponseError = (
+  | postLinksInviteResponse400
+  | postLinksInviteResponse401
+  | postLinksInviteResponse409
+) & {
   headers: Headers;
 };
 
-export type postLinksInviteResponse = (postLinksInviteResponseSuccess | postLinksInviteResponseError)
+export type postLinksInviteResponse =
+  | postLinksInviteResponseSuccess
+  | postLinksInviteResponseError;
 
 export const getPostLinksInviteUrl = () => {
+  return `http://localhost:8080/links/invite`;
+};
 
-
-  
-
-  return `http://localhost:8080/links/invite`
-}
-
-export const postLinksInvite = async (serverLinkInviteRequestBody: ServerLinkInviteRequestBody, options?: RequestInit): Promise<postLinksInviteResponse> => {
-  
-  const res = await fetch(getPostLinksInviteUrl(),
-  {      
+export const postLinksInvite = async (
+  serverLinkInviteRequestBody: ServerLinkInviteRequestBody,
+  options?: RequestInit,
+): Promise<postLinksInviteResponse> => {
+  const res = await fetch(getPostLinksInviteUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverLinkInviteRequestBody,)
-  }
-)
+    body: JSON.stringify(serverLinkInviteRequestBody),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postLinksInviteResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postLinksInviteResponse
-}
 
-
+  const data: postLinksInviteResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postLinksInviteResponse;
+};
 
 /**
  * @summary Create a short-lived patient pairing code
  */
 export type postLinksPairingCodeResponse201 = {
-  data: ServerPairingCodeCreateResponse
-  status: 201
-}
+  data: ServerPairingCodeCreateResponse;
+  status: 201;
+};
 
 export type postLinksPairingCodeResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type postLinksPairingCodeResponse500 = {
-  data: ServerErrorResponse
-  status: 500
-}
-    
-export type postLinksPairingCodeResponseSuccess = (postLinksPairingCodeResponse201) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 500;
 };
-export type postLinksPairingCodeResponseError = (postLinksPairingCodeResponse401 | postLinksPairingCodeResponse500) & {
+
+export type postLinksPairingCodeResponseSuccess =
+  postLinksPairingCodeResponse201 & {
+    headers: Headers;
+  };
+export type postLinksPairingCodeResponseError = (
+  | postLinksPairingCodeResponse401
+  | postLinksPairingCodeResponse500
+) & {
   headers: Headers;
 };
 
-export type postLinksPairingCodeResponse = (postLinksPairingCodeResponseSuccess | postLinksPairingCodeResponseError)
+export type postLinksPairingCodeResponse =
+  | postLinksPairingCodeResponseSuccess
+  | postLinksPairingCodeResponseError;
 
 export const getPostLinksPairingCodeUrl = () => {
+  return `http://localhost:8080/links/pairing-code`;
+};
 
-
-  
-
-  return `http://localhost:8080/links/pairing-code`
-}
-
-export const postLinksPairingCode = async ( options?: RequestInit): Promise<postLinksPairingCodeResponse> => {
-  
-  const res = await fetch(getPostLinksPairingCodeUrl(),
-  {      
+export const postLinksPairingCode = async (
+  options?: RequestInit,
+): Promise<postLinksPairingCodeResponse> => {
+  const res = await fetch(getPostLinksPairingCodeUrl(), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: 'POST',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postLinksPairingCodeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postLinksPairingCodeResponse
-}
 
-
+  const data: postLinksPairingCodeResponse['data'] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postLinksPairingCodeResponse;
+};
 
 /**
  * @summary Redeem a patient pairing code
  */
 export type postLinksPairingCodeRedeemResponse200 = {
-  data: ServerLinkResponse
-  status: 200
-}
+  data: ServerLinkResponse;
+  status: 200;
+};
 
 export type postLinksPairingCodeRedeemResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postLinksPairingCodeRedeemResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type postLinksPairingCodeRedeemResponse404 = {
-  data: ServerErrorResponse
-  status: 404
-}
+  data: ServerErrorResponse;
+  status: 404;
+};
 
 export type postLinksPairingCodeRedeemResponse409 = {
-  data: ServerErrorResponse
-  status: 409
-}
+  data: ServerErrorResponse;
+  status: 409;
+};
 
 export type postLinksPairingCodeRedeemResponse500 = {
-  data: ServerErrorResponse
-  status: 500
-}
-    
-export type postLinksPairingCodeRedeemResponseSuccess = (postLinksPairingCodeRedeemResponse200) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 500;
 };
-export type postLinksPairingCodeRedeemResponseError = (postLinksPairingCodeRedeemResponse400 | postLinksPairingCodeRedeemResponse401 | postLinksPairingCodeRedeemResponse404 | postLinksPairingCodeRedeemResponse409 | postLinksPairingCodeRedeemResponse500) & {
+
+export type postLinksPairingCodeRedeemResponseSuccess =
+  postLinksPairingCodeRedeemResponse200 & {
+    headers: Headers;
+  };
+export type postLinksPairingCodeRedeemResponseError = (
+  | postLinksPairingCodeRedeemResponse400
+  | postLinksPairingCodeRedeemResponse401
+  | postLinksPairingCodeRedeemResponse404
+  | postLinksPairingCodeRedeemResponse409
+  | postLinksPairingCodeRedeemResponse500
+) & {
   headers: Headers;
 };
 
-export type postLinksPairingCodeRedeemResponse = (postLinksPairingCodeRedeemResponseSuccess | postLinksPairingCodeRedeemResponseError)
+export type postLinksPairingCodeRedeemResponse =
+  | postLinksPairingCodeRedeemResponseSuccess
+  | postLinksPairingCodeRedeemResponseError;
 
 export const getPostLinksPairingCodeRedeemUrl = () => {
+  return `http://localhost:8080/links/pairing-code/redeem`;
+};
 
-
-  
-
-  return `http://localhost:8080/links/pairing-code/redeem`
-}
-
-export const postLinksPairingCodeRedeem = async (serverPairingCodeRedeemRequest: ServerPairingCodeRedeemRequest, options?: RequestInit): Promise<postLinksPairingCodeRedeemResponse> => {
-  
-  const res = await fetch(getPostLinksPairingCodeRedeemUrl(),
-  {      
+export const postLinksPairingCodeRedeem = async (
+  serverPairingCodeRedeemRequest: ServerPairingCodeRedeemRequest,
+  options?: RequestInit,
+): Promise<postLinksPairingCodeRedeemResponse> => {
+  const res = await fetch(getPostLinksPairingCodeRedeemUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverPairingCodeRedeemRequest,)
-  }
-)
+    body: JSON.stringify(serverPairingCodeRedeemRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postLinksPairingCodeRedeemResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postLinksPairingCodeRedeemResponse
-}
 
-
+  const data: postLinksPairingCodeRedeemResponse['data'] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postLinksPairingCodeRedeemResponse;
+};
 
 /**
  * @summary Patient-side link request (placeholder)
  */
 export type postLinksRequestResponse201 = {
-  data: ServerLinkResponse
-  status: 201
-}
+  data: ServerLinkResponse;
+  status: 201;
+};
 
 export type postLinksRequestResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postLinksRequestResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type postLinksRequestResponse409 = {
-  data: ServerErrorResponse
-  status: 409
-}
-    
-export type postLinksRequestResponseSuccess = (postLinksRequestResponse201) & {
+  data: ServerErrorResponse;
+  status: 409;
+};
+
+export type postLinksRequestResponseSuccess = postLinksRequestResponse201 & {
   headers: Headers;
 };
-export type postLinksRequestResponseError = (postLinksRequestResponse400 | postLinksRequestResponse401 | postLinksRequestResponse409) & {
+export type postLinksRequestResponseError = (
+  | postLinksRequestResponse400
+  | postLinksRequestResponse401
+  | postLinksRequestResponse409
+) & {
   headers: Headers;
 };
 
-export type postLinksRequestResponse = (postLinksRequestResponseSuccess | postLinksRequestResponseError)
+export type postLinksRequestResponse =
+  | postLinksRequestResponseSuccess
+  | postLinksRequestResponseError;
 
 export const getPostLinksRequestUrl = () => {
+  return `http://localhost:8080/links/request`;
+};
 
-
-  
-
-  return `http://localhost:8080/links/request`
-}
-
-export const postLinksRequest = async (serverLinkInviteRequestBody: ServerLinkInviteRequestBody, options?: RequestInit): Promise<postLinksRequestResponse> => {
-  
-  const res = await fetch(getPostLinksRequestUrl(),
-  {      
+export const postLinksRequest = async (
+  serverLinkInviteRequestBody: ServerLinkInviteRequestBody,
+  options?: RequestInit,
+): Promise<postLinksRequestResponse> => {
+  const res = await fetch(getPostLinksRequestUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverLinkInviteRequestBody,)
-  }
-)
+    body: JSON.stringify(serverLinkInviteRequestBody),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postLinksRequestResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postLinksRequestResponse
-}
 
-
+  const data: postLinksRequestResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postLinksRequestResponse;
+};
 
 /**
  * @summary Approve a pending doctor-patient link
  */
 export type postLinksIdApproveResponse200 = {
-  data: ServerLinkApproveResponse
-  status: 200
-}
+  data: ServerLinkApproveResponse;
+  status: 200;
+};
 
 export type postLinksIdApproveResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postLinksIdApproveResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type postLinksIdApproveResponse404 = {
-  data: ServerErrorResponse
-  status: 404
-}
-    
-export type postLinksIdApproveResponseSuccess = (postLinksIdApproveResponse200) & {
-  headers: Headers;
-};
-export type postLinksIdApproveResponseError = (postLinksIdApproveResponse400 | postLinksIdApproveResponse401 | postLinksIdApproveResponse404) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 404;
 };
 
-export type postLinksIdApproveResponse = (postLinksIdApproveResponseSuccess | postLinksIdApproveResponseError)
+export type postLinksIdApproveResponseSuccess =
+  postLinksIdApproveResponse200 & {
+    headers: Headers;
+  };
+export type postLinksIdApproveResponseError = (
+  | postLinksIdApproveResponse400
+  | postLinksIdApproveResponse401
+  | postLinksIdApproveResponse404
+) & {
+  headers: Headers;
+};
 
-export const getPostLinksIdApproveUrl = (id: string,) => {
+export type postLinksIdApproveResponse =
+  | postLinksIdApproveResponseSuccess
+  | postLinksIdApproveResponseError;
 
+export const getPostLinksIdApproveUrl = (id: string) => {
+  return `http://localhost:8080/links/${id}/approve`;
+};
 
-  
-
-  return `http://localhost:8080/links/${id}/approve`
-}
-
-export const postLinksIdApprove = async (id: string, options?: RequestInit): Promise<postLinksIdApproveResponse> => {
-  
-  const res = await fetch(getPostLinksIdApproveUrl(id),
-  {      
+export const postLinksIdApprove = async (
+  id: string,
+  options?: RequestInit,
+): Promise<postLinksIdApproveResponse> => {
+  const res = await fetch(getPostLinksIdApproveUrl(id), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: 'POST',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postLinksIdApproveResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postLinksIdApproveResponse
-}
 
-
+  const data: postLinksIdApproveResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postLinksIdApproveResponse;
+};
 
 /**
  * @summary Authenticate a patient
  */
 export type postPatientLoginResponse200 = {
-  data: ServerPatientResponse
-  status: 200
-}
+  data: ServerPatientResponse;
+  status: 200;
+};
 
 export type postPatientLoginResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postPatientLoginResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type postPatientLoginResponseSuccess = (postPatientLoginResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type postPatientLoginResponseSuccess = postPatientLoginResponse200 & {
   headers: Headers;
 };
-export type postPatientLoginResponseError = (postPatientLoginResponse400 | postPatientLoginResponse401) & {
+export type postPatientLoginResponseError = (
+  | postPatientLoginResponse400
+  | postPatientLoginResponse401
+) & {
   headers: Headers;
 };
 
-export type postPatientLoginResponse = (postPatientLoginResponseSuccess | postPatientLoginResponseError)
+export type postPatientLoginResponse =
+  | postPatientLoginResponseSuccess
+  | postPatientLoginResponseError;
 
 export const getPostPatientLoginUrl = () => {
+  return `http://localhost:8080/patient/login`;
+};
 
-
-  
-
-  return `http://localhost:8080/patient/login`
-}
-
-export const postPatientLogin = async (serverPatientLoginRequest: ServerPatientLoginRequest, options?: RequestInit): Promise<postPatientLoginResponse> => {
-  
-  const res = await fetch(getPostPatientLoginUrl(),
-  {      
+export const postPatientLogin = async (
+  serverPatientLoginRequest: ServerPatientLoginRequest,
+  options?: RequestInit,
+): Promise<postPatientLoginResponse> => {
+  const res = await fetch(getPostPatientLoginUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverPatientLoginRequest,)
-  }
-)
+    body: JSON.stringify(serverPatientLoginRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postPatientLoginResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postPatientLoginResponse
-}
 
-
+  const data: postPatientLoginResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postPatientLoginResponse;
+};
 
 /**
  * @summary Terminate the current patient session
  */
 export type postPatientLogoutResponse200 = {
-  data: ServerStatusResponse
-  status: 200
-}
+  data: ServerStatusResponse;
+  status: 200;
+};
 
 export type postPatientLogoutResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type postPatientLogoutResponseSuccess = (postPatientLogoutResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type postPatientLogoutResponseSuccess = postPatientLogoutResponse200 & {
   headers: Headers;
 };
-export type postPatientLogoutResponseError = (postPatientLogoutResponse401) & {
+export type postPatientLogoutResponseError = postPatientLogoutResponse401 & {
   headers: Headers;
 };
 
-export type postPatientLogoutResponse = (postPatientLogoutResponseSuccess | postPatientLogoutResponseError)
+export type postPatientLogoutResponse =
+  | postPatientLogoutResponseSuccess
+  | postPatientLogoutResponseError;
 
 export const getPostPatientLogoutUrl = () => {
+  return `http://localhost:8080/patient/logout`;
+};
 
-
-  
-
-  return `http://localhost:8080/patient/logout`
-}
-
-export const postPatientLogout = async ( options?: RequestInit): Promise<postPatientLogoutResponse> => {
-  
-  const res = await fetch(getPostPatientLogoutUrl(),
-  {      
+export const postPatientLogout = async (
+  options?: RequestInit,
+): Promise<postPatientLogoutResponse> => {
+  const res = await fetch(getPostPatientLogoutUrl(), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: 'POST',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postPatientLogoutResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postPatientLogoutResponse
-}
 
-
+  const data: postPatientLogoutResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postPatientLogoutResponse;
+};
 
 /**
  * @summary Fetch the current patient
  */
 export type getPatientMeResponse200 = {
-  data: ServerPatientResponse
-  status: 200
-}
+  data: ServerPatientResponse;
+  status: 200;
+};
 
 export type getPatientMeResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type getPatientMeResponseSuccess = (getPatientMeResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type getPatientMeResponseSuccess = getPatientMeResponse200 & {
   headers: Headers;
 };
-export type getPatientMeResponseError = (getPatientMeResponse401) & {
+export type getPatientMeResponseError = getPatientMeResponse401 & {
   headers: Headers;
 };
 
-export type getPatientMeResponse = (getPatientMeResponseSuccess | getPatientMeResponseError)
+export type getPatientMeResponse =
+  | getPatientMeResponseSuccess
+  | getPatientMeResponseError;
 
 export const getGetPatientMeUrl = () => {
+  return `http://localhost:8080/patient/me`;
+};
 
-
-  
-
-  return `http://localhost:8080/patient/me`
-}
-
-export const getPatientMe = async ( options?: RequestInit): Promise<getPatientMeResponse> => {
-  
-  const res = await fetch(getGetPatientMeUrl(),
-  {      
+export const getPatientMe = async (
+  options?: RequestInit,
+): Promise<getPatientMeResponse> => {
+  const res = await fetch(getGetPatientMeUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPatientMeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPatientMeResponse
-}
 
-
+  const data: getPatientMeResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getPatientMeResponse;
+};
 
 /**
  * @summary Register a patient account
  */
 export type postPatientRegisterResponse201 = {
-  data: ServerPatientResponse
-  status: 201
-}
+  data: ServerPatientResponse;
+  status: 201;
+};
 
 export type postPatientRegisterResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postPatientRegisterResponse409 = {
-  data: ServerErrorResponse
-  status: 409
-}
-    
-export type postPatientRegisterResponseSuccess = (postPatientRegisterResponse201) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 409;
 };
-export type postPatientRegisterResponseError = (postPatientRegisterResponse400 | postPatientRegisterResponse409) & {
+
+export type postPatientRegisterResponseSuccess =
+  postPatientRegisterResponse201 & {
+    headers: Headers;
+  };
+export type postPatientRegisterResponseError = (
+  | postPatientRegisterResponse400
+  | postPatientRegisterResponse409
+) & {
   headers: Headers;
 };
 
-export type postPatientRegisterResponse = (postPatientRegisterResponseSuccess | postPatientRegisterResponseError)
+export type postPatientRegisterResponse =
+  | postPatientRegisterResponseSuccess
+  | postPatientRegisterResponseError;
 
 export const getPostPatientRegisterUrl = () => {
+  return `http://localhost:8080/patient/register`;
+};
 
-
-  
-
-  return `http://localhost:8080/patient/register`
-}
-
-export const postPatientRegister = async (serverPatientRegisterRequest: ServerPatientRegisterRequest, options?: RequestInit): Promise<postPatientRegisterResponse> => {
-  
-  const res = await fetch(getPostPatientRegisterUrl(),
-  {      
+export const postPatientRegister = async (
+  serverPatientRegisterRequest: ServerPatientRegisterRequest,
+  options?: RequestInit,
+): Promise<postPatientRegisterResponse> => {
+  const res = await fetch(getPostPatientRegisterUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverPatientRegisterRequest,)
-  }
-)
+    body: JSON.stringify(serverPatientRegisterRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postPatientRegisterResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postPatientRegisterResponse
-}
 
-
+  const data: postPatientRegisterResponse['data'] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postPatientRegisterResponse;
+};
 
 /**
  * @summary List patients and pending links for the current doctor
  */
 export type getPatientsResponse200 = {
-  data: ServerPatientsResponse
-  status: 200
-}
+  data: ServerPatientsResponse;
+  status: 200;
+};
 
 export type getPatientsResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type getPatientsResponseSuccess = (getPatientsResponse200) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type getPatientsResponseSuccess = getPatientsResponse200 & {
   headers: Headers;
 };
-export type getPatientsResponseError = (getPatientsResponse401) & {
+export type getPatientsResponseError = getPatientsResponse401 & {
   headers: Headers;
 };
 
-export type getPatientsResponse = (getPatientsResponseSuccess | getPatientsResponseError)
+export type getPatientsResponse =
+  | getPatientsResponseSuccess
+  | getPatientsResponseError;
 
 export const getGetPatientsUrl = () => {
+  return `http://localhost:8080/patients`;
+};
 
-
-  
-
-  return `http://localhost:8080/patients`
-}
-
-export const getPatients = async ( options?: RequestInit): Promise<getPatientsResponse> => {
-  
-  const res = await fetch(getGetPatientsUrl(),
-  {      
+export const getPatients = async (
+  options?: RequestInit,
+): Promise<getPatientsResponse> => {
+  const res = await fetch(getGetPatientsUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPatientsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPatientsResponse
-}
 
-
+  const data: getPatientsResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getPatientsResponse;
+};
 
 /**
  * @summary Patient analytics (distributions and stutter trend)
  */
 export type getPatientsIdAnalyticsResponse200 = {
-  data: ServerAnalyticsResponse
-  status: 200
-}
+  data: ServerAnalyticsResponse;
+  status: 200;
+};
 
 export type getPatientsIdAnalyticsResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type getPatientsIdAnalyticsResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type getPatientsIdAnalyticsResponse403 = {
-  data: ServerErrorResponse
-  status: 403
-}
-    
-export type getPatientsIdAnalyticsResponseSuccess = (getPatientsIdAnalyticsResponse200) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 403;
 };
-export type getPatientsIdAnalyticsResponseError = (getPatientsIdAnalyticsResponse400 | getPatientsIdAnalyticsResponse401 | getPatientsIdAnalyticsResponse403) & {
+
+export type getPatientsIdAnalyticsResponseSuccess =
+  getPatientsIdAnalyticsResponse200 & {
+    headers: Headers;
+  };
+export type getPatientsIdAnalyticsResponseError = (
+  | getPatientsIdAnalyticsResponse400
+  | getPatientsIdAnalyticsResponse401
+  | getPatientsIdAnalyticsResponse403
+) & {
   headers: Headers;
 };
 
-export type getPatientsIdAnalyticsResponse = (getPatientsIdAnalyticsResponseSuccess | getPatientsIdAnalyticsResponseError)
+export type getPatientsIdAnalyticsResponse =
+  | getPatientsIdAnalyticsResponseSuccess
+  | getPatientsIdAnalyticsResponseError;
 
-export const getGetPatientsIdAnalyticsUrl = (id: string,
-    params?: GetPatientsIdAnalyticsParams,) => {
+export const getGetPatientsIdAnalyticsUrl = (
+  id: string,
+  params?: GetPatientsIdAnalyticsParams,
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8080/patients/${id}/analytics?${stringifiedParams}` : `http://localhost:8080/patients/${id}/analytics`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8080/patients/${id}/analytics?${stringifiedParams}`
+    : `http://localhost:8080/patients/${id}/analytics`;
+};
 
-export const getPatientsIdAnalytics = async (id: string,
-    params?: GetPatientsIdAnalyticsParams, options?: RequestInit): Promise<getPatientsIdAnalyticsResponse> => {
-  
-  const res = await fetch(getGetPatientsIdAnalyticsUrl(id,params),
-  {      
+export const getPatientsIdAnalytics = async (
+  id: string,
+  params?: GetPatientsIdAnalyticsParams,
+  options?: RequestInit,
+): Promise<getPatientsIdAnalyticsResponse> => {
+  const res = await fetch(getGetPatientsIdAnalyticsUrl(id, params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPatientsIdAnalyticsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPatientsIdAnalyticsResponse
-}
 
-
+  const data: getPatientsIdAnalyticsResponse['data'] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getPatientsIdAnalyticsResponse;
+};
 
 /**
  * @summary List patient entries (doctor must have approved link)
  */
 export type getPatientsIdEntriesResponse200 = {
-  data: ServerEntriesResponse
-  status: 200
-}
+  data: ServerEntriesResponse;
+  status: 200;
+};
 
 export type getPatientsIdEntriesResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type getPatientsIdEntriesResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
+  data: ServerErrorResponse;
+  status: 401;
+};
 
 export type getPatientsIdEntriesResponse403 = {
-  data: ServerErrorResponse
-  status: 403
-}
-    
-export type getPatientsIdEntriesResponseSuccess = (getPatientsIdEntriesResponse200) & {
-  headers: Headers;
+  data: ServerErrorResponse;
+  status: 403;
 };
-export type getPatientsIdEntriesResponseError = (getPatientsIdEntriesResponse400 | getPatientsIdEntriesResponse401 | getPatientsIdEntriesResponse403) & {
+
+export type getPatientsIdEntriesResponseSuccess =
+  getPatientsIdEntriesResponse200 & {
+    headers: Headers;
+  };
+export type getPatientsIdEntriesResponseError = (
+  | getPatientsIdEntriesResponse400
+  | getPatientsIdEntriesResponse401
+  | getPatientsIdEntriesResponse403
+) & {
   headers: Headers;
 };
 
-export type getPatientsIdEntriesResponse = (getPatientsIdEntriesResponseSuccess | getPatientsIdEntriesResponseError)
+export type getPatientsIdEntriesResponse =
+  | getPatientsIdEntriesResponseSuccess
+  | getPatientsIdEntriesResponseError;
 
-export const getGetPatientsIdEntriesUrl = (id: string,
-    params?: GetPatientsIdEntriesParams,) => {
+export const getGetPatientsIdEntriesUrl = (
+  id: string,
+  params?: GetPatientsIdEntriesParams,
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8080/patients/${id}/entries?${stringifiedParams}` : `http://localhost:8080/patients/${id}/entries`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8080/patients/${id}/entries?${stringifiedParams}`
+    : `http://localhost:8080/patients/${id}/entries`;
+};
 
-export const getPatientsIdEntries = async (id: string,
-    params?: GetPatientsIdEntriesParams, options?: RequestInit): Promise<getPatientsIdEntriesResponse> => {
-  
-  const res = await fetch(getGetPatientsIdEntriesUrl(id,params),
-  {      
+export const getPatientsIdEntries = async (
+  id: string,
+  params?: GetPatientsIdEntriesParams,
+  options?: RequestInit,
+): Promise<getPatientsIdEntriesResponse> => {
+  const res = await fetch(getGetPatientsIdEntriesUrl(id, params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPatientsIdEntriesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPatientsIdEntriesResponse
-}
 
-
+  const data: getPatientsIdEntriesResponse['data'] = body
+    ? JSON.parse(body)
+    : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getPatientsIdEntriesResponse;
+};
 
 /**
  * @summary Create a practice and assign the current doctor
  */
 export type postPracticeResponse201 = {
-  data: ServerPracticeCreateResponse
-  status: 201
-}
+  data: ServerPracticeCreateResponse;
+  status: 201;
+};
 
 export type postPracticeResponse400 = {
-  data: ServerErrorResponse
-  status: 400
-}
+  data: ServerErrorResponse;
+  status: 400;
+};
 
 export type postPracticeResponse401 = {
-  data: ServerErrorResponse
-  status: 401
-}
-    
-export type postPracticeResponseSuccess = (postPracticeResponse201) & {
+  data: ServerErrorResponse;
+  status: 401;
+};
+
+export type postPracticeResponseSuccess = postPracticeResponse201 & {
   headers: Headers;
 };
-export type postPracticeResponseError = (postPracticeResponse400 | postPracticeResponse401) & {
+export type postPracticeResponseError = (
+  | postPracticeResponse400
+  | postPracticeResponse401
+) & {
   headers: Headers;
 };
 
-export type postPracticeResponse = (postPracticeResponseSuccess | postPracticeResponseError)
+export type postPracticeResponse =
+  | postPracticeResponseSuccess
+  | postPracticeResponseError;
 
 export const getPostPracticeUrl = () => {
+  return `http://localhost:8080/practice`;
+};
 
-
-  
-
-  return `http://localhost:8080/practice`
-}
-
-export const postPractice = async (serverPracticeCreateRequest: ServerPracticeCreateRequest, options?: RequestInit): Promise<postPracticeResponse> => {
-  
-  const res = await fetch(getPostPracticeUrl(),
-  {      
+export const postPractice = async (
+  serverPracticeCreateRequest: ServerPracticeCreateRequest,
+  options?: RequestInit,
+): Promise<postPracticeResponse> => {
+  const res = await fetch(getPostPracticeUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      serverPracticeCreateRequest,)
-  }
-)
+    body: JSON.stringify(serverPracticeCreateRequest),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: postPracticeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as postPracticeResponse
-}
 
-
+  const data: postPracticeResponse['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postPracticeResponse;
+};
 
 /**
  * @summary Readiness probe
  */
 export type getReadyResponse200 = {
-  data: ServerStatusResponse
-  status: 200
-}
+  data: ServerStatusResponse;
+  status: 200;
+};
 
 export type getReadyResponse503 = {
-  data: ServerStatusResponse
-  status: 503
-}
-    
-export type getReadyResponseSuccess = (getReadyResponse200) & {
+  data: ServerStatusResponse;
+  status: 503;
+};
+
+export type getReadyResponseSuccess = getReadyResponse200 & {
   headers: Headers;
 };
-export type getReadyResponseError = (getReadyResponse503) & {
+export type getReadyResponseError = getReadyResponse503 & {
   headers: Headers;
 };
 
-export type getReadyResponse = (getReadyResponseSuccess | getReadyResponseError)
+export type getReadyResponse = getReadyResponseSuccess | getReadyResponseError;
 
 export const getGetReadyUrl = () => {
+  return `http://localhost:8080/ready`;
+};
 
-
-  
-
-  return `http://localhost:8080/ready`
-}
-
-export const getReady = async ( options?: RequestInit): Promise<getReadyResponse> => {
-  
-  const res = await fetch(getGetReadyUrl(),
-  {      
+export const getReady = async (
+  options?: RequestInit,
+): Promise<getReadyResponse> => {
+  const res = await fetch(getGetReadyUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: 'GET',
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getReadyResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getReadyResponse
-}
+
+  const data: getReadyResponse['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as getReadyResponse;
+};

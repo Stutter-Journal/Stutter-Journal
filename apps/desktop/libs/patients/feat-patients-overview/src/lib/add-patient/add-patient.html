@@ -1,7 +1,8 @@
 <hlm-dialog-header>
   <h3 hlmDialogTitle>Add patient</h3>
   <p hlmDialogDescription>
-    Generate a short-lived 6-digit code. The patient can enter it manually or scan the QR code.
+    Generate a short-lived 6-digit code. The patient can enter it manually or
+    scan the QR code.
   </p>
 </hlm-dialog-header>
 
@@ -9,54 +10,64 @@
   <hlm-form-field>
     <label class="mb-1 block text-sm font-medium">Pairing code</label>
     <div class="flex items-center gap-2">
-      <input class="w-full text-center tracking-[0.35em] text-lg" [value]="pairing()?.code ?? ''" hlmInput readonly
-        type="text" />
-      <button hlmBtn type="button" variant="outline" (click)="copyCode()" [disabled]="!pairing()?.code">
+      <input
+        class="w-full text-center tracking-[0.35em] text-lg"
+        [value]="pairing()?.code ?? ''"
+        hlmInput
+        readonly
+        type="text"
+      />
+      <button
+        hlmBtn
+        type="button"
+        variant="outline"
+        (click)="copyCode()"
+        [disabled]="!pairing()?.code"
+      >
         Copy
       </button>
     </div>
 
     @if(expiresInSeconds() !== null) {
-      <hlm-hint>
-        Expires in {{ expiresInSeconds() }}s.
-      </hlm-hint>
-      }
+    <hlm-hint> Expires in {{ expiresInSeconds() }}s. </hlm-hint>
+    }
   </hlm-form-field>
 
   @if(connected()) {
-    <div
-      class="flex items-center justify-center gap-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700"
+  <div
+    class="flex items-center justify-center gap-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700"
+  >
+    <span
+      class="flex size-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-700"
     >
-      <span
-        class="flex size-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-700"
-      >
-        <ng-icon hlm name="lucideCheck" size="sm" />
-      </span>
-      <span>Patient connected. Closing shortly.</span>
-    </div>
-    }
+      <ng-icon hlm name="lucideCheck" size="sm" />
+    </span>
+    <span>Patient connected. Closing shortly.</span>
+  </div>
+  } @if(waitingForPatient() && (expiresInSeconds() ?? 0) > 0) {
+  <div
+    class="flex items-center justify-center gap-3 rounded-md border bg-muted/30 px-4 py-3 text-sm"
+  >
+    <div
+      class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground"
+    ></div>
+    <span>Waiting for the patient to connect…</span>
+  </div>
+  } @if(qrDataUrl()) {
+  <div class="flex items-center justify-center">
+    <img
+      [src]="qrDataUrl()!"
+      alt="Pairing code QR"
+      class="h-60 w-60 rounded-md border bg-white p-2"
+    />
+  </div>
+  }
 
-    @if(waitingForPatient() && (expiresInSeconds() ?? 0) > 0) {
-      <div class="flex items-center justify-center gap-3 rounded-md border bg-muted/30 px-4 py-3 text-sm">
-        <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground">
-        </div>
-        <span>Waiting for the patient to connect…</span>
-      </div>
-      }
+  <hlm-dialog-footer>
+    <button brnDialogClose hlmBtn type="button" variant="outline">Close</button>
 
-    @if(qrDataUrl()) {
-      <div class="flex items-center justify-center">
-        <img [src]="qrDataUrl()!" alt="Pairing code QR" class="h-60 w-60 rounded-md border bg-white p-2" />
-      </div>
-      }
-
-      <hlm-dialog-footer>
-        <button brnDialogClose hlmBtn type="button" variant="outline">
-          Close
-        </button>
-
-        <button hlmBtn type="button" (click)="generate()" [disabled]="loading()">
-          {{ loading() ? 'Generating…' : 'Regenerate' }}
-        </button>
-      </hlm-dialog-footer>
+    <button hlmBtn type="button" (click)="generate()" [disabled]="loading()">
+      {{ loading() ? 'Generating…' : 'Regenerate' }}
+    </button>
+  </hlm-dialog-footer>
 </div>

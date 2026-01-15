@@ -83,6 +83,7 @@ interface AddPatientGenerated {
     BrnDialogClose,
   ],
   host: {
+    // TODO: Remove this css class, most likely not needed
     class: 'flex flex-col gap-5', // recommended pattern in dynamic content example
   },
   templateUrl: './add-patient.html',

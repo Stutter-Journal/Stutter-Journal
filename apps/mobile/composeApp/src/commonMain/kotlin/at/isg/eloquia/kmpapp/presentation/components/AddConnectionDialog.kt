@@ -60,6 +60,7 @@ fun AddConnectionDialog(
 
     val viewModel: AddConnectionViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
+    val hasTherapist by viewModel.hasTherapist.collectAsState()
 
     val factory = rememberEloquiaPermissionsControllerFactory()
     val permissionsViewModel = remember(factory) {
@@ -168,6 +169,15 @@ fun AddConnectionDialog(
         Napier.d(tag = logTag) { "Scanner active: $scanning" }
     }
 
+    LaunchedEffect(hasTherapist) {
+        if (hasTherapist && scanning) {
+            Napier.d(tag = logTag) { "Therapist already assigned; closing scanner" }
+            scanning = false
+            flashlightOn = false
+            openImagePicker = false
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
@@ -188,6 +198,14 @@ fun AddConnectionDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
+                if (hasTherapist) {
+                    Text(
+                        text = "You already have a therapist connected. Remove the existing therapist before connecting a new one.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
                 if (!scanning) {
                     OutlinedTextField(
                         value = code,
@@ -201,11 +219,16 @@ fun AddConnectionDialog(
                         label = { Text("Code") },
                         leadingIcon = { Icon(Icons.Outlined.Keyboard, contentDescription = null) },
                         singleLine = true,
+                        enabled = !hasTherapist,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     )
 
                     FilledTonalButton(
                         onClick = {
+                            if (hasTherapist) {
+                                errorText = "Remove the existing therapist to scan/connect a new one."
+                                return@FilledTonalButton
+                            }
                             if (isCameraGranted) {
                                 Napier.d(tag = logTag) { "Scan QR clicked; permission already granted" }
                                 scanning = true
@@ -221,6 +244,7 @@ fun AddConnectionDialog(
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(52.dp),
+                        enabled = !hasTherapist,
                     ) {
                         Icon(Icons.Outlined.QrCodeScanner, contentDescription = null)
                         Spacer(Modifier.padding(start = 10.dp))
@@ -314,6 +338,7 @@ fun AddConnectionDialog(
                         onClick = { confirmRemove = true },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = hasTherapist,
                     ) {
                         Text("Remove therapist")
                     }
@@ -327,7 +352,7 @@ fun AddConnectionDialog(
                     errorText = null
                     viewModel.submit()
                 },
-                enabled = !scanning && code.trim().isNotEmpty() && !submitting,
+                enabled = !hasTherapist && !scanning && code.trim().isNotEmpty() && !submitting,
             ) {
                 Text(if (submitting) "Connecting..." else "Continue")
             }

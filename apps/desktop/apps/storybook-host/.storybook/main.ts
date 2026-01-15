@@ -8,7 +8,7 @@ const config: StorybookConfig = {
     '../../../libs/**/*.stories.@(ts|tsx|js|jsx|mdx)',
     '../../../libs/**/**/*.mdx',
   ],
-  addons: [],
+  addons: ['@storybook/addon-styling-webpack'],
   framework: {
     name: getAbsolutePath('@storybook/angular'),
     options: {

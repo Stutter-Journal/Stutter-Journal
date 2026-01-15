@@ -2,6 +2,7 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - '@parcel/watcher'
   - '@swc/core'
+  - core-js
   - esbuild
   - less
   - lmdb

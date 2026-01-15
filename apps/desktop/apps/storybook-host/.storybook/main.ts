@@ -6,7 +6,6 @@ const config: StorybookConfig = {
   stories: [
     '../src/app/**/*.@(mdx|stories.@(js|jsx|ts|tsx))',
     '../../../libs/**/*.stories.@(ts|tsx|js|jsx|mdx)',
-    '../../../libs/**/**/*.mdx',
   ],
   addons: ['@storybook/addon-styling-webpack'],
   framework: {

@@ -5,6 +5,7 @@ export default defineConfig({
   e2e: {
     ...nxE2EPreset(__filename, {
       cypressDir: 'cypress',
+      baseUrl: 'http://localhost:4200',
       webServerCommands: {
         default: 'nx run portal:serve',
         production: 'nx run portal:serve:production',

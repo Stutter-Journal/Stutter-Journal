@@ -60,6 +60,32 @@
         "hide": "never",
     },
     {
+        "label": "🖥️ Desktop: Run Storybook (storybook-host)",
+        "command": "pnpm",
+        "args": ["nx", "storybook", "storybook-host"],
+        "cwd": "$ZED_WORKTREE_ROOT/apps/desktop",
+        "use_new_terminal": false,
+        "allow_concurrent_runs": true,
+        "reveal": "always",
+        "hide": "never",
+        "env": {
+            "NX_API_BASE_URL": "http://localhost:8080",
+        },
+    },
+    {
+        "label": "🖥️ Desktop: Run Cypress (Open (Electron, E2E))",
+        "command": "pnpm",
+        "args": ["nx", "open-cypress", "portal-e2e", "--browser", "electron"],
+        "cwd": "$ZED_WORKTREE_ROOT/apps/desktop",
+        "use_new_terminal": false,
+        "allow_concurrent_runs": true,
+        "reveal": "always",
+        "hide": "never",
+        "env": {
+            "NX_API_BASE_URL": "http://localhost:8080",
+        },
+    },
+    {
         "label": "🖥️ Desktop: Serve Portal (Nx dev)",
         "command": "pnpm",
         "args": ["nx", "run", "portal:serve:development"],

@@ -21,6 +21,9 @@ src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerStatusRespons
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServeranalyticsDistributions.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerentryDTO.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerlinkDTO.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServermyDoctorPracticeResponse.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServermyDoctorResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerpatientDTO.kt
+src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerpatientRowDTO.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServerrevokeLinksResponse.kt
 src/commonMain/kotlin/at/isg/eloquia/core/data/openapi/model/ServertrendPoint.kt

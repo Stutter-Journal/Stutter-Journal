@@ -7,6 +7,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.text.google.fonts)
             implementation(libs.jetbrains.compose.ui.tooling.preview)
+            implementation(libs.bundles.navigation.lifecycle)
         }
     }
 }

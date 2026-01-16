@@ -349,6 +349,7 @@ export class AddPatient {
     const resp = await this.links.createPairingCode();
 
     const qrText = (resp.qrText ?? resp.code ?? '').trim();
+    // TODO: No idea why webstorm complains about some toDataURL overload not returning a promise
     const qrDataUrl = await QRCode.toDataURL(qrText, { width: 240, margin: 1 });
 
     const expiresAtMs = resp.expiresAt

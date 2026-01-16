@@ -1,8 +1,6 @@
 <div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
   <!-- Header -->
-  <div
-    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-  >
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
       <div class="text-sm text-muted-foreground">Dashboard</div>
       <div class="text-2xl font-semibold leading-tight">Patients</div>
@@ -12,7 +10,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button hlmBtn type="button" (click)="openAddPatient()">
+      <button (click)="openAddPatient()" hlmBtn type="button">
         <ng-icon hlm name="lucideUserPlus" size="base"></ng-icon>
         Add patient
       </button>
@@ -21,9 +19,7 @@
 
   <!-- Toolbar -->
   <div class="rounded-lg border bg-card p-4">
-    <div
-      class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
-    >
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div class="flex flex-1 flex-col gap-2 md:flex-row md:items-center">
         <input
           (input)="onQueryInput(($any($event.target)).value)"
@@ -34,7 +30,6 @@
           type="search"
         />
 
-        <!-- Status filter via dropdown -->
         <button
           [hlmDropdownMenuTrigger]="statusMenu"
           class="justify-between md:w-44"
@@ -42,24 +37,17 @@
           type="button"
           variant="outline"
         >
-          Status: {{ statusFilter() === 'all' ? 'All' : statusFilter() }}
+          Status: {{ statusFilterLabel() }}
           <span class="ml-2 text-muted-foreground">▾</span>
         </button>
 
         <ng-template #statusMenu>
           <hlm-dropdown-menu class="w-44">
-            <button (click)="setStatusFilter('all')" hlmDropdownMenuItem>
-              All
-            </button>
-            <button (click)="setStatusFilter('active')" hlmDropdownMenuItem>
-              Active
-            </button>
-            <button (click)="setStatusFilter('pending')" hlmDropdownMenuItem>
-              Pending
-            </button>
-            <button (click)="setStatusFilter('archived')" hlmDropdownMenuItem>
-              Archived
-            </button>
+            <button (click)="setStatusFilter('all')" hlmDropdownMenuItem>All</button>
+            <button (click)="setStatusFilter('active')" hlmDropdownMenuItem>Connected</button>
+            <button (click)="setStatusFilter('pending')" hlmDropdownMenuItem>Pending</button>
+            <button (click)="setStatusFilter('revoked')" hlmDropdownMenuItem>Revoked</button>
+            <button (click)="setStatusFilter('denied')" hlmDropdownMenuItem>Denied</button>
           </hlm-dropdown-menu>
         </ng-template>
       </div>
@@ -69,120 +57,117 @@
 
     <!-- Table / Empty -->
     <div class="mt-4">
-      @if(totalItems() === 0) {
-      <div class="border bg-background/50" hlmEmpty>
-        <div hlmEmptyHeader>
-          <div hlmEmptyMedia variant="icon">
-            <ng-icon hlm name="lucideUsers" size="base"></ng-icon>
+      @if (totalItems() === 0) {
+        <div class="border bg-background/50" hlmEmpty>
+          <div hlmEmptyHeader>
+            <div hlmEmptyMedia variant="icon">
+              <ng-icon hlm name="lucideUsers" size="base"></ng-icon>
+            </div>
+            <div hlmEmptyTitle>No patients found</div>
+            <div hlmEmptyDescription>
+              Try a different search term or add your first patient.
+            </div>
           </div>
-          <div hlmEmptyTitle>No patients found</div>
-          <div hlmEmptyDescription>
-            Try a different search term or add your first patient.
-          </div>
-        </div>
 
-        <div hlmItemFooter>
-          <button hlmBtn type="button" (click)="openAddPatient()">
-            Add patient
-          </button>
+          <div hlmItemFooter>
+            <button (click)="openAddPatient()" hlmBtn type="button">Add patient</button>
+          </div>
         </div>
-      </div>
       } @else {
-      <div hlmTableContainer>
-        <table hlmTable>
-          <caption hlmCaption>
-            Patients
-          </caption>
+        <div hlmTableContainer>
+          <table hlmTable>
+            <caption hlmCaption>Patients</caption>
 
-          <thead hlmTHead>
+            <thead hlmTHead>
             <tr hlmTr>
               <th hlmTh>Patient</th>
-              <th class="w-[140px]" hlmTh>DOB</th>
-              <th class="w-[140px]" hlmTh>Status</th>
-              <th class="w-[160px]" hlmTh>Last entry</th>
+              <th class="w-[180px]" hlmTh>Status</th>
+              <th class="w-[160px]" hlmTh>Requested</th>
+              <th class="w-[160px]" hlmTh>Approved</th>
               <th class="w-[72px] text-right" hlmTh>Actions</th>
             </tr>
-          </thead>
+            </thead>
 
-          <tbody hlmTBody>
-            @for(p of pagePatients(); track p.id) {
-            <tr hlmTr>
-              <td class="font-medium" hlmTd>
-                <a
-                  [routerLink]="['/app/patients', p.id]"
-                  class="hover:underline"
-                >
-                  {{ p.fullName }}
-                </a>
-              </td>
-
-              <td hlmTd>{{ fmtDate(p.dob) }}</td>
-
-              <td hlmTd>
-                <span [variant]="badgeVariant(p.status)" hlmBadge>
-                  {{ statusLabel(p.status) }}
-                </span>
-              </td>
-
-              <td hlmTd>{{ fmtDate(p.lastEntryAt) }}</td>
-
-              <td class="text-right" hlmTd>
-                <button
-                  [hlmDropdownMenuTrigger]="rowMenu"
-                  hlmBtn
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <ng-icon
-                    hlm
-                    name="lucideMoreHorizontal"
-                    size="base"
-                  ></ng-icon>
-                  <span class="sr-only">Open patient actions</span>
-                </button>
-
-                <ng-template #rowMenu>
-                  <hlm-dropdown-menu class="w-44">
-                    <button
-                      [routerLink]="['/app/patients', p.id]"
-                      hlmDropdownMenuItem
+            <tbody hlmTBody>
+              @for (p of pageRows(); track p.linkId) {
+                <tr hlmTr>
+                  <td class="font-medium" hlmTd>
+                    <a
+                      [routerLink]="['/app/patients', p.patientId]"
+                      class="hover:underline"
                     >
-                      View
-                    </button>
-                    <button
-                      [queryParams]="{ patientId: p.id }"
-                      [routerLink]="['/app/entries/new']"
-                      hlmDropdownMenuItem
-                    >
-                      New entry
-                    </button>
-                    <hlm-dropdown-menu-separator />
-                    <button
-                      [routerLink]="['/app/patients', p.id, 'edit']"
-                      hlmDropdownMenuItem
-                    >
-                      Edit
-                    </button>
-                  </hlm-dropdown-menu>
-                </ng-template>
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                      {{ p.fullName }}
+                    </a>
+                    @if (p.email) {
+                      <div class="text-xs text-muted-foreground">{{ p.email }}</div>
+                    }
+                  </td>
 
-      <!-- Pagination -->
-      <div class="mt-4 flex items-center justify-end">
-        <hlm-numbered-pagination
-          (currentPageChange)="page.set($event)"
-          (itemsPerPageChange)="pageSize.set($event); page.set(1)"
-          [currentPage]="page()"
-          [itemsPerPage]="pageSize()"
-          [totalItems]="totalItems()"
-        />
-      </div>
+                  <td hlmTd>
+                    <span [variant]="badgeVariant(p.status)" hlmBadge>
+                      {{ statusLabel(p.status) }}
+                    </span>
+                  </td>
+
+                  <td hlmTd>{{ fmtDate(p.requestedAt) }}</td>
+                  <td hlmTd>{{ fmtDate(p.approvedAt) }}</td>
+
+                  <td class="text-right" hlmTd>
+                    <button
+                      [hlmDropdownMenuTrigger]="rowMenu"
+                      hlmBtn
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <ng-icon hlm name="lucideMoreHorizontal" size="base"></ng-icon>
+                      <span class="sr-only">Open patient actions</span>
+                    </button>
+
+                    <ng-template #rowMenu>
+                      <hlm-dropdown-menu class="w-44">
+                        <button
+                          [routerLink]="['/app/patients', p.patientId]"
+                          hlmDropdownMenuItem
+                        >
+                          View
+                        </button>
+
+                        <button
+                          [disabled]="p.status !== 'active'"
+                          [queryParams]="{ patientId: p.patientId }"
+                          [routerLink]="['/app/entries/new']"
+                          hlmDropdownMenuItem
+                        >
+                          New entry
+                        </button>
+
+                        <hlm-dropdown-menu-separator />
+
+                        <button
+                          [routerLink]="['/app/patients', p.patientId, 'edit']"
+                          hlmDropdownMenuItem
+                        >
+                          Edit
+                        </button>
+                      </hlm-dropdown-menu>
+                    </ng-template>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-end">
+          <hlm-numbered-pagination
+            (currentPageChange)="page.set($event)"
+            (itemsPerPageChange)="pageSize.set($event); page.set(1)"
+            [currentPage]="page()"
+            [itemsPerPage]="pageSize()"
+            [totalItems]="totalItems()"
+          />
+        </div>
       }
     </div>
   </div>

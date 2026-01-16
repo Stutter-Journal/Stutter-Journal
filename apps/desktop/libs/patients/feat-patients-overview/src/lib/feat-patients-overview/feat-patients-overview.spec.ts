@@ -19,7 +19,10 @@ describe('FeatPatientsOverview', () => {
           useValue: {
             loading: computed(() => loadingSig()),
             error: computed(() => errorSig()),
-            getPatientsResponse: async () => ({ patients: [], pendingLinks: [] }),
+            getPatientsResponse: async () => ({
+              patients: [],
+              pendingLinks: [],
+            }),
           },
         },
       ],

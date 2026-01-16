@@ -27,7 +27,9 @@ export const Primary: Story = {
                 { id: 'p_001', displayName: 'Anna Müller' },
                 { id: 'p_002', displayName: 'Lukas Steiner' },
               ],
-              pendingLinks: [{ id: 'l_001', patientId: 'p_003', status: 'Pending' }],
+              pendingLinks: [
+                { id: 'l_001', patientId: 'p_003', status: 'Pending' },
+              ],
             }),
           },
         },

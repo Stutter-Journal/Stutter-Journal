@@ -1,13 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { take } from 'rxjs';
+
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-import {
-  ServerLinkDTO,
-  ServerPatientDTO,
-  ServerPatientsResponse,
-} from '@org/contracts';
 import { PatientsClientService } from '@org/patients-data-access';
+import { ServerPatientRowDTO, ServerPatientsResponse } from '@org/contracts';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -45,35 +43,44 @@ import {
 import { HlmNumberedPagination } from '@spartan-ng/helm/pagination';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmItemFooter } from '@spartan-ng/helm/item';
+
 import { AddPatient } from '../add-patient/add-patient';
-import { take } from 'rxjs';
 
-type PatientStatus = 'active' | 'pending' | 'archived';
+type LinkStatus = 'Approved' | 'Pending' | 'Revoked' | 'Denied';
 
-interface Patient {
-  id: string;
+// What the overview UI actually cares about
+type PatientStatus = 'active' | 'pending' | 'revoked' | 'denied';
+
+interface PatientVm {
+  patientId: string;
   fullName: string;
-  dob?: string; // ISO date (yyyy-mm-dd)
+  email?: string;
+  patientCode?: string;
+
+  linkId: string;
+  linkStatus: LinkStatus;
   status: PatientStatus;
-  lastEntryAt?: string; // ISO datetime
+
+  requestedAt?: string; // ISO
+  approvedAt?: string; // ISO
 }
 
 @Component({
   selector: 'lib-feat-patients-overview',
   imports: [
     CommonModule,
+    RouterLink,
+
+    // UI modules you already had
     HlmNumberedPagination,
     HlmDropdownMenuSeparator,
-    RouterLink,
     HlmDropdownMenuItem,
     HlmIcon,
     HlmButton,
     NgIcon,
-    HlmIcon,
     HlmInput,
     HlmDropdownMenuTrigger,
     HlmDropdownMenu,
-    HlmDropdownMenuItem,
     HlmEmptyHeader,
     HlmEmpty,
     HlmEmptyMedia,
@@ -89,7 +96,6 @@ interface Patient {
     HlmTBody,
     HlmTd,
     HlmBadge,
-    HlmDropdownMenuSeparator,
   ],
   templateUrl: './feat-patients-overview.html',
   providers: [
@@ -98,125 +104,53 @@ interface Patient {
 })
 export class FeatPatientsOverview implements OnInit {
   private readonly dialog = inject(HlmDialogService);
-  private readonly patientsClient = inject(PatientsClientService);
+  private readonly api = inject(PatientsClientService);
 
-  private readonly patientsSig = signal<Patient[]>([]);
-  private lastRequestId = 0;
-
-  readonly loading = this.patientsClient.loading;
-  readonly error = this.patientsClient.error;
+  readonly loading = this.api.loading;
+  readonly error = this.api.error;
 
   // UI state
   readonly query = signal('');
   readonly statusFilter = signal<PatientStatus | 'all'>('all');
-
   readonly page = signal(1);
   readonly pageSize = signal(10);
 
-  readonly filteredPatients = computed(() => {
+  private readonly rowsSig = signal<PatientVm[]>([]);
+
+  readonly filtered = computed(() => {
     const sf = this.statusFilter();
-    return this.patientsSig().filter((p) =>
-      sf === 'all' ? true : p.status === sf,
+    return this.rowsSig().filter((r) =>
+      sf === 'all' ? true : r.status === sf,
     );
   });
 
-  readonly totalItems = computed(() => this.filteredPatients().length);
+  readonly totalItems = computed(() => this.filtered().length);
 
   readonly totalPages = computed(() => {
     const size = Math.max(1, this.pageSize());
     return Math.max(1, Math.ceil(this.totalItems() / size));
   });
 
-  readonly pagePatients = computed(() => {
+  readonly pageRows = computed(() => {
     const size = Math.max(1, this.pageSize());
     const safePage = Math.min(Math.max(1, this.page()), this.totalPages());
     const start = (safePage - 1) * size;
-    return this.filteredPatients().slice(start, start + size);
+    return this.filtered().slice(start, start + size);
   });
 
-  openAddPatient() {
-    const ref = this.dialog.open(AddPatient, {
-      contentClass: 'sm:!max-w-lg',
-    });
-
-    // Refresh the list after the dialog closes (pairing-code flow may have changed it).
-    ref.closed$
-      .pipe(take(1))
-      .subscribe(() => void this.refreshPatients());
-  }
-
   async ngOnInit(): Promise<void> {
-    await this.refreshPatients();
+    await this.refresh();
   }
 
-  private mapResponseToPatients(response: ServerPatientsResponse): Patient[] {
-    const approved = (response.patients ?? []).map((p, idx) =>
-      this.mapApprovedPatient(p, idx),
-    );
-
-    const pending = (response.pendingLinks ?? []).map((l, idx) =>
-      this.mapPendingLink(l, idx),
-    );
-
-    return [...approved, ...pending];
-  }
-
-  private mapApprovedPatient(dto: ServerPatientDTO, index: number): Patient {
-    const rawStatus = (dto as { status?: string }).status?.toLowerCase();
-    const status: PatientStatus = rawStatus?.includes('inactive')
-      ? 'archived'
-      : 'active';
-
-    const fullName =
-      dto.displayName?.trim() || dto.email?.trim() || dto.id || `Patient ${index + 1}`;
-
-    // Contracts currently don't include `birthDate/lastEntryAt`, but the backend might.
-    const anyDto = dto as unknown as {
-      birthDate?: string;
-      dob?: string;
-      lastEntryAt?: string;
-    };
-
-    return {
-      id: dto.id ?? `patient_${index}`,
-      fullName,
-      dob: anyDto.birthDate ?? anyDto.dob,
-      status,
-      lastEntryAt: anyDto.lastEntryAt,
-    };
-  }
-
-  private mapPendingLink(dto: ServerLinkDTO, index: number): Patient {
-    const label = dto.patientId ? `Pending (${dto.patientId})` : 'Pending patient';
-    return {
-      id: dto.id ?? dto.patientId ?? `pending_${index}`,
-      fullName: label,
-      status: 'pending',
-    };
-  }
-
-  private async refreshPatients(): Promise<void> {
-    const requestId = ++this.lastRequestId;
-
-    try {
-      const response = await this.patientsClient.getPatientsResponse({
-        search: this.query().trim(),
-      });
-
-      // Prevent out-of-order responses from clobbering newer results.
-      if (requestId !== this.lastRequestId) return;
-
-      this.patientsSig.set(this.mapResponseToPatients(response));
-    } catch {
-      // Error state is already handled by PatientsClientService; keep old list.
-      if (requestId !== this.lastRequestId) return;
-    }
+  openAddPatient() {
+    const ref = this.dialog.open(AddPatient, { contentClass: 'sm:!max-w-lg' });
+    ref.closed$.pipe(take(1)).subscribe(() => void this.refresh());
   }
 
   onQueryInput(value: string) {
     this.query.set(value);
     this.page.set(1);
-    void this.refreshPatients();
+    void this.refresh();
   }
 
   setStatusFilter(value: PatientStatus | 'all') {
@@ -224,10 +158,64 @@ export class FeatPatientsOverview implements OnInit {
     this.page.set(1);
   }
 
-  // Simple formatting helpers
+  private async refresh(): Promise<void> {
+    // service now supports search, and BFF forwards it ✅
+    const res = await this.api.getPatientsResponse({
+      search: this.query().trim(),
+    });
+    this.rowsSig.set(this.mapResponse(res));
+  }
+
+  private mapResponse(res: ServerPatientsResponse): PatientVm[] {
+    return (res.rows ?? [])
+      .map((row, idx) => this.mapRow(row, idx))
+      .filter((x): x is PatientVm => x !== null);
+  }
+
+  private mapRow(row: ServerPatientRowDTO, index: number): PatientVm | null {
+    const p = row.patient;
+    const l = row.link;
+    if (!p || !l) return null;
+
+    const fullName =
+      p.displayName?.trim() ||
+      p.email?.trim() ||
+      p.id ||
+      `Patient ${index + 1}`;
+
+    const linkStatus = (l.status ?? 'Pending') as LinkStatus;
+
+    return {
+      patientId: p.id ?? `patient_${index}`,
+      fullName,
+      email: p.email ?? undefined,
+      patientCode: p.patientCode ?? undefined,
+
+      linkId: l.id ?? `link_${index}`,
+      linkStatus,
+      status: this.toPatientStatus(linkStatus),
+
+      requestedAt: l.requestedAt ?? undefined,
+      approvedAt: l.approvedAt ?? undefined,
+    };
+  }
+
+  private toPatientStatus(s: LinkStatus): PatientStatus {
+    switch (s) {
+      case 'Approved':
+        return 'active';
+      case 'Pending':
+        return 'pending';
+      case 'Revoked':
+        return 'revoked';
+      case 'Denied':
+        return 'denied';
+    }
+  }
+
+  // formatting helpers
   fmtDate(iso?: string) {
     if (!iso) return '—';
-    // For YYYY-MM-DD treat as local date, for datetime let Date parse.
     const d = iso.length === 10 ? new Date(`${iso}T00:00:00`) : new Date(iso);
     if (Number.isNaN(d.getTime())) return '—';
     return new Intl.DateTimeFormat(undefined, {
@@ -245,7 +233,9 @@ export class FeatPatientsOverview implements OnInit {
         return 'default';
       case 'pending':
         return 'secondary';
-      case 'archived':
+      case 'revoked':
+        return 'destructive';
+      case 'denied':
         return 'outline';
     }
   }
@@ -253,11 +243,18 @@ export class FeatPatientsOverview implements OnInit {
   statusLabel(status: PatientStatus) {
     switch (status) {
       case 'active':
-        return 'Active';
+        return 'Connected';
       case 'pending':
         return 'Pending';
-      case 'archived':
-        return 'Archived';
+      case 'revoked':
+        return 'Revoked';
+      case 'denied':
+        return 'Denied';
     }
   }
+
+  readonly statusFilterLabel = computed(() => {
+    const s = this.statusFilter();
+    return s === 'all' ? 'All' : this.statusLabel(s);
+  });
 }

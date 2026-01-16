@@ -2,29 +2,22 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DestroyRef,
   computed,
+  DestroyRef,
   inject,
   NgZone,
-  signal,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  Subscription,
-  exhaustMap,
-  from,
-  interval,
-  startWith,
-  timer,
-} from 'rxjs';
+import { exhaustMap, from, interval, startWith, Subscription, timer } from 'rxjs';
 import { assign, createActor, createMachine, fromPromise } from 'xstate';
 
 import { LinksClientService } from '@org/links-data-access';
 import { PatientsClientService } from '@org/patients-data-access';
 import { actorSnapshot$, LoggerService } from '@org/util';
-import { ServerPairingCodeCreateResponse } from '@org/contracts';
+import { ServerPairingCodeCreateResponse, ServerPatientsResponse } from '@org/contracts';
 
 import { toast } from 'ngx-sonner';
 
@@ -32,12 +25,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck } from '@ng-icons/lucide';
 
 import { BrnDialogClose, BrnDialogRef } from '@spartan-ng/brain/dialog';
-import {
-  HlmDialogDescription,
-  HlmDialogFooter,
-  HlmDialogHeader,
-  HlmDialogTitle,
-} from '@spartan-ng/helm/dialog';
+import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
@@ -345,9 +333,9 @@ export class AddPatient {
   private async ensureBaselineApprovedCount(): Promise<number> {
     try {
       const resp = await this.patients.getPatientsResponse();
-      this.baselineApprovedCount = resp.patients?.length ?? 0;
+      this.baselineApprovedCount = this.countApproved(resp);
     } catch (e) {
-      this.log.warn('Could not load baseline patients count', { error: e });
+      this.log.warn('Could not load baseline approved count', { error: e });
       this.baselineApprovedCount = 0;
     }
     return this.baselineApprovedCount ?? 0;
@@ -356,15 +344,12 @@ export class AddPatient {
   private async generatePairing(): Promise<AddPatientGenerated> {
     this.links.clearError();
 
-    const baseline = await this.ensureBaselineApprovedCount();
-    this.baselineApprovedCount = baseline;
+    this.baselineApprovedCount = await this.ensureBaselineApprovedCount();
 
     const resp = await this.links.createPairingCode();
 
     const qrText = (resp.qrText ?? resp.code ?? '').trim();
-    const qrDataUrl = qrText
-      ? await QRCode.toDataURL(qrText, { width: 240, margin: 1 })
-      : null;
+    const qrDataUrl = await QRCode.toDataURL(qrText, { width: 240, margin: 1 });
 
     const expiresAtMs = resp.expiresAt
       ? new Date(resp.expiresAt).getTime()
@@ -396,12 +381,12 @@ export class AddPatient {
 
     try {
       const resp = await this.patients.getPatientsResponse();
-      const approvedCount = resp.patients?.length ?? 0;
+      const approvedCount = this.countApproved(resp);
+
       if (approvedCount > baseline) {
         this.zone.run(() => this.addPatientActor.send({ type: 'CONNECTED' }));
       }
     } catch (e) {
-      // Non-fatal; keep polling until expiry/dismiss.
       this.log.warn('Polling patients failed', { error: e });
     }
   }
@@ -415,5 +400,10 @@ export class AddPatient {
           this.zone.run(() => this.close());
         });
     });
+  }
+
+  private countApproved(resp: ServerPatientsResponse): number {
+    return (resp.rows ?? []).filter((r) => r.link?.status === 'Approved')
+      .length;
   }
 }

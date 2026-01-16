@@ -44,9 +44,13 @@ type patientDTO struct {
 	Code        *string `json:"patientCode,omitempty"`
 }
 
+type patientRowDTO struct {
+	Patient patientDTO `json:"patient"`
+	Link    linkDTO    `json:"link"`
+}
+
 type patientsListResponse struct {
-	Patients     []patientDTO `json:"patients"`
-	PendingLinks []linkDTO    `json:"pendingLinks"`
+	Rows []patientRowDTO `json:"rows"`
 }
 
 // inviteLinkHandler invites or creates a patient and establishes a pending link.
@@ -199,46 +203,62 @@ func (s *Server) listPatientsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
+	search := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("search")))
 
-	approvedLinks, err := s.Db.Ent().DoctorPatientLink.Query().
+	links, err := s.Db.Ent().DoctorPatientLink.
+		Query().
 		Where(
 			doctorpatientlink.DoctorIDEQ(doc.ID),
-			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+			// include revoked so the UI can show it
+			doctorpatientlink.StatusIn(
+				doctorpatientlink.StatusApproved,
+				doctorpatientlink.StatusPending,
+				doctorpatientlink.StatusRevoked,
+				// include denied if you want it visible:
+				// doctorpatientlink.StatusDenied,
+			),
 		).
 		WithPatient().
+		Order(ent.Desc(doctorpatientlink.FieldRequestedAt)).
 		All(ctx)
 	if err != nil {
-		log.Error("failed to list approved links", "err", err)
+		log.Error("failed to list doctor links", "err", err)
 		s.writeError(w, http.StatusInternalServerError, "could not list patients")
 		return
 	}
 
-	pendingLinks, err := s.Db.Ent().DoctorPatientLink.Query().
-		Where(
-			doctorpatientlink.DoctorIDEQ(doc.ID),
-			doctorpatientlink.StatusEQ(doctorpatientlink.StatusPending),
-		).
-		WithPatient().
-		All(ctx)
-	if err != nil {
-		log.Error("failed to list pending links", "err", err)
-		s.writeError(w, http.StatusInternalServerError, "could not list patients")
-		return
-	}
+	resp := patientsListResponse{Rows: make([]patientRowDTO, 0, len(links))}
 
-	resp := patientsListResponse{
-		Patients:     []patientDTO{},
-		PendingLinks: []linkDTO{},
-	}
+	for _, l := range links {
+		p := l.Edges.Patient
+		if p == nil {
+			continue
+		}
 
-	for _, l := range approvedLinks {
-		resp.Patients = append(resp.Patients, buildPatientDTO(l.Edges.Patient))
-	}
-	for _, l := range pendingLinks {
-		resp.PendingLinks = append(resp.PendingLinks, buildLinkDTO(l))
+		if search != "" && !patientMatchesSearch(p, search) {
+			continue
+		}
+
+		resp.Rows = append(resp.Rows, patientRowDTO{
+			Patient: buildPatientDTO(p),
+			Link:    buildLinkDTO(l),
+		})
 	}
 
 	s.writeJSON(w, http.StatusOK, resp)
+}
+
+func patientMatchesSearch(p *ent.Patient, search string) bool {
+	if strings.Contains(strings.ToLower(strings.TrimSpace(p.DisplayName)), search) {
+		return true
+	}
+	if p.Email != nil && strings.Contains(strings.ToLower(strings.TrimSpace(*p.Email)), search) {
+		return true
+	}
+	if p.PatientCode != nil && strings.Contains(strings.ToLower(strings.TrimSpace(*p.PatientCode)), search) {
+		return true
+	}
+	return false
 }
 
 func (s *Server) resolvePatient(ctx context.Context, req linkInviteRequest) (*ent.Patient, error) {

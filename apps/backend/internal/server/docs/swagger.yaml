@@ -127,13 +127,9 @@ definitions:
     type: object
   server.PatientsResponse:
     properties:
-      patients:
+      rows:
         items:
-          $ref: '#/definitions/server.patientDTO'
-        type: array
-      pendingLinks:
-        items:
-          $ref: '#/definitions/server.linkDTO'
+          $ref: '#/definitions/server.patientRowDTO'
         type: array
     type: object
   server.PracticeCreateRequest:
@@ -259,6 +255,13 @@ definitions:
         type: string
       patientCode:
         type: string
+    type: object
+  server.patientRowDTO:
+    properties:
+      link:
+        $ref: '#/definitions/server.linkDTO'
+      patient:
+        $ref: '#/definitions/server.patientDTO'
     type: object
   server.revokeLinksResponse:
     properties:

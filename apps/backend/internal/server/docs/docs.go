@@ -1103,16 +1103,10 @@ const docTemplate = `{
         "server.PatientsResponse": {
             "type": "object",
             "properties": {
-                "patients": {
+                "rows": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.patientDTO"
-                    }
-                },
-                "pendingLinks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/server.linkDTO"
+                        "$ref": "#/definitions/server.patientRowDTO"
                     }
                 }
             }
@@ -1305,6 +1299,17 @@ const docTemplate = `{
                 },
                 "patientCode": {
                     "type": "string"
+                }
+            }
+        },
+        "server.patientRowDTO": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "$ref": "#/definitions/server.linkDTO"
+                },
+                "patient": {
+                    "$ref": "#/definitions/server.patientDTO"
                 }
             }
         },

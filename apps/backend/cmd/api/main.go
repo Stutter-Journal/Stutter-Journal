@@ -64,7 +64,7 @@ func main() {
 		PaddingTop(0).PaddingBottom(1).
 		Align(lipgloss.Center)
 
-	title := titleStyle.Render("My Awesome App")
+	title := titleStyle.Render("Eloquia Backend")
 	subtitle := subtitleStyle.Render("A tiny TUI powered by Lip Gloss")
 
 	fmt.Println(title)

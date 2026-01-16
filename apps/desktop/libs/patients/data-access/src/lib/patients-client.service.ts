@@ -14,10 +14,15 @@ export class PatientsClientService {
   readonly loading = computed(() => this.loadingSig());
   readonly error = computed(() => this.errorSig());
 
-  async getPatientsResponse(): Promise<ServerPatientsResponse> {
+  async getPatientsResponse(params?: {
+    search?: string;
+  }): Promise<ServerPatientsResponse> {
+    const search = params?.search?.trim();
+    const query = search ? `?search=${encodeURIComponent(search)}` : '';
+
     return await execute(
       () =>
-        this.http.get<ServerPatientsResponse>(`${this.base}/patients`, {
+        this.http.get<ServerPatientsResponse>(`${this.base}/patients${query}`, {
           withCredentials: true,
         }),
       this.loadingSig,

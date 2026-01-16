@@ -8,11 +8,19 @@ export class PatientsController {
   constructor(private readonly bff: BffService) {}
 
   @Get()
-  async list(@Req() req: Request, @Res() res: Response) {
+  async list(
+    @Query('search') search: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const qs = new URLSearchParams();
+    if (search) qs.append('search', search);
+    const path = qs.toString() ? `/patients?${qs.toString()}` : '/patients';
+
     return this.bff.forward({
       req,
       res,
-      path: '/patients',
+      path,
       method: 'GET',
       schema: contractsZod.getPatientsResponse,
       schemasByStatus: {
@@ -22,6 +30,7 @@ export class PatientsController {
     });
   }
 
+  // TODO: update call signature @see list method
   @Get(':id/entries')
   async entries(
     @Param('id') id: string,

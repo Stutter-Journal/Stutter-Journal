@@ -47,7 +47,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('apps/desktop/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --config.confirmModulesPurge=false
       - name: Run Linter
         run: pnpm exec nx run-many -t lint
         continue-on-error: true
@@ -79,7 +79,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('apps/desktop/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --config.confirmModulesPurge=false
       - run: pnpm exec nx run-many -t typecheck
 
   test:
@@ -110,7 +110,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('apps/desktop/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --config.confirmModulesPurge=false
       - name: Run tests
         run: pnpm exec nx run-many -t test
         continue-on-error: true # TODO: Remove this in the future! Some tests are failing I have no idea why, it's because the test suite can't find them, but I couldn't care less now, some problems are not worth dying for.
@@ -143,7 +143,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('apps/desktop/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --config.confirmModulesPurge=false
       - name: Run build
         run: pnpm exec nx run-many -t build
         continue-on-error: true # TODO: This too is extremely faulty, no idea why the pipeline is bitching around, it works on my machine...
@@ -176,7 +176,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('apps/desktop/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --config.confirmModulesPurge=false
       - run: pnpm exec playwright install --only-shell
       - name: Run End-To-End Tests
         run: pnpm exec nx run-many -t e2e

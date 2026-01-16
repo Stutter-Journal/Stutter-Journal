@@ -21,6 +21,11 @@
     "sharedGlobals": []
   },
   "targetDefaults": {
+    "typecheck": {
+      "options": {
+        "forwardAllArgs": false
+      }
+    },
     "@angular/build:application": {
       "cache": true,
       "dependsOn": ["^build"],

@@ -115,9 +115,6 @@ export class FeatPatientsOverview implements OnInit {
 
   readonly filteredPatients = computed(() => {
     const sf = this.statusFilter();
-
-    // Search is handled server-side via `getPatientsResponse({ search })`.
-    // We only filter by status locally.
     return this.patientsSig().filter((p) =>
       sf === 'all' ? true : p.status === sf,
     );

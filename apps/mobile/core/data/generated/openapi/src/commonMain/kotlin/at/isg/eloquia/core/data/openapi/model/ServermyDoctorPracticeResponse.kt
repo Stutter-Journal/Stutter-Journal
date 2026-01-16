@@ -15,7 +15,6 @@
 
 package at.isg.eloquia.core.data.openapi.model
 
-import at.isg.eloquia.core.data.openapi.model.ServerpatientRowDTO
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
@@ -24,13 +23,16 @@ import kotlinx.serialization.encoding.*
 /**
  * 
  *
- * @param rows 
+ * @param address 
+ * @param name 
  */
 @Serializable
 
-data class ServerPatientsResponse (
+data class ServermyDoctorPracticeResponse (
 
-    @SerialName(value = "rows") val rows: kotlin.collections.List<ServerpatientRowDTO>? = null
+    @SerialName(value = "address") val address: kotlin.String? = null,
+
+    @SerialName(value = "name") val name: kotlin.String? = null
 
 ) {
 

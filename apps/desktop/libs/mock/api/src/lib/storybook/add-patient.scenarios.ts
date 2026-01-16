@@ -30,7 +30,9 @@ export function pairingResponse(
 
 export function patientsResponse(count: number): ServerPatientsResponse {
   return {
-    patients: Array.from({ length: count }, (_, i) => ({ id: String(i + 1) })),
+    rows: Array.from({ length: count }, (_, i) => ({
+      patient: { id: String(i + 1) },
+    })),
   };
 }
 

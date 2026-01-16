@@ -47,7 +47,7 @@ export function provideAddPatientMocks(
     toAsyncItems(scenario.patients?.responses ?? []),
     {
       repeatLast: true,
-      fallback: { patients: [] },
+      fallback: { rows: [] },
     },
   );
 

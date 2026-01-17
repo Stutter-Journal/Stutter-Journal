@@ -65,8 +65,8 @@ fun MainScaffoldWithModalWideNavigationRail(
     val railExpanded by remember { androidx.compose.runtime.derivedStateOf { railState.targetValue == WideNavigationRailValue.Expanded } }
     val headerDescription = if (railExpanded) "Collapse rail" else "Expand rail"
 
-    val railContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-    val contentContainerColor = MaterialTheme.colorScheme.surface
+    val railContainerColor = MaterialTheme.colorScheme.surface
+    val contentContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
 
     Scaffold(
         snackbarHost = snackbarHost,

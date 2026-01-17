@@ -241,16 +241,14 @@ class EntriesListViewModel(
         return raw.toIntOrNull()
     }
 
-    private fun intensityComparator(descending: Boolean): Comparator<JournalEntry> {
-        return Comparator { a, b ->
-            val ia = entryIntensity(a)
-            val ib = entryIntensity(b)
-            when {
-                ia == null && ib == null -> 0
-                ia == null -> 1
-                ib == null -> -1
-                else -> if (descending) ib.compareTo(ia) else ia.compareTo(ib)
-            }
+    private fun intensityComparator(descending: Boolean): Comparator<JournalEntry> = Comparator { a, b ->
+        val ia = entryIntensity(a)
+        val ib = entryIntensity(b)
+        when {
+            ia == null && ib == null -> 0
+            ia == null -> 1
+            ib == null -> -1
+            else -> if (descending) ib.compareTo(ia) else ia.compareTo(ib)
         }
     }
 

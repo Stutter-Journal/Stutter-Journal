@@ -42,7 +42,7 @@ fun SupportScreen(
     onResourceClick: (SupportResource) -> Unit = {},
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {

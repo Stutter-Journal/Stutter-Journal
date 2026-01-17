@@ -17,7 +17,7 @@ internal class EntriesSyncApi(
     private val networkClient: NetworkClient,
 ) {
     suspend fun pullEntries(): ApiResult<ServerEntriesResponse> =
-        networkClient.get(path = "/patient/entries")
+        networkClient.get(path = "/patient/entries/sync")
 
     suspend fun pushEntries(entries: List<ServerentryDTO>): ApiResult<ServerStatusResponse> =
         networkClient.post(path = "/patient/entries/sync", body = EntriesSyncRequest(entries))

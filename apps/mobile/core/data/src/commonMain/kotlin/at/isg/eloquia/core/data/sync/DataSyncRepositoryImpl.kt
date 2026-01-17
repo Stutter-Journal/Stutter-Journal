@@ -11,6 +11,10 @@ import at.isg.eloquia.core.domain.sync.SyncSummary
 import at.isg.eloquia.core.network.api.ApiResult
 import at.isg.eloquia.core.network.api.NetworkError
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 internal class DataSyncRepositoryImpl(
     private val local: JournalEntryLocalDataSource,
@@ -27,8 +31,8 @@ internal class DataSyncRepositoryImpl(
 
         return when (val pullResult: ApiResult<ServerEntriesResponse> = api.pullEntries()) {
             is ApiResult.Ok -> {
-                val pulled = pullResult.value.propertyEntries.orEmpty()
-                    .mapNotNull { it.toLocalDtoOrNull() }
+                val pulled =
+                    pullResult.value.propertyEntries.orEmpty().mapNotNull { it.toLocalDtoOrNull() }
 
                 pulled.forEach { local.upsert(it) }
 
@@ -50,18 +54,23 @@ private fun JournalEntryDto.toServerDto(): ServerentryDTO {
     val notes = buildString {
         if (title.isNotBlank()) {
             append(title.trim())
+            // TODO: Dafuq, why are we appending double newlines?
             append("\n\n")
         }
         append(content)
     }
 
+    val tz = TimeZone.currentSystemDefault()
+
+    fun LocalDateTime.asRfc3339(): String = this.toInstant(tz).toString() // ends with Z
+
     return ServerentryDTO(
         id = id,
         notes = notes,
         tags = tags,
-        happenedAt = createdAt.toString(),
-        createdAt = createdAt.toString(),
-        updatedAt = updatedAt.toString(),
+        happenedAt = createdAt.asRfc3339(),
+        createdAt = createdAt.asRfc3339(),
+        updatedAt = updatedAt.asRfc3339(),
     )
 }
 
@@ -69,8 +78,10 @@ private fun ServerentryDTO.toLocalDtoOrNull(): JournalEntryDto? {
     val id = id ?: return null
 
     val content = notes.orEmpty()
-    val createdAtParsed = (createdAt ?: happenedAt ?: updatedAt)?.toLocalDateTimeOrNull() ?: return null
-    val updatedAtParsed = (updatedAt ?: createdAt ?: happenedAt)?.toLocalDateTimeOrNull() ?: createdAtParsed
+    val createdAtParsed =
+        (createdAt ?: happenedAt ?: updatedAt)?.toLocalDateTimeOrNull() ?: return null
+    val updatedAtParsed =
+        (updatedAt ?: createdAt ?: happenedAt)?.toLocalDateTimeOrNull() ?: createdAtParsed
 
     return JournalEntryDto(
         id = id,
@@ -82,7 +93,9 @@ private fun ServerentryDTO.toLocalDtoOrNull(): JournalEntryDto? {
     )
 }
 
-private fun String.toLocalDateTimeOrNull(): LocalDateTime? = runCatching { LocalDateTime.parse(this) }.getOrNull()
+private fun String.toLocalDateTimeOrNull(): LocalDateTime? = runCatching {
+    Instant.parse(this).toLocalDateTime(TimeZone.currentSystemDefault())
+}.getOrNull()
 
 private fun NetworkError.toUserMessage(): String = when (this) {
     is NetworkError.Http -> "Sync failed (HTTP $status)"

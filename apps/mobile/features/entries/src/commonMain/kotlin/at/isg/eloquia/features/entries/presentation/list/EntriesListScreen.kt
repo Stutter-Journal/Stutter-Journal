@@ -2,6 +2,10 @@
 
 package at.isg.eloquia.features.entries.presentation.list
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,6 +84,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.key.Key
@@ -179,6 +184,7 @@ fun EntriesListScreenContent(
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         topBar = {
             Column {
                 TopAppBar(
@@ -195,7 +201,7 @@ fun EntriesListScreenContent(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                     ),
                 )
 
@@ -306,12 +312,12 @@ private fun EntriesList(
     LazyColumn(
         modifier = modifier,
         state = listState,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (groupByDay) {
             groupedEntries.forEach { (date, dayEntries) ->
-                item(key = "header_${date}") {
+                item(key = "header_$date") {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surface,
@@ -328,9 +334,8 @@ private fun EntriesList(
                 }
 
                 items(dayEntries, key = { it.id }) { entry ->
-                    val details = entry.toDisplayDetails()
                     JournalEntryItem(
-                        details = details,
+                        entry = entry,
                         onOpen = { onEntryClick(entry) },
                         onDelete = { onDeleteRequest(entry) },
                     )
@@ -338,9 +343,8 @@ private fun EntriesList(
             }
         } else {
             items(entries, key = { it.id }) { entry ->
-                val details = entry.toDisplayDetails()
                 JournalEntryItem(
-                    details = details,
+                    entry = entry,
                     onOpen = { onEntryClick(entry) },
                     onDelete = { onDeleteRequest(entry) },
                 )
@@ -351,64 +355,107 @@ private fun EntriesList(
 
 @Composable
 private fun JournalEntryItem(
-    details: EntryDisplayDetails,
+    entry: JournalEntry,
     onOpen: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val details = remember(entry) { entry.toDisplayDetails() }
+    var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
+
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = CardDefaults.outlinedCardBorder(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         onClick = onOpen,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            EntryHeaderRow(title = details.title.ifBlank { "Journal entry" }, onDelete = onDelete)
-            EntryDateTimeGroup(dateLabel = details.dateLabel, timeLabel = details.timeLabel)
-            EntryDescriptionGroup(description = details.description)
-            EntryIntensityGroup(intensity = details.intensity)
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                EntryHeaderRow(
+                    title = details.title.ifBlank { "Journal entry" },
+                    subtitle = "${details.dateLabel} • ${details.timeLabel}",
+                    onDelete = onDelete,
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                EntryDescriptionGroup(description = details.description)
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                EntryIntensityCompact(intensity = details.intensity)
+                TextButton(onClick = { expanded = !expanded }) {
+                    Text(if (expanded) "Hide" else "Details")
+                }
+            }
+
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    EntryTagsSection(
+                        tags = entry.tags,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun EntryHeaderRow(title: String, onDelete: () -> Unit) {
+private fun EntryHeaderRow(
+    title: String,
+    subtitle: String,
+    onDelete: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         IconButton(
             onClick = onDelete,
             colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.error,
             ),
         ) {
             Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete entry")
         }
-    }
-}
-
-@Composable
-private fun EntryDateTimeGroup(dateLabel: String, timeLabel: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconLabel(icon = Icons.Outlined.CalendarMonth, text = dateLabel)
-        IconLabel(icon = Icons.Outlined.Schedule, text = timeLabel)
     }
 }
 
@@ -418,66 +465,81 @@ private fun EntryDescriptionGroup(description: String) {
         text = description,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 4,
+        maxLines = 3,
         overflow = TextOverflow.Ellipsis,
     )
 }
 
 @Composable
-private fun EntryIntensityGroup(intensity: Int) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Timeline,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = "Intensity",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = "$intensity / 10",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        LinearProgressIndicator(
-            progress = { intensity.coerceIn(0, 10) / 10f },
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
+private fun EntryIntensityCompact(intensity: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Timeline,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+        )
+        Text(
+            text = "Intensity $intensity/10",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun IconLabel(icon: ImageVector, text: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = MaterialTheme.shapes.small,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+private fun EntryTagsSection(
+    tags: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    val visibleTags = tags
+        .asSequence()
+        .filterNot { it.startsWith("date:", ignoreCase = true) }
+        .filterNot { it.startsWith("intensity:", ignoreCase = true) }
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toList()
+
+    if (visibleTags.isEmpty()) {
+        Text(
+            text = "No tags",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier,
+        )
+        return
+    }
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = "Tags",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            visibleTags.forEach { tag ->
+                Surface(
+                    color = Color.Transparent,
+                    shape = MaterialTheme.shapes.small,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                ) {
+                    Text(
+                        text = tag,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 }
@@ -542,25 +604,25 @@ private fun EntriesFabMenu(
         button = {
             TooltipBox(
                 positionProvider =
-                    TooltipDefaults.rememberTooltipPositionProvider(
-                        if (fabMenuExpanded) TooltipAnchorPosition.Start else TooltipAnchorPosition.Above,
-                    ),
+                TooltipDefaults.rememberTooltipPositionProvider(
+                    if (fabMenuExpanded) TooltipAnchorPosition.Start else TooltipAnchorPosition.Above,
+                ),
                 tooltip = { PlainTooltip { Text("Toggle menu") } },
                 state = rememberTooltipState(),
             ) {
                 ToggleFloatingActionButton(
                     modifier =
-                        Modifier
-                            .semantics {
-                                traversalIndex = -1f
-                                stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
-                                contentDescription = "Toggle menu"
-                            }
-                            .animateFloatingActionButton(
-                                visible = fabVisible || fabMenuExpanded,
-                                alignment = Alignment.BottomEnd,
-                            )
-                            .focusRequester(focusRequester),
+                    Modifier
+                        .semantics {
+                            traversalIndex = -1f
+                            stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
+                            contentDescription = "Toggle menu"
+                        }
+                        .animateFloatingActionButton(
+                            visible = fabVisible || fabMenuExpanded,
+                            alignment = Alignment.BottomEnd,
+                        )
+                        .focusRequester(focusRequester),
                     checked = fabMenuExpanded,
                     onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
                 ) {
@@ -581,38 +643,38 @@ private fun EntriesFabMenu(
         items.forEachIndexed { index, item ->
             FloatingActionButtonMenuItem(
                 modifier =
-                    Modifier
-                        .semantics {
-                            isTraversalGroup = true
-                            if (index == items.size - 1) {
-                                customActions =
-                                    listOf(
-                                        CustomAccessibilityAction(
-                                            label = "Close menu",
-                                            action = {
-                                                fabMenuExpanded = false
-                                                true
-                                            },
-                                        ),
-                                    )
-                            }
+                Modifier
+                    .semantics {
+                        isTraversalGroup = true
+                        if (index == items.size - 1) {
+                            customActions =
+                                listOf(
+                                    CustomAccessibilityAction(
+                                        label = "Close menu",
+                                        action = {
+                                            fabMenuExpanded = false
+                                            true
+                                        },
+                                    ),
+                                )
                         }
-                        .then(
-                            if (index == 0) {
-                                Modifier.onKeyEvent {
-                                    if (
-                                        it.type == KeyEventType.KeyDown &&
-                                        (it.key == Key.DirectionUp || (it.isShiftPressed && it.key == Key.Tab))
-                                    ) {
-                                        focusRequester.requestFocus()
-                                        return@onKeyEvent true
-                                    }
-                                    false
+                    }
+                    .then(
+                        if (index == 0) {
+                            Modifier.onKeyEvent {
+                                if (
+                                    it.type == KeyEventType.KeyDown &&
+                                    (it.key == Key.DirectionUp || (it.isShiftPressed && it.key == Key.Tab))
+                                ) {
+                                    focusRequester.requestFocus()
+                                    return@onKeyEvent true
                                 }
-                            } else {
-                                Modifier
-                            },
-                        ),
+                                false
+                            }
+                        } else {
+                            Modifier
+                        },
+                    ),
                 onClick = {
                     // Only the first action maps to app behavior for now.
                     if (index == 0) onCreateEntry()
@@ -646,11 +708,10 @@ private fun JournalEntry.toDisplayDetails(): EntryDisplayDetails {
     )
 }
 
-private fun parseDateTag(tag: String): LocalDate? =
-    tag.takeIf { it.startsWith("date:", ignoreCase = true) }
-        ?.substringAfter(":")
-        ?.trim()
-        ?.let { raw -> runCatching { LocalDate.parse(raw) }.getOrNull() }
+private fun parseDateTag(tag: String): LocalDate? = tag.takeIf { it.startsWith("date:", ignoreCase = true) }
+    ?.substringAfter(":")
+    ?.trim()
+    ?.let { raw -> runCatching { LocalDate.parse(raw) }.getOrNull() }
 
 private fun parseIntensityTag(tag: String): Int? = when {
     tag.startsWith("intensity:", ignoreCase = true) -> tag.substringAfter(":").trim().toIntOrNull()
@@ -683,10 +744,10 @@ private fun EntriesFilterBottomSheet(
 
     val datePickerState = rememberDateRangePickerState(
         initialSelectedStartDateMillis = content.filters.dateRange.start?.toEpochMillisAtStart(
-            timeZone
+            timeZone,
         ),
         initialSelectedEndDateMillis = content.filters.dateRange.endInclusive?.toEpochMillisAtStart(
-            timeZone
+            timeZone,
         ),
     )
 
@@ -750,7 +811,7 @@ private fun EntriesFilterBottomSheet(
                                     Icon(
                                         Icons.Filled.Check,
                                         contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(16.dp),
                                     )
                                 }
                             } else {
@@ -801,7 +862,7 @@ private fun EntriesFilterBottomSheet(
                                         Icon(
                                             Icons.Filled.Check,
                                             contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
+                                            modifier = Modifier.size(16.dp),
                                         )
                                     }
                                 } else {
@@ -833,7 +894,7 @@ private fun EntriesFilterBottomSheet(
                                         Icon(
                                             Icons.Filled.Check,
                                             contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
+                                            modifier = Modifier.size(16.dp),
                                         )
                                     }
                                 } else {
@@ -857,7 +918,7 @@ private fun EntriesFilterBottomSheet(
                     onClick = {
                         val start =
                             datePickerState.selectedStartDateMillis?.toLocalDateInSystemZone(
-                                timeZone
+                                timeZone,
                             )
                         val end =
                             datePickerState.selectedEndDateMillis?.toLocalDateInSystemZone(timeZone)
@@ -893,11 +954,9 @@ private fun EntriesDateRange.toLabel(): String {
     return "$startLabel → $endLabel"
 }
 
-private fun LocalDate.toEpochMillisAtStart(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long =
-    atStartOfDayIn(timeZone).toEpochMilliseconds()
+private fun LocalDate.toEpochMillisAtStart(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long = atStartOfDayIn(timeZone).toEpochMilliseconds()
 
-private fun Long.toLocalDateInSystemZone(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate =
-    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone).date
+private fun Long.toLocalDateInSystemZone(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate = Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone).date
 
 @Composable
 private fun EmptyEntriesState(

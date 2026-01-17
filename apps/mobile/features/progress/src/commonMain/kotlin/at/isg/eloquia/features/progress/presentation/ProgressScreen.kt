@@ -1,3 +1,5 @@
+@file:Suppress("D")
+
 package at.isg.eloquia.features.progress.presentation
 
 import androidx.compose.foundation.Canvas
@@ -86,11 +88,12 @@ private fun ProgressScreenContent(
 ) {
     Scaffold(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         topBar = {
             TopAppBar(
                 title = { Text("Trends & Progress") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 ),
             )
         },

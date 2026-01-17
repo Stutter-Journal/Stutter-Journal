@@ -67,7 +67,7 @@ fun ModalWideNavigationRailSample() {
                 // Header icon button should have a tooltip.
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                        TooltipAnchorPosition.Above
+                        TooltipAnchorPosition.Above,
                     ),
                     tooltip = { PlainTooltip { Text(headerDescription) } },
                     state = rememberTooltipState(),
@@ -87,8 +87,11 @@ fun ModalWideNavigationRailSample() {
                             },
                         onClick = {
                             scope.launch {
-                                if (state.targetValue == WideNavigationRailValue.Expanded) state.collapse()
-                                else state.expand()
+                                if (state.targetValue == WideNavigationRailValue.Expanded) {
+                                    state.collapse()
+                                } else {
+                                    state.expand()
+                                }
                             }
                         },
                     ) {
@@ -106,8 +109,11 @@ fun ModalWideNavigationRailSample() {
                     railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
                     icon = {
                         Icon(
-                            if (selectedItem == index) selectedIcons[index]
-                            else unselectedIcons[index],
+                            if (selectedItem == index) {
+                                selectedIcons[index]
+                            } else {
+                                unselectedIcons[index]
+                            },
                             contentDescription = item,
                         )
                     },

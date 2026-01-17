@@ -130,6 +130,7 @@ fun NewEntryScreenContent(
 
     Scaffold(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         topBar = {
             EntryScreenTopBar(
                 isEditing = state.isEditing,
@@ -188,7 +189,7 @@ private fun EntryScreenTopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     )
 }

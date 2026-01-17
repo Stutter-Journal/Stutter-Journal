@@ -23,6 +23,7 @@ internal class EntriesSyncApi(
         networkClient.post(path = "/patient/entries/sync", body = EntriesSyncRequest(entries))
 }
 
+// TODO: Move this request into separate package
 @Serializable
 internal data class EntriesSyncRequest(
     @SerialName("entries") val entries: List<ServerentryDTO>,

@@ -25,6 +25,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import at.isg.eloquia.core.domain.auth.usecase.ClearSessionUseCase
+import at.isg.eloquia.core.domain.sync.SyncNowUseCase
+import at.isg.eloquia.core.domain.sync.SyncResult
 import at.isg.eloquia.core.theme.components.EloquiaSnackbarHost
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
@@ -78,7 +80,10 @@ fun MainScreen(
     var showAddConnectionDialog by rememberSaveable { mutableStateOf(false) }
 
     val clearSession: ClearSessionUseCase = koinInject()
+    val syncNow: SyncNowUseCase = koinInject()
     val scope = rememberCoroutineScope()
+
+    var isSyncing by rememberSaveable { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     var welcomeShown by rememberSaveable { mutableStateOf(false) }
@@ -106,6 +111,33 @@ fun MainScreen(
         selectedTab = currentTab,
         onSelectTab = ::selectTab,
         onAddConnection = { showAddConnectionDialog = true },
+        onSync = {
+            if (isSyncing) return@MainScaffoldWithModalWideNavigationRail
+            scope.launch {
+                isSyncing = true
+                val result = syncNow()
+                isSyncing = false
+
+                when (result) {
+                    is SyncResult.Success -> {
+                        snackbarHostState.showSnackbar(
+                            message = "Sync complete (${result.summary.pulledEntries} pulled)",
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
+
+                    is SyncResult.Failure -> {
+                        snackbarHostState.showSnackbar(
+                            message = result.message,
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
+                }
+            }
+        },
+        isSyncing = isSyncing,
         onLogout = {
             scope.launch {
                 clearSession()

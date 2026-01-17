@@ -5,6 +5,7 @@ import at.isg.eloquia.core.domain.entries.usecase.DeleteJournalEntryUseCase
 import at.isg.eloquia.core.domain.entries.usecase.GetJournalEntryUseCase
 import at.isg.eloquia.core.domain.entries.usecase.ObserveJournalEntriesUseCase
 import at.isg.eloquia.core.domain.entries.usecase.UpdateJournalEntryUseCase
+import at.isg.eloquia.core.domain.sync.SyncNowUseCase
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import kotlin.time.Clock
@@ -17,4 +18,5 @@ val entriesDomainModule: Module = module {
     factory { UpdateJournalEntryUseCase(repository = get(), clock = get()) }
     factory { DeleteJournalEntryUseCase(get()) }
     factory { GetJournalEntryUseCase(get()) }
+    factory { SyncNowUseCase(get()) }
 }

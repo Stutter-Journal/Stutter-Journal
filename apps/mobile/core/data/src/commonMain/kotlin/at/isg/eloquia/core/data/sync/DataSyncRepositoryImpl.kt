@@ -25,8 +25,7 @@ internal class DataSyncRepositoryImpl(
             return SyncResult.Failure(pushResult.error.toUserMessage())
         }
 
-        val pullResult: ApiResult<ServerEntriesResponse> = api.pullEntries()
-        return when (pullResult) {
+        return when (val pullResult: ApiResult<ServerEntriesResponse> = api.pullEntries()) {
             is ApiResult.Ok -> {
                 val pulled = pullResult.value.propertyEntries.orEmpty()
                     .mapNotNull { it.toLocalDtoOrNull() }
@@ -46,6 +45,7 @@ internal class DataSyncRepositoryImpl(
     }
 }
 
+// TODO: Move all of these mapper functionalities into their own respective packages
 private fun JournalEntryDto.toServerDto(): ServerentryDTO {
     val notes = buildString {
         if (title.isNotBlank()) {

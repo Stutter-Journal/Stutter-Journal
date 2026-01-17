@@ -112,6 +112,8 @@ func (s *Server) registerPatientRoutes(r chi.Router) {
 			r.Use(s.requirePatient)
 			r.Get("/me", s.patientMeHandler)
 			r.Get("/mydoctor", s.myDoctorHandler)
+			r.Get("/entries/sync", s.patientEntriesSyncHandler)
+			r.Post("/entries/sync", s.patientEntriesSyncHandler)
 			r.Post("/logout", s.patientLogoutHandler)
 		})
 	})

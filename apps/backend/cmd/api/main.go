@@ -70,7 +70,7 @@ func main() {
 	fmt.Println(title)
 	fmt.Println(subtitle)
 
-	logger := log.NewWithOptions(os.Stdout, log.Options{ReportTimestamp: true})
+	logger := log.NewWithOptions(os.Stdout, log.Options{ReportTimestamp: true, Level: log.DebugLevel})
 	log.SetDefault(logger)
 
 	ctx := context.Background()

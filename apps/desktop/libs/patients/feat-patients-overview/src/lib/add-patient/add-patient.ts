@@ -6,18 +6,28 @@ import {
   DestroyRef,
   inject,
   NgZone,
-  signal
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { exhaustMap, from, interval, startWith, Subscription, timer } from 'rxjs';
+import {
+  exhaustMap,
+  from,
+  interval,
+  startWith,
+  Subscription,
+  timer,
+} from 'rxjs';
 import { assign, createActor, createMachine, fromPromise } from 'xstate';
 
 import { LinksClientService } from '@org/links-data-access';
 import { PatientsClientService } from '@org/patients-data-access';
 import { actorSnapshot$, LoggerService } from '@org/util';
-import { ServerPairingCodeCreateResponse, ServerPatientsResponse } from '@org/contracts';
+import {
+  ServerPairingCodeCreateResponse,
+  ServerPatientsResponse,
+} from '@org/contracts';
 
 import { toast } from 'ngx-sonner';
 
@@ -25,7 +35,12 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck } from '@ng-icons/lucide';
 
 import { BrnDialogClose, BrnDialogRef } from '@spartan-ng/brain/dialog';
-import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
+import {
+  HlmDialogDescription,
+  HlmDialogFooter,
+  HlmDialogHeader,
+  HlmDialogTitle,
+} from '@spartan-ng/helm/dialog';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';

@@ -4,7 +4,7 @@
   "sourceRoot": "libs/patients/feat-patients-overview/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:feature"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"

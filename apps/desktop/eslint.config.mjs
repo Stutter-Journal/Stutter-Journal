@@ -82,6 +82,16 @@ export default [
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: ['type:util', 'type:model'],
             },
+            {
+              sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:data-access',
+                'type:ui',
+                'type:util',
+                'type:model',
+              ],
+            },
           ],
         },
       ],

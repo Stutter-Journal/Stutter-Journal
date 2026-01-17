@@ -14,7 +14,9 @@ import {
 } from '@org/mock-api';
 
 function ensureClipboardMock() {
-  const nav = globalThis.navigator as any;
+  const nav = globalThis.navigator as unknown as {
+    clipboard?: { writeText: unknown };
+  };
   if (nav?.clipboard?.writeText) return;
 
   Object.defineProperty(globalThis.navigator, 'clipboard', {
@@ -118,7 +120,9 @@ export const CopyCode: Story = {
   ],
   play: async ({ canvasElement }) => {
     ensureClipboardMock();
-    const writeTextMock = (globalThis.navigator as any).clipboard.writeText;
+    const writeTextMock = (
+      globalThis.navigator as unknown as { clipboard: { writeText: unknown } }
+    ).clipboard.writeText;
 
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /copy/i }));

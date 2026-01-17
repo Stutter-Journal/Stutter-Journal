@@ -8,13 +8,16 @@
 
 <div class="space-y-4">
   <hlm-form-field>
-    <label class="mb-1 block text-sm font-medium">Pairing code</label>
+    <label class="mb-1 block text-sm font-medium" for="pairing-code"
+      >Pairing code</label
+    >
     <div class="flex items-center gap-2">
       <input
         class="w-full text-center tracking-[0.35em] text-lg"
         [value]="pairing()?.code ?? ''"
         hlmInput
         readonly
+        id="pairing-code"
         type="text"
       />
       <button

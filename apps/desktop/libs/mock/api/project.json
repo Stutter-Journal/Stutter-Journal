@@ -4,19 +4,8 @@
   "projectType": "library",
   "sourceRoot": "libs/mock/api/src",
   "prefix": "lib",
+  "tags": ["type:feature"],
   "targets": {
-    "build": {
-      "executor": "@angular/build:ng-packagr",
-      "configurations": {
-        "production": {
-          "tsConfig": "libs/mock/api/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "libs/mock/api/tsconfig.lib.json"
-        }
-      },
-      "defaultConfiguration": "production"
-    },
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {

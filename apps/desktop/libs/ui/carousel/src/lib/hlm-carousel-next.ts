@@ -14,6 +14,7 @@ import { hlm } from '@spartan-ng/helm/utils';
 import { HlmCarousel } from './hlm-carousel';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'button[hlm-carousel-next], button[hlmCarouselNext]',
   imports: [NgIcon, HlmIcon],
   providers: [

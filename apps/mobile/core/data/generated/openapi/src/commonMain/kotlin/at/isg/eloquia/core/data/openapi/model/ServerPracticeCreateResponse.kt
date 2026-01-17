@@ -15,12 +15,8 @@
 
 package at.isg.eloquia.core.data.openapi.model
 
-import at.isg.eloquia.core.data.openapi.model.ServerDoctorResponse
-import at.isg.eloquia.core.data.openapi.model.ServerPracticeResponse
-
-import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * 

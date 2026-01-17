@@ -6,7 +6,6 @@ import at.isg.eloquia.features.auth.di.authFeatureModule
 import at.isg.eloquia.features.entries.di.entriesFeatureModule
 import at.isg.eloquia.features.progress.di.progressFeatureModule
 import at.isg.eloquia.features.therapist.di.therapistFeatureModule
-import at.isg.eloquia.kmpapp.di.kmpAppModule
 import at.isg.eloquia.kmpapp.logging.initLogging
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin

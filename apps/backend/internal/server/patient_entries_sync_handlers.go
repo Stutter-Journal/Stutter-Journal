@@ -1,13 +1,16 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"time"
 
 	"backend/ent"
+	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
+	"backend/ent/entryshare"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/charmbracelet/log"
@@ -276,6 +279,14 @@ func (s *Server) patientEntriesSyncHandler(w http.ResponseWriter, r *http.Reques
 
 	log.Info("entries fetched", "count", len(entries))
 
+	if r.Method == http.MethodPost {
+		if err := s.shareEntriesWithApprovedDoctors(r.Context(), p.ID, entries); err != nil {
+			log.Error("failed to share entries with approved doctors", "err", err)
+			s.writeError(w, http.StatusInternalServerError, "could not sync entries")
+			return
+		}
+	}
+
 	// ---------------------------------------------------------------------
 	// Build response
 	// ---------------------------------------------------------------------
@@ -318,4 +329,75 @@ func firstNonEmpty(a, b string) string {
 		return a
 	}
 	return b
+}
+
+func (s *Server) shareEntriesWithApprovedDoctors(ctx context.Context, patientID uuid.UUID, entries []*ent.Entry) error {
+	if len(entries) == 0 {
+		return nil
+	}
+
+	var doctorIDs []uuid.UUID
+	if err := s.Db.Ent().DoctorPatientLink.
+		Query().
+		Where(
+			doctorpatientlink.PatientIDEQ(patientID),
+			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+		).
+		Select(doctorpatientlink.FieldDoctorID).
+		Scan(ctx, &doctorIDs); err != nil {
+		return err
+	}
+
+	if len(doctorIDs) == 0 {
+		return nil
+	}
+
+	now := time.Now().UTC()
+	for _, entryRecord := range entries {
+		shares, err := s.Db.Ent().EntryShare.
+			Query().
+			Where(
+				entryshare.EntryIDEQ(entryRecord.ID),
+				entryshare.SharedWithDoctorIDIn(doctorIDs...),
+			).
+			All(ctx)
+		if err != nil {
+			return err
+		}
+
+		sharesByDoctor := make(map[uuid.UUID]*ent.EntryShare, len(shares))
+		for _, share := range shares {
+			sharesByDoctor[share.SharedWithDoctorID] = share
+		}
+
+		for _, doctorID := range doctorIDs {
+			share, ok := sharesByDoctor[doctorID]
+			if !ok {
+				if _, err := s.Db.Ent().EntryShare.
+					Create().
+					SetEntryID(entryRecord.ID).
+					SetSharedByPatientID(patientID).
+					SetSharedWithDoctorID(doctorID).
+					Save(ctx); err != nil {
+					if ent.IsConstraintError(err) {
+						continue
+					}
+					return err
+				}
+				continue
+			}
+
+			if share.RevokedAt != nil {
+				if _, err := s.Db.Ent().EntryShare.
+					UpdateOneID(share.ID).
+					ClearRevokedAt().
+					SetSharedAt(now).
+					Save(ctx); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }

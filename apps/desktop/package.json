@@ -4,7 +4,9 @@
   "license": "MIT",
   "scripts": {
     "generate:contracts": "pnpm orval --config tools/openapi/orval.config.cjs",
-    "storybook:tw": "npx @tailwindcss/cli -i apps/storybook-host/src/tailwind.input.css -o apps/storybook-host/public/storybook-tailwind.css"
+    "storybook:tw": "npx @tailwindcss/cli -i apps/storybook-host/src/tailwind.input.css -o apps/storybook-host/public/storybook-tailwind.css",
+    "verify": "nx affected -t lint test build typecheck",
+    "verify:all": "nx run-many -t lint test build typecheck"
   },
   "private": true,
   "packageManager": "pnpm@10.27.0",

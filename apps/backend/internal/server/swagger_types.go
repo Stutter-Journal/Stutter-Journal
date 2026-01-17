@@ -7,6 +7,12 @@ type DoctorLoginRequest = doctorLoginRequest
 
 type DoctorResponse = doctorResponse
 
+type PatientRegisterRequest = patientRegisterRequest
+
+type PatientLoginRequest = patientLoginRequest
+
+type PatientResponse = patientResponse
+
 type PracticeCreateRequest = practiceCreateRequest
 
 type PracticeResponse = practiceResponse

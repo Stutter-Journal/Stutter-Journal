@@ -1,10 +1,7 @@
 import { Body, Controller, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { BffService } from './bff.service';
-import {
-  serverLinkApproveResponseSchema,
-  serverLinkResponseSchema,
-} from './schemas';
+import { contractsZod, schemas } from '@org/contracts';
 
 @Controller('links')
 export class LinksController {
@@ -22,7 +19,13 @@ export class LinksController {
       path: '/links/invite',
       method: 'POST',
       body,
-      schema: serverLinkResponseSchema,
+      schema: schemas.serverLinkResponseSchema,
+      schemasByStatus: {
+        201: schemas.serverLinkResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
+      },
     });
   }
 
@@ -38,7 +41,13 @@ export class LinksController {
       path: '/links/request',
       method: 'POST',
       body,
-      schema: serverLinkResponseSchema,
+      schema: schemas.serverLinkResponseSchema,
+      schemasByStatus: {
+        201: schemas.serverLinkResponseSchema,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
+      },
     });
   }
 
@@ -53,7 +62,53 @@ export class LinksController {
       res,
       path: `/links/${id}/approve`,
       method: 'POST',
-      schema: serverLinkApproveResponseSchema,
+      schema: contractsZod.postLinksIdApproveResponse,
+      schemasByStatus: {
+        200: contractsZod.postLinksIdApproveResponse,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        404: schemas.serverErrorResponseSchema,
+      },
+    });
+  }
+
+  @Post('pairing-code')
+  async createPairingCode(@Req() req: Request, @Res() res: Response) {
+    return this.bff.forward({
+      req,
+      res,
+      path: '/links/pairing-code',
+      method: 'POST',
+      schema: schemas.serverPairingCodeCreateResponseSchema,
+      schemasByStatus: {
+        201: schemas.serverPairingCodeCreateResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        500: schemas.serverErrorResponseSchema,
+      },
+    });
+  }
+
+  @Post('pairing-code/redeem')
+  async redeemPairingCode(
+    @Body() body: unknown,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    return this.bff.forward({
+      req,
+      res,
+      path: '/links/pairing-code/redeem',
+      method: 'POST',
+      body,
+      schema: contractsZod.postLinksPairingCodeRedeemResponse,
+      schemasByStatus: {
+        200: contractsZod.postLinksPairingCodeRedeemResponse,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        404: schemas.serverErrorResponseSchema,
+        409: schemas.serverErrorResponseSchema,
+        500: schemas.serverErrorResponseSchema,
+      },
     });
   }
 }

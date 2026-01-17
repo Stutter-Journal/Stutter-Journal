@@ -301,6 +301,54 @@ var (
 			},
 		},
 	}
+	// PairingCodesColumns holds the columns for the "pairing_codes" table.
+	PairingCodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "code", Type: field.TypeString, Size: 6},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "doctor_id", Type: field.TypeUUID},
+		{Name: "consumed_by_patient_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// PairingCodesTable holds the schema information for the "pairing_codes" table.
+	PairingCodesTable = &schema.Table{
+		Name:       "pairing_codes",
+		Columns:    PairingCodesColumns,
+		PrimaryKey: []*schema.Column{PairingCodesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "pairing_codes_doctors_pairing_codes",
+				Columns:    []*schema.Column{PairingCodesColumns[6]},
+				RefColumns: []*schema.Column{DoctorsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "pairing_codes_patients_consumed_pairing_codes",
+				Columns:    []*schema.Column{PairingCodesColumns[7]},
+				RefColumns: []*schema.Column{PatientsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "pairingcode_code",
+				Unique:  false,
+				Columns: []*schema.Column{PairingCodesColumns[3]},
+			},
+			{
+				Name:    "pairingcode_doctor_id",
+				Unique:  false,
+				Columns: []*schema.Column{PairingCodesColumns[6]},
+			},
+			{
+				Name:    "pairingcode_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{PairingCodesColumns[4]},
+			},
+		},
+	}
 	// PatientsColumns holds the columns for the "patients" table.
 	PatientsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -310,6 +358,7 @@ var (
 		{Name: "birth_date", Type: field.TypeTime, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Active", "Inactive"}, Default: "Active"},
 		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "password_hash", Type: field.TypeString, Nullable: true},
 		{Name: "patient_code", Type: field.TypeString, Nullable: true},
 		{Name: "last_entry_at", Type: field.TypeTime, Nullable: true},
 	}
@@ -327,7 +376,7 @@ var (
 			{
 				Name:    "uq_patient_code",
 				Unique:  true,
-				Columns: []*schema.Column{PatientsColumns[7]},
+				Columns: []*schema.Column{PatientsColumns[8]},
 			},
 			{
 				Name:    "patient_status",
@@ -358,6 +407,7 @@ var (
 		DoctorPatientLinksTable,
 		EntriesTable,
 		EntrySharesTable,
+		PairingCodesTable,
 		PatientsTable,
 		PracticesTable,
 	}
@@ -377,4 +427,6 @@ func init() {
 	EntrySharesTable.ForeignKeys[0].RefTable = DoctorsTable
 	EntrySharesTable.ForeignKeys[1].RefTable = EntriesTable
 	EntrySharesTable.ForeignKeys[2].RefTable = PatientsTable
+	PairingCodesTable.ForeignKeys[0].RefTable = DoctorsTable
+	PairingCodesTable.ForeignKeys[1].RefTable = PatientsTable
 }

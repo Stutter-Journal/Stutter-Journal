@@ -19,6 +19,7 @@ var (
 // SessionClaims is the payload stored in the signed cookie.
 type SessionClaims struct {
 	DoctorID  uuid.UUID `json:"doctor_id"`
+	PatientID uuid.UUID `json:"patient_id"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
@@ -49,6 +50,40 @@ func (m *Manager) IssueSession(w http.ResponseWriter, doctorID uuid.UUID) error 
 
 	claims := SessionClaims{
 		DoctorID:  doctorID,
+		PatientID: uuid.Nil,
+		IssuedAt:  issued,
+		ExpiresAt: expires,
+	}
+
+	token, err := m.codec.Encode(m.cfg.CookieName, claims)
+	if err != nil {
+		return err
+	}
+
+	cookie := &http.Cookie{
+		Name:     m.cfg.CookieName,
+		Value:    token,
+		Path:     m.cfg.CookiePath,
+		Domain:   m.cfg.CookieDomain,
+		Secure:   m.cfg.CookieSecure,
+		HttpOnly: m.cfg.CookieHTTPOnly,
+		SameSite: m.cfg.CookieSameSite,
+		Expires:  expires,
+		MaxAge:   int(m.cfg.SessionTTL.Seconds()),
+	}
+
+	http.SetCookie(w, cookie)
+	return nil
+}
+
+// IssuePatientSession signs a new session cookie for the given patient ID.
+func (m *Manager) IssuePatientSession(w http.ResponseWriter, patientID uuid.UUID) error {
+	issued := m.now().UTC()
+	expires := issued.Add(m.cfg.SessionTTL)
+
+	claims := SessionClaims{
+		DoctorID:  uuid.Nil,
+		PatientID: patientID,
 		IssuedAt:  issued,
 		ExpiresAt: expires,
 	}
@@ -90,7 +125,8 @@ func (m *Manager) ReadSession(r *http.Request) (*SessionClaims, error) {
 		return nil, ErrExpiredSession
 	}
 
-	if claims.DoctorID == uuid.Nil {
+	// Exactly one subject must be present.
+	if (claims.DoctorID == uuid.Nil) == (claims.PatientID == uuid.Nil) {
 		return nil, ErrInvalidSession
 	}
 

@@ -9,6 +9,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"backend/ent/practice"
 	"context"
@@ -86,6 +87,7 @@ func checkColumn(t, c string) error {
 			doctorpatientlink.Table: doctorpatientlink.ValidColumn,
 			entry.Table:             entry.ValidColumn,
 			entryshare.Table:        entryshare.ValidColumn,
+			pairingcode.Table:       pairingcode.ValidColumn,
 			patient.Table:           patient.ValidColumn,
 			practice.Table:          practice.ValidColumn,
 		})

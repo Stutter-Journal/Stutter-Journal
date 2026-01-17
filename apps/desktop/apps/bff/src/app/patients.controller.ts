@@ -1,26 +1,36 @@
 import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod, schemas } from '@org/contracts';
 import { BffService } from './bff.service';
-import {
-  serverEntriesResponseSchema,
-  serverPatientsResponseSchema,
-} from './schemas';
 
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly bff: BffService) {}
 
   @Get()
-  async list(@Req() req: Request, @Res() res: Response) {
+  async list(
+    @Query('search') search: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const qs = new URLSearchParams();
+    if (search) qs.append('search', search);
+    const path = qs.toString() ? `/patients?${qs.toString()}` : '/patients';
+
     return this.bff.forward({
       req,
       res,
-      path: '/patients',
+      path,
       method: 'GET',
-      schema: serverPatientsResponseSchema,
+      schema: contractsZod.getPatientsResponse,
+      schemasByStatus: {
+        200: contractsZod.getPatientsResponse,
+        401: schemas.serverErrorResponseSchema,
+      },
     });
   }
 
+  // TODO: update call signature @see list method
   @Get(':id/entries')
   async entries(
     @Param('id') id: string,
@@ -42,7 +52,13 @@ export class PatientsController {
       res,
       path,
       method: 'GET',
-      schema: serverEntriesResponseSchema,
+      schema: contractsZod.getPatientsIdEntriesResponse,
+      schemasByStatus: {
+        200: contractsZod.getPatientsIdEntriesResponse,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        403: schemas.serverErrorResponseSchema,
+      },
     });
   }
 }

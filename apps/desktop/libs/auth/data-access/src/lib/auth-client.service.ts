@@ -20,7 +20,7 @@ function isErrorResponse(value: unknown): value is ErrorResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthClientService {
   private readonly http = inject(HttpClient);
-  private readonly base = 'api';
+  private readonly base = '/api';
 
   private readonly userSig = signal<ServerDoctorResponse | null>(null);
   private readonly loadingSig = signal(false);
@@ -117,16 +117,44 @@ export class AuthClientService {
 
   // TODO: Refactor this
   private unwrapDoctor(payload: unknown): ServerDoctorResponse {
-    const anyPayload = payload as any;
+    const get = (value: unknown, key: string): unknown => {
+      if (!value || typeof value !== 'object') return undefined;
+      return (value as Record<string, unknown>)[key];
+    };
+
+    const asString = (value: unknown): string | undefined =>
+      typeof value === 'string' ? value : undefined;
 
     // Common response envelopes we see:
     // - { data: { doctor: {...} } }
     // - { data: {...doctor fields...} }
     // - { doctor: {...} }
     // - { ...doctor fields }
-    if (anyPayload?.data?.doctor) return anyPayload.data.doctor;
-    if (anyPayload?.doctor) return anyPayload.doctor;
-    if (anyPayload?.data) return anyPayload.data;
-    return anyPayload as ServerDoctorResponse;
+    const doctorLike =
+      get(get(payload, 'data'), 'doctor') ??
+      get(payload, 'doctor') ??
+      get(payload, 'data') ??
+      payload;
+
+    if (!doctorLike || typeof doctorLike !== 'object') {
+      return {};
+    }
+
+    // Be tolerant to upstream casing differences (snake_case vs camelCase)
+    // since the BFF is a proxy and upstream responses can vary.
+    return {
+      id:
+        asString(get(doctorLike, 'id')) ??
+        asString(get(doctorLike, 'doctorId')) ??
+        asString(get(doctorLike, 'doctor_id')),
+      practiceId:
+        asString(get(doctorLike, 'practiceId')) ??
+        asString(get(doctorLike, 'practice_id')),
+      displayName:
+        asString(get(doctorLike, 'displayName')) ??
+        asString(get(doctorLike, 'display_name')),
+      email: asString(get(doctorLike, 'email')),
+      role: asString(get(doctorLike, 'role')),
+    };
   }
 }

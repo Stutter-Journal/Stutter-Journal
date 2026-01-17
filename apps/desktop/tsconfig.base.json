@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@org/mock-api": ["libs/mock/api/src/index.ts"],
       "@org/portal-shared-ui": ["libs/portal/shared-ui/src/index.ts"],
       "@org/util": ["libs/shared/util/src/index.ts"],
       "@org/models": ["libs/shared/models/src/index.ts"],
@@ -27,10 +28,6 @@
         "libs/practice/feat-practice-setup/src/index.ts"
       ],
       "@org/links-data-access": ["libs/links/data-access/src/index.ts"],
-      "@org/feat-invite-patient": [
-        "libs/links/feat-invite-patient/src/index.ts"
-      ],
-      "@org/feat-approve-link": ["libs/links/feat-approve-link/src/index.ts"],
       "@org/patients-data-access": ["libs/patients/data-access/src/index.ts"],
       "@org/feat-patient-list": [
         "libs/patients/feat-patient-list/src/index.ts"
@@ -104,7 +101,10 @@
       "@spartan-ng/helm/utils": ["libs/ui/utils/src/index.ts"],
       "@org/feat-landing": ["libs/auth/feat-landing/src/index.ts"],
       "@org/dashboard": ["libs/dashboard/dashboard/src/index.ts"],
-      "@org/dashboard-data-access": ["libs/dashboard/data-access/src/index.ts"]
+      "@org/dashboard-data-access": ["libs/dashboard/data-access/src/index.ts"],
+      "@org/feat-patients-overview": [
+        "libs/patients/feat-patients-overview/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -39,12 +39,15 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(libs.jetbrains.compose.ui.tooling.preview)
                         implementation(libs.androidx.activity.compose)
                         implementation(libs.ktor.client.okhttp)
+                        runtimeOnly(libs.slf4j.simple)
                         implementation(project(":core:data"))
+                        implementation(project(":core:network:ktor"))
                     }
 
                     iosMain.dependencies {
                         implementation(libs.ktor.client.darwin)
                         implementation(project(":core:data"))
+                        implementation(project(":core:network:ktor"))
                     }
 
                     commonMain.dependencies {
@@ -54,17 +57,23 @@ class KmpApplicationConventionPlugin : Plugin<Project> {
                         implementation(compose.dependencies.ui)
                         implementation(compose.dependencies.components.resources)
 
+                        implementation(libs.qr.kit)
+
                         implementation(libs.bundles.navigation.lifecycle)
                         implementation(libs.jetbrains.compose.material.icons.extended)
                         implementation(libs.bundles.ktor.common)
                         implementation(libs.bundles.coil)
                         implementation(libs.bundles.koin)
+                        implementation(libs.napier)
 
                         implementation(project(":core:theme"))
                         implementation(project(":core:domain"))
+                        implementation(project(":core:permissions"))
                         implementation(project(":features:entries"))
+                        implementation(project(":features:auth"))
                         implementation(project(":features:progress"))
                         implementation(project(":features:support"))
+                        implementation(project(":features:therapist"))
                     }
                 }
             }

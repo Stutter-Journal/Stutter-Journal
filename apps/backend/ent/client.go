@@ -17,6 +17,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"backend/ent/practice"
 
@@ -44,6 +45,8 @@ type Client struct {
 	Entry *EntryClient
 	// EntryShare is the client for interacting with the EntryShare builders.
 	EntryShare *EntryShareClient
+	// PairingCode is the client for interacting with the PairingCode builders.
+	PairingCode *PairingCodeClient
 	// Patient is the client for interacting with the Patient builders.
 	Patient *PatientClient
 	// Practice is the client for interacting with the Practice builders.
@@ -65,6 +68,7 @@ func (c *Client) init() {
 	c.DoctorPatientLink = NewDoctorPatientLinkClient(c.config)
 	c.Entry = NewEntryClient(c.config)
 	c.EntryShare = NewEntryShareClient(c.config)
+	c.PairingCode = NewPairingCodeClient(c.config)
 	c.Patient = NewPatientClient(c.config)
 	c.Practice = NewPracticeClient(c.config)
 }
@@ -165,6 +169,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DoctorPatientLink: NewDoctorPatientLinkClient(cfg),
 		Entry:             NewEntryClient(cfg),
 		EntryShare:        NewEntryShareClient(cfg),
+		PairingCode:       NewPairingCodeClient(cfg),
 		Patient:           NewPatientClient(cfg),
 		Practice:          NewPracticeClient(cfg),
 	}, nil
@@ -192,6 +197,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DoctorPatientLink: NewDoctorPatientLinkClient(cfg),
 		Entry:             NewEntryClient(cfg),
 		EntryShare:        NewEntryShareClient(cfg),
+		PairingCode:       NewPairingCodeClient(cfg),
 		Patient:           NewPatientClient(cfg),
 		Practice:          NewPracticeClient(cfg),
 	}, nil
@@ -224,7 +230,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AnalysisJob, c.Comment, c.Doctor, c.DoctorPatientLink, c.Entry, c.EntryShare,
-		c.Patient, c.Practice,
+		c.PairingCode, c.Patient, c.Practice,
 	} {
 		n.Use(hooks...)
 	}
@@ -235,7 +241,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AnalysisJob, c.Comment, c.Doctor, c.DoctorPatientLink, c.Entry, c.EntryShare,
-		c.Patient, c.Practice,
+		c.PairingCode, c.Patient, c.Practice,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -256,6 +262,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Entry.mutate(ctx, m)
 	case *EntryShareMutation:
 		return c.EntryShare.mutate(ctx, m)
+	case *PairingCodeMutation:
+		return c.PairingCode.mutate(ctx, m)
 	case *PatientMutation:
 		return c.Patient.mutate(ctx, m)
 	case *PracticeMutation:
@@ -744,6 +752,22 @@ func (c *DoctorClient) QueryPatientLinks(_m *Doctor) *DoctorPatientLinkQuery {
 			sqlgraph.From(doctor.Table, doctor.FieldID, id),
 			sqlgraph.To(doctorpatientlink.Table, doctorpatientlink.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, doctor.PatientLinksTable, doctor.PatientLinksColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPairingCodes queries the pairing_codes edge of a Doctor.
+func (c *DoctorClient) QueryPairingCodes(_m *Doctor) *PairingCodeQuery {
+	query := (&PairingCodeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(doctor.Table, doctor.FieldID, id),
+			sqlgraph.To(pairingcode.Table, pairingcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, doctor.PairingCodesTable, doctor.PairingCodesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1399,6 +1423,171 @@ func (c *EntryShareClient) mutate(ctx context.Context, m *EntryShareMutation) (V
 	}
 }
 
+// PairingCodeClient is a client for the PairingCode schema.
+type PairingCodeClient struct {
+	config
+}
+
+// NewPairingCodeClient returns a client for the PairingCode from the given config.
+func NewPairingCodeClient(c config) *PairingCodeClient {
+	return &PairingCodeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `pairingcode.Hooks(f(g(h())))`.
+func (c *PairingCodeClient) Use(hooks ...Hook) {
+	c.hooks.PairingCode = append(c.hooks.PairingCode, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `pairingcode.Intercept(f(g(h())))`.
+func (c *PairingCodeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PairingCode = append(c.inters.PairingCode, interceptors...)
+}
+
+// Create returns a builder for creating a PairingCode entity.
+func (c *PairingCodeClient) Create() *PairingCodeCreate {
+	mutation := newPairingCodeMutation(c.config, OpCreate)
+	return &PairingCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PairingCode entities.
+func (c *PairingCodeClient) CreateBulk(builders ...*PairingCodeCreate) *PairingCodeCreateBulk {
+	return &PairingCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PairingCodeClient) MapCreateBulk(slice any, setFunc func(*PairingCodeCreate, int)) *PairingCodeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PairingCodeCreateBulk{err: fmt.Errorf("calling to PairingCodeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PairingCodeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PairingCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PairingCode.
+func (c *PairingCodeClient) Update() *PairingCodeUpdate {
+	mutation := newPairingCodeMutation(c.config, OpUpdate)
+	return &PairingCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PairingCodeClient) UpdateOne(_m *PairingCode) *PairingCodeUpdateOne {
+	mutation := newPairingCodeMutation(c.config, OpUpdateOne, withPairingCode(_m))
+	return &PairingCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PairingCodeClient) UpdateOneID(id uuid.UUID) *PairingCodeUpdateOne {
+	mutation := newPairingCodeMutation(c.config, OpUpdateOne, withPairingCodeID(id))
+	return &PairingCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PairingCode.
+func (c *PairingCodeClient) Delete() *PairingCodeDelete {
+	mutation := newPairingCodeMutation(c.config, OpDelete)
+	return &PairingCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PairingCodeClient) DeleteOne(_m *PairingCode) *PairingCodeDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PairingCodeClient) DeleteOneID(id uuid.UUID) *PairingCodeDeleteOne {
+	builder := c.Delete().Where(pairingcode.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PairingCodeDeleteOne{builder}
+}
+
+// Query returns a query builder for PairingCode.
+func (c *PairingCodeClient) Query() *PairingCodeQuery {
+	return &PairingCodeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePairingCode},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PairingCode entity by its id.
+func (c *PairingCodeClient) Get(ctx context.Context, id uuid.UUID) (*PairingCode, error) {
+	return c.Query().Where(pairingcode.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PairingCodeClient) GetX(ctx context.Context, id uuid.UUID) *PairingCode {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryDoctor queries the doctor edge of a PairingCode.
+func (c *PairingCodeClient) QueryDoctor(_m *PairingCode) *DoctorQuery {
+	query := (&DoctorClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pairingcode.Table, pairingcode.FieldID, id),
+			sqlgraph.To(doctor.Table, doctor.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, pairingcode.DoctorTable, pairingcode.DoctorColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryConsumedByPatient queries the consumed_by_patient edge of a PairingCode.
+func (c *PairingCodeClient) QueryConsumedByPatient(_m *PairingCode) *PatientQuery {
+	query := (&PatientClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pairingcode.Table, pairingcode.FieldID, id),
+			sqlgraph.To(patient.Table, patient.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, pairingcode.ConsumedByPatientTable, pairingcode.ConsumedByPatientColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PairingCodeClient) Hooks() []Hook {
+	return c.hooks.PairingCode
+}
+
+// Interceptors returns the client interceptors.
+func (c *PairingCodeClient) Interceptors() []Interceptor {
+	return c.inters.PairingCode
+}
+
+func (c *PairingCodeClient) mutate(ctx context.Context, m *PairingCodeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PairingCodeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PairingCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PairingCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PairingCodeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PairingCode mutation op: %q", m.Op())
+	}
+}
+
 // PatientClient is a client for the Patient schema.
 type PatientClient struct {
 	config
@@ -1516,6 +1705,22 @@ func (c *PatientClient) QueryDoctorLinks(_m *Patient) *DoctorPatientLinkQuery {
 			sqlgraph.From(patient.Table, patient.FieldID, id),
 			sqlgraph.To(doctorpatientlink.Table, doctorpatientlink.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, patient.DoctorLinksTable, patient.DoctorLinksColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryConsumedPairingCodes queries the consumed_pairing_codes edge of a Patient.
+func (c *PatientClient) QueryConsumedPairingCodes(_m *Patient) *PairingCodeQuery {
+	query := (&PairingCodeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(patient.Table, patient.FieldID, id),
+			sqlgraph.To(pairingcode.Table, pairingcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, patient.ConsumedPairingCodesTable, patient.ConsumedPairingCodesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1748,11 +1953,11 @@ func (c *PracticeClient) mutate(ctx context.Context, m *PracticeMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AnalysisJob, Comment, Doctor, DoctorPatientLink, Entry, EntryShare, Patient,
-		Practice []ent.Hook
+		AnalysisJob, Comment, Doctor, DoctorPatientLink, Entry, EntryShare, PairingCode,
+		Patient, Practice []ent.Hook
 	}
 	inters struct {
-		AnalysisJob, Comment, Doctor, DoctorPatientLink, Entry, EntryShare, Patient,
-		Practice []ent.Interceptor
+		AnalysisJob, Comment, Doctor, DoctorPatientLink, Entry, EntryShare, PairingCode,
+		Patient, Practice []ent.Interceptor
 	}
 )

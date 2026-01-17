@@ -151,7 +151,7 @@
           - wait
           - --for=condition=Ready
           - pod/eloquia-image-probe
-          - --timeout=30s
+          - --timeout=10s
       register: eloquia_image_probe_wait
       failed_when: false
       changed_when: false

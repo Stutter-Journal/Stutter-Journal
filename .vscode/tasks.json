@@ -112,7 +112,7 @@
     {
       "label": "Desktop: Install Dependencies",
       "type": "shell",
-      "command": "pnpm install",
+      "command": "pnpm install --config.confirmModulesPurge=false",
       "options": {
         "cwd": "${workspaceFolder}/apps/desktop"
       },

@@ -1,4 +1,12 @@
 definitions:
+  schema.Emotion:
+    properties:
+      intensity:
+        description: 0..10
+        type: integer
+      name:
+        type: string
+    type: object
   server.AnalyticsResponse:
     properties:
       distributions:
@@ -76,15 +84,52 @@ definitions:
       patient:
         $ref: '#/definitions/server.patientDTO'
     type: object
+  server.PairingCodeCreateResponse:
+    properties:
+      code:
+        type: string
+      expiresAt:
+        type: string
+      qrText:
+        type: string
+    type: object
+  server.PairingCodeRedeemRequest:
+    properties:
+      code:
+        type: string
+    type: object
+  server.PatientLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.PatientRegisterRequest:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  server.PatientResponse:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
   server.PatientsResponse:
     properties:
-      patients:
+      rows:
         items:
-          $ref: '#/definitions/server.patientDTO'
-        type: array
-      pendingLinks:
-        items:
-          $ref: '#/definitions/server.linkDTO'
+          $ref: '#/definitions/server.patientRowDTO'
         type: array
     type: object
   server.PracticeCreateRequest:
@@ -139,7 +184,9 @@ definitions:
       createdAt:
         type: string
       emotions:
-        type: any
+        items:
+          $ref: '#/definitions/schema.Emotion'
+        type: array
       happenedAt:
         type: string
       id:
@@ -153,11 +200,17 @@ definitions:
       stutterFrequency:
         type: integer
       tags:
-        type: any
+        items:
+          type: string
+        type: array
       techniques:
-        type: any
+        items:
+          type: string
+        type: array
       triggers:
-        type: any
+        items:
+          type: string
+        type: array
       updatedAt:
         type: string
     type: object
@@ -176,6 +229,22 @@ definitions:
       status:
         type: string
     type: object
+  server.myDoctorPracticeResponse:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+    type: object
+  server.myDoctorResponse:
+    properties:
+      displayName:
+        type: string
+      email:
+        type: string
+      myDoctorPractice:
+        $ref: '#/definitions/server.myDoctorPracticeResponse'
+    type: object
   server.patientDTO:
     properties:
       displayName:
@@ -186,6 +255,18 @@ definitions:
         type: string
       patientCode:
         type: string
+    type: object
+  server.patientRowDTO:
+    properties:
+      link:
+        $ref: '#/definitions/server.linkDTO'
+      patient:
+        $ref: '#/definitions/server.patientDTO'
+    type: object
+  server.revokeLinksResponse:
+    properties:
+      revoked:
+        type: integer
     type: object
   server.trendPoint:
     properties:
@@ -372,6 +453,71 @@ paths:
       summary: Invite a patient to link with the doctor
       tags:
       - Links
+  /links/pairing-code:
+    post:
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.PairingCodeCreateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Create a short-lived patient pairing code
+      tags:
+      - Links
+  /links/pairing-code/redeem:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Redeem payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PairingCodeRedeemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.LinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Redeem a patient pairing code
+      tags:
+      - Links
   /links/request:
     post:
       consumes:
@@ -407,6 +553,146 @@ paths:
       summary: Patient-side link request (placeholder)
       tags:
       - Links
+  /links/revoke:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.revokeLinksResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Revoke linked doctors for the current patient
+      tags:
+      - Links
+  /patient/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Patient login payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PatientLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Authenticate a patient
+      tags:
+      - Patient
+  /patient/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.StatusResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Terminate the current patient session
+      tags:
+      - Patient
+  /patient/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Fetch the current patient
+      tags:
+      - Patient
+  /patient/mydoctor:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.myDoctorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Retrieve the patients' assigned therapist
+      tags:
+      - Patient
+  /patient/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Patient registration payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.PatientRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.PatientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Register a patient account
+      tags:
+      - Patient
   /patients:
     get:
       produces:

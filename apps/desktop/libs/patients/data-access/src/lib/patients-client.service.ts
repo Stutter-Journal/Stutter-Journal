@@ -1,16 +1,12 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
-import { ServerPatientDTO, ServerPatientsResponse } from '@org/contracts';
-
-export interface PatientFilters {
-  search?: string;
-}
+import { HttpClient } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ErrorResponse } from '@org/util';
+import { execute, ServerPatientsResponse } from '@org/contracts';
 
 @Injectable({ providedIn: 'root' })
 export class PatientsClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -18,34 +14,19 @@ export class PatientsClientService {
   readonly loading = computed(() => this.loadingSig());
   readonly error = computed(() => this.errorSig());
 
-  clearError(): void {
-    this.errorSig.set(null);
-  }
+  async getPatientsResponse(params?: {
+    search?: string;
+  }): Promise<ServerPatientsResponse> {
+    const search = params?.search?.trim();
+    const query = search ? `?search=${encodeURIComponent(search)}` : '';
 
-  async getPatients(filters?: PatientFilters): Promise<ServerPatientDTO[]> {
-    const params = new HttpParams({
-      fromObject: { search: filters?.search ?? '' },
-    });
-    const response = await this.execute(() =>
-      this.http.get<ServerPatientsResponse>('/patients', {
-        params,
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.get<ServerPatientsResponse>(`${this.base}/patients${query}`, {
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
     );
-    return response.patients ?? [];
-  }
-
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
   }
 }

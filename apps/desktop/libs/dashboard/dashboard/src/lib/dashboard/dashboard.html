@@ -3,7 +3,9 @@
   <hlm-sidebar>
     <div class="px-3 py-3" hlmSidebarHeader>
       <div class="flex items-center gap-3">
-        <div class="grid size-9 place-items-center rounded-md border bg-sidebar-accent text-sidebar-foreground">
+        <div
+          class="grid size-9 place-items-center rounded-md border bg-sidebar-accent text-sidebar-foreground"
+        >
           <span class="text-sm font-semibold">⌘</span>
         </div>
         <div class="leading-tight">
@@ -17,34 +19,45 @@
 
     <div class="px-2" hlmSidebarContent>
       <div class="space-y-1" hlmSidebarGroup>
-        <a [routerLinkActiveOptions]="{ exact: true }"
+        <a
+          [routerLinkActiveOptions]="{ exact: true }"
           class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
-          routerLink="/app" routerLinkActive="bg-sidebar-accent">
-          <span class="text-base">🏠</span>
+          routerLink="/app"
+          routerLinkActive="bg-sidebar-accent"
+        >
+          <ng-icon hlm name="lucideLayoutDashboard" size="base" />
           <span>Overview</span>
         </a>
 
-        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
-          routerLink="/app/patients">
-          <span class="text-base">🧑‍🤝‍🧑</span>
+        <a
+          class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/patients"
+        >
+          <ng-icon hlm name="lucidePersonStanding" size="base" />
           <span>Patients</span>
         </a>
 
-        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
-          routerLink="/app/entries">
-          <span class="text-base">📝</span>
+        <a
+          class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/entries"
+        >
+          <ng-icon hlm name="lucideNotebookPen" size="base" />
           <span>Entries</span>
         </a>
 
-        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
-          routerLink="/app/analytics">
-          <span class="text-base">📈</span>
+        <a
+          class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/analytics"
+        >
+          <ng-icon hlm name="lucideBarChart" size="base" />
           <span>Analytics</span>
         </a>
 
-        <a class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
-          routerLink="/app/settings">
-          <span class="text-base">⚙️</span>
+        <a
+          class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent"
+          routerLink="/app/settings"
+        >
+          <ng-icon hlm name="lucideSettings" size="base" />
           <span>Settings</span>
         </a>
       </div>
@@ -59,7 +72,10 @@
     <header class="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
       <div class="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div class="flex items-center gap-3">
-          <button class="inline-flex items-center justify-center rounded-md border px-2 py-1" hlmSidebarTrigger>
+          <button
+            class="inline-flex items-center justify-center rounded-md border px-2 py-1"
+            hlmSidebarTrigger
+          >
             <span class="sr-only">Toggle sidebar</span>
             ☰
           </button>
@@ -106,6 +122,9 @@
 
     <!-- Body -->
     <div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+      <router-outlet #childOutlet="outlet"></router-outlet>
+
+      @if(!childOutlet.isActivated) {
       <!-- KPI Cards -->
       <section class="grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border bg-card p-4">
@@ -144,7 +163,12 @@
                 Latest entries created in your practice
               </div>
             </div>
-            <button hlmBtn routerLink="/app/entries" size="sm" variant="outline">
+            <button
+              hlmBtn
+              routerLink="/app/entries"
+              size="sm"
+              variant="outline"
+            >
               View all
             </button>
           </div>
@@ -187,13 +211,30 @@
           <div class="rounded-lg border bg-card p-4">
             <div class="text-base font-semibold">Quick actions</div>
             <div class="mt-3 grid gap-2">
-              <button class="w-full" hlmBtn routerLink="/app/patients/new" type="button">
+              <button
+                class="w-full"
+                hlmBtn
+                routerLink="/app/patients/new"
+                type="button"
+              >
                 Add patient
               </button>
-              <button class="w-full" hlmBtn routerLink="/app/entries/new" type="button" variant="outline">
+              <button
+                class="w-full"
+                hlmBtn
+                routerLink="/app/entries/new"
+                type="button"
+                variant="outline"
+              >
                 New entry
               </button>
-              <button class="w-full" hlmBtn routerLink="/app/analytics" type="button" variant="outline">
+              <button
+                class="w-full"
+                hlmBtn
+                routerLink="/app/analytics"
+                type="button"
+                variant="outline"
+              >
                 View analytics
               </button>
             </div>
@@ -203,8 +244,9 @@
             <div class="text-base font-semibold">Practice</div>
             <div class="mt-2 text-sm text-muted-foreground">
               Practice ID:
-              <span
-                class="font-medium text-foreground">{{ auth.user()?.practiceId || '—' }}</span>
+              <span class="font-medium text-foreground"
+                >{{ auth.user()?.practiceId || '—' }}</span
+              >
             </div>
             <div class="mt-3 text-xs text-muted-foreground">
               We’ll show name, address and staff settings here once practice
@@ -213,6 +255,7 @@
           </div>
         </div>
       </section>
+      }
     </div>
   </main>
 </div>

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization) apply false
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.androidLint) apply false
+    alias(libs.plugins.openapiGenerator) apply false
 
     // Convention plugins
     alias(libs.plugins.eloquia.kmp.application) apply false

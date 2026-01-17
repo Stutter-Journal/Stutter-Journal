@@ -1,48 +1,41 @@
+@file:Suppress("D")
+
 package at.isg.eloquia.kmpapp.presentation.main
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Timeline
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import at.isg.eloquia.core.domain.auth.usecase.ClearSessionUseCase
+import at.isg.eloquia.core.theme.components.EloquiaSnackbarHost
 import at.isg.eloquia.features.entries.presentation.list.EntriesListScreen
 import at.isg.eloquia.features.entries.presentation.newentry.NewEntryScreen
 import at.isg.eloquia.features.progress.presentation.ProgressScreen
 import at.isg.eloquia.features.support.presentation.SupportScreen
+import at.isg.eloquia.features.therapist.presentation.MyTherapistScreen
+import at.isg.eloquia.kmpapp.presentation.components.AddConnectionDialog
+import at.isg.eloquia.kmpapp.presentation.components.MainScaffoldWithModalWideNavigationRail
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.compose.koinInject
 
 @Serializable
 object EntriesDestination
@@ -56,6 +49,9 @@ object ProgressDestination
 @Serializable
 object SupportDestination
 
+@Serializable
+object TherapistDestination
+
 enum class MainTab(
     val destination: Any,
     val icon: ImageVector,
@@ -66,105 +62,91 @@ enum class MainTab(
     Progress(ProgressDestination, Icons.Default.Timeline, "Progress"),
 
     Support(SupportDestination, Icons.Default.Favorite, "Support"),
+
+    Therapist(TherapistDestination, Icons.Default.Medication, "Therapist"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    showWelcomeSnackbar: Boolean = false,
+    onLogout: () -> Unit = {},
+) {
     val navController = rememberNavController()
     var currentTab by remember { mutableStateOf(MainTab.Entries) }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = "Stutter Journal",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(
-                            text = "Track your progress",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    Box(
-                        modifier = Modifier.padding(start = 16.dp).size(40.dp).clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = "Logo",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
+    var showAddConnectionDialog by rememberSaveable { mutableStateOf(false) }
+
+    val clearSession: ClearSessionUseCase = koinInject()
+    val scope = rememberCoroutineScope()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    var welcomeShown by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(showWelcomeSnackbar) {
+        if (showWelcomeSnackbar && !welcomeShown) {
+            snackbarHostState.showSnackbar(
+                message = "Welcome! You’re signed in.",
+                actionLabel = "Nice",
+                withDismissAction = true,
+                duration = SnackbarDuration.Short,
             )
-        },
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                ),
-            ) {
-                NavigationBarItem(selected = currentTab == MainTab.Entries, onClick = {
-                    currentTab = MainTab.Entries
-                    navController.navigate(EntriesDestination) {
-                        popUpTo(navController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                }, icon = {
-                    Icon(
-                        MainTab.Entries.icon,
-                        contentDescription = MainTab.Entries.label,
-                    )
-                }, label = { Text(MainTab.Entries.label) })
+        }
+    }
 
-                NavigationBarItem(selected = currentTab == MainTab.Progress, onClick = {
-                    currentTab = MainTab.Progress
-                    navController.navigate(ProgressDestination) {
-                        popUpTo(navController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                }, icon = {
-                    Icon(
-                        MainTab.Progress.icon,
-                        contentDescription = MainTab.Progress.label,
-                    )
-                }, label = { Text(MainTab.Progress.label) })
+    fun selectTab(tab: MainTab) {
+        currentTab = tab
+        navController.navigate(tab.destination) {
+            popUpTo(navController.graph.startDestinationId)
+            launchSingleTop = true
+        }
+    }
 
-                NavigationBarItem(selected = currentTab == MainTab.Support, onClick = {
-                    currentTab = MainTab.Support
-                    navController.navigate(SupportDestination) {
-                        popUpTo(navController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                }, icon = {
-                    Icon(
-                        MainTab.Support.icon,
-                        contentDescription = MainTab.Support.label,
-                    )
-                }, label = { Text(MainTab.Support.label) })
+    MainScaffoldWithModalWideNavigationRail(
+        selectedTab = currentTab,
+        onSelectTab = ::selectTab,
+        onAddConnection = { showAddConnectionDialog = true },
+        onLogout = {
+            scope.launch {
+                clearSession()
+                onLogout()
             }
         },
-    ) { innerPadding ->
+        snackbarHost = { EloquiaSnackbarHost(hostState = snackbarHostState) },
+    ) { contentModifier ->
+        AddConnectionDialog(
+            open = showAddConnectionDialog,
+            onDismiss = { showAddConnectionDialog = false },
+            onCode = { code ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Connected!",
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            },
+            onDisconnected = { revokedCount ->
+                scope.launch {
+                    val msg = if (revokedCount > 0) {
+                        "Therapist removed"
+                    } else {
+                        "No therapist connected"
+                    }
+
+                    snackbarHostState.showSnackbar(
+                        message = msg,
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            },
+        )
+
         NavHost(
             navController = navController,
             startDestination = EntriesDestination,
-            modifier = Modifier.padding(innerPadding),
+            modifier = contentModifier,
         ) {
             composable<EntriesDestination> {
                 EntriesListScreen(
@@ -177,28 +159,33 @@ fun MainScreen() {
                     },
                 )
             }
+
             composable<NewEntryDestination> { backStackEntry ->
                 val destination = backStackEntry.toRoute<NewEntryDestination>()
                 NewEntryScreen(
                     entryId = destination.entryId,
                     onClose = {
-                        currentTab = MainTab.Entries
                         navController.popBackStack()
                     },
                     onEntrySaved = {
-                        currentTab = MainTab.Entries
                         navController.popBackStack()
                     },
                 )
             }
+
             composable<ProgressDestination> {
                 ProgressScreen()
             }
+
             composable<SupportDestination> {
                 val uriHandler = LocalUriHandler.current
                 SupportScreen(
                     onResourceClick = { resource -> uriHandler.openUri(resource.url) },
                 )
+            }
+
+            composable<TherapistDestination> {
+                MyTherapistScreen()
             }
         }
     }

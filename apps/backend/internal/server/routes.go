@@ -33,6 +33,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		log.Warn("auth manager missing; authentication routes are disabled")
 	} else {
 		s.registerDoctorRoutes(r)
+		s.registerPatientRoutes(r)
 		s.registerPracticeRoutes(r)
 		s.registerLinkRoutes(r)
 	}
@@ -102,6 +103,20 @@ func (s *Server) registerDoctorRoutes(r chi.Router) {
 	})
 }
 
+func (s *Server) registerPatientRoutes(r chi.Router) {
+	r.Route("/patient", func(r chi.Router) {
+		r.Post("/register", s.patientRegisterHandler)
+		r.Post("/login", s.patientLoginHandler)
+
+		r.Group(func(r chi.Router) {
+			r.Use(s.requirePatient)
+			r.Get("/me", s.patientMeHandler)
+			r.Get("/mydoctor", s.myDoctorHandler)
+			r.Post("/logout", s.patientLogoutHandler)
+		})
+	})
+}
+
 func (s *Server) registerPracticeRoutes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(s.requireDoctor)
@@ -114,9 +129,16 @@ func (s *Server) registerLinkRoutes(r chi.Router) {
 		r.Use(s.requireDoctor)
 		r.Post("/links/invite", s.inviteLinkHandler)
 		r.Post("/links/request", s.requestLinkHandler)
+		r.Post("/links/pairing-code", s.createPairingCodeHandler)
 		r.Post("/links/{id}/approve", s.approveLinkHandler)
 		r.Get("/patients", s.listPatientsHandler)
 		r.Get("/patients/{id}/entries", s.patientEntriesHandler)
 		r.Get("/patients/{id}/analytics", s.analyticsHandler)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(s.requirePatient)
+		r.Post("/links/pairing-code/redeem", s.redeemPairingCodeHandler)
+		r.Post("/links/revoke", s.revokeMyLinksHandler)
 	})
 }

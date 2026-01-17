@@ -7,7 +7,6 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "dependsOn": ["gen"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/api/contracts",

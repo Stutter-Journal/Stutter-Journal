@@ -11,6 +11,26 @@ export const appRoutes: Route[] = [
     path: 'app',
     canActivate: [onboardingGuard],
     loadComponent: () => import('@org/dashboard').then((m) => m.Dashboard),
+    children: [
+      {
+        path: 'patients',
+        loadComponent: () =>
+          import('@org/feat-patients-overview').then(
+            (m) => m.FeatPatientsOverview,
+          ),
+      },
+      // TODO: This is for later
+      // {
+      //   path: 'patients/new',
+      //   loadComponent: () =>
+      //     import('@org/feat-patients').then((m) => m.PatientCreatePage),
+      // },
+      // {
+      //   path: 'patients/:id',
+      //   loadComponent: () =>
+      //     import('@org/feat-patients').then((m) => m.PatientDetailPage),
+      // },
+    ],
   },
   {
     path: '',

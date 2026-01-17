@@ -457,6 +457,29 @@ func HasPatientLinksWith(preds ...predicate.DoctorPatientLink) predicate.Doctor 
 	})
 }
 
+// HasPairingCodes applies the HasEdge predicate on the "pairing_codes" edge.
+func HasPairingCodes() predicate.Doctor {
+	return predicate.Doctor(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PairingCodesTable, PairingCodesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPairingCodesWith applies the HasEdge predicate on the "pairing_codes" edge with a given conditions (other predicates).
+func HasPairingCodesWith(preds ...predicate.PairingCode) predicate.Doctor {
+	return predicate.Doctor(func(s *sql.Selector) {
+		step := newPairingCodesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasApprovedPatientLinks applies the HasEdge predicate on the "approved_patient_links" edge.
 func HasApprovedPatientLinks() predicate.Doctor {
 	return predicate.Doctor(func(s *sql.Selector) {

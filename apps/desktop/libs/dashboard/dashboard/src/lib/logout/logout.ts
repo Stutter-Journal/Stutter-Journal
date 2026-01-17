@@ -10,7 +10,6 @@ import { toast } from 'ngx-sonner';
   standalone: true,
   imports: [HlmButton, HlmSidebarFooter],
   templateUrl: './logout.html',
-  styleUrl: './logout.css',
 })
 export class Logout {
   readonly auth = inject(AuthClientService);

@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ErrorResponse } from '@org/util';
 import {
+  execute,
+  ServerPairingCodeCreateResponse,
+  ServerPairingCodeRedeemRequest,
   ServerLinkApproveResponse,
   ServerLinkInviteRequest,
   ServerLinkInviteRequestBody,
@@ -12,6 +14,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class LinksClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -26,44 +29,75 @@ export class LinksClientService {
   async invitePatient(
     payload: ServerLinkInviteRequest,
   ): Promise<ServerLinkResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkResponse>('/links/invite', payload, {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/invite`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
   async requestLink(
     payload: ServerLinkInviteRequestBody,
   ): Promise<ServerLinkResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkResponse>('/links/request', payload, {
-        withCredentials: true,
-      }),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/request`,
+          payload,
+          {
+            withCredentials: true,
+          },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
   async approveLink(linkId: string): Promise<ServerLinkApproveResponse> {
-    return this.execute(() =>
-      this.http.post<ServerLinkApproveResponse>(
-        `/links/${linkId}/approve`,
-        {},
-        { withCredentials: true },
-      ),
+    return await execute(
+      () =>
+        this.http.post<ServerLinkApproveResponse>(
+          `${this.base}/links/${linkId}/approve`,
+          {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
     );
   }
 
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
+  async createPairingCode(): Promise<ServerPairingCodeCreateResponse> {
+    return await execute(
+      () =>
+        this.http.post<ServerPairingCodeCreateResponse>(
+          `${this.base}/links/pairing-code`,
+          {},
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
+    );
+  }
+
+  async redeemPairingCode(
+    payload: ServerPairingCodeRedeemRequest,
+  ): Promise<ServerLinkResponse> {
+    return await execute(
+      () =>
+        this.http.post<ServerLinkResponse>(
+          `${this.base}/links/pairing-code/redeem`,
+          payload,
+          { withCredentials: true },
+        ),
+      this.loadingSig,
+      this.errorSig,
+    );
   }
 }

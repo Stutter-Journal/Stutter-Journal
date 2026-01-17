@@ -20,6 +20,12 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Eloquia needs camera access to scan pairing QR codes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Eloquia needs photo access to scan QR codes from images.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Eloquia needs photo library access to scan QR codes from images.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

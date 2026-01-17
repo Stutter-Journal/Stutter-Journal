@@ -8,6 +8,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    compileOnly(libs.openapi.generator.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.room.gradlePlugin)
     implementation(libs.spotless.gradlePlugin)
@@ -78,6 +79,16 @@ gradlePlugin {
             implementationClass = "KmpNetworkingConventionPlugin"
         }
 
+        register("kmpNetworkingApi") {
+            id = "eloquia.kmp.networking.api"
+            implementationClass = "KmpNetworkingApiConventionPlugin"
+        }
+
+        register("kmpNetworkingKtor") {
+            id = "eloquia.kmp.networking.ktor"
+            implementationClass = "KmpNetworkingKtorConventionPlugin"
+        }
+
         register("kmpDependencyInjection") {
             id = "eloquia.kmp.di"
             implementationClass = "KmpDependencyInjectionConventionPlugin"
@@ -101,6 +112,11 @@ gradlePlugin {
         register("spotless") {
             id = "eloquia.spotless"
             implementationClass = "SpotlessConventionPlugin"
+        }
+
+        register("openApiModels") {
+            id = "eloquia.openapi.models"
+            implementationClass = "OpenApiModelsConventionPlugin"
         }
     }
 }

@@ -81,6 +81,11 @@ func Email(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldEmail, v))
 }
 
+// PasswordHash applies equality check predicate on the "password_hash" field. It's identical to PasswordHashEQ.
+func PasswordHash(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldPasswordHash, v))
+}
+
 // PatientCode applies equality check predicate on the "patient_code" field. It's identical to PatientCodeEQ.
 func PatientCode(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldPatientCode, v))
@@ -381,6 +386,81 @@ func EmailContainsFold(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldContainsFold(FieldEmail, v))
 }
 
+// PasswordHashEQ applies the EQ predicate on the "password_hash" field.
+func PasswordHashEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashNEQ applies the NEQ predicate on the "password_hash" field.
+func PasswordHashNEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldNEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashIn applies the In predicate on the "password_hash" field.
+func PasswordHashIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashNotIn applies the NotIn predicate on the "password_hash" field.
+func PasswordHashNotIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldNotIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashGT applies the GT predicate on the "password_hash" field.
+func PasswordHashGT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGT(FieldPasswordHash, v))
+}
+
+// PasswordHashGTE applies the GTE predicate on the "password_hash" field.
+func PasswordHashGTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGTE(FieldPasswordHash, v))
+}
+
+// PasswordHashLT applies the LT predicate on the "password_hash" field.
+func PasswordHashLT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLT(FieldPasswordHash, v))
+}
+
+// PasswordHashLTE applies the LTE predicate on the "password_hash" field.
+func PasswordHashLTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLTE(FieldPasswordHash, v))
+}
+
+// PasswordHashContains applies the Contains predicate on the "password_hash" field.
+func PasswordHashContains(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContains(FieldPasswordHash, v))
+}
+
+// PasswordHashHasPrefix applies the HasPrefix predicate on the "password_hash" field.
+func PasswordHashHasPrefix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasPrefix(FieldPasswordHash, v))
+}
+
+// PasswordHashHasSuffix applies the HasSuffix predicate on the "password_hash" field.
+func PasswordHashHasSuffix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasSuffix(FieldPasswordHash, v))
+}
+
+// PasswordHashIsNil applies the IsNil predicate on the "password_hash" field.
+func PasswordHashIsNil() predicate.Patient {
+	return predicate.Patient(sql.FieldIsNull(FieldPasswordHash))
+}
+
+// PasswordHashNotNil applies the NotNil predicate on the "password_hash" field.
+func PasswordHashNotNil() predicate.Patient {
+	return predicate.Patient(sql.FieldNotNull(FieldPasswordHash))
+}
+
+// PasswordHashEqualFold applies the EqualFold predicate on the "password_hash" field.
+func PasswordHashEqualFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEqualFold(FieldPasswordHash, v))
+}
+
+// PasswordHashContainsFold applies the ContainsFold predicate on the "password_hash" field.
+func PasswordHashContainsFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContainsFold(FieldPasswordHash, v))
+}
+
 // PatientCodeEQ applies the EQ predicate on the "patient_code" field.
 func PatientCodeEQ(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldPatientCode, v))
@@ -521,6 +601,29 @@ func HasDoctorLinks() predicate.Patient {
 func HasDoctorLinksWith(preds ...predicate.DoctorPatientLink) predicate.Patient {
 	return predicate.Patient(func(s *sql.Selector) {
 		step := newDoctorLinksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasConsumedPairingCodes applies the HasEdge predicate on the "consumed_pairing_codes" edge.
+func HasConsumedPairingCodes() predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ConsumedPairingCodesTable, ConsumedPairingCodesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasConsumedPairingCodesWith applies the HasEdge predicate on the "consumed_pairing_codes" edge with a given conditions (other predicates).
+func HasConsumedPairingCodesWith(preds ...predicate.PairingCode) predicate.Patient {
+	return predicate.Patient(func(s *sql.Selector) {
+		step := newConsumedPairingCodesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

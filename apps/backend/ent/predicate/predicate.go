@@ -24,6 +24,9 @@ type Entry func(*sql.Selector)
 // EntryShare is the predicate function for entryshare builders.
 type EntryShare func(*sql.Selector)
 
+// PairingCode is the predicate function for pairingcode builders.
+type PairingCode func(*sql.Selector)
+
 // Patient is the predicate function for patient builders.
 type Patient func(*sql.Selector)
 

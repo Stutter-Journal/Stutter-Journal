@@ -22,10 +22,16 @@ class KmpNetworkingConventionPlugin : Plugin<Project> {
 
                     androidMain.dependencies {
                         implementation(libs.ktor.client.okhttp)
+                        implementation(libs.okhttp.logging.interceptor)
                     }
 
                     iosMain.dependencies {
                         implementation(libs.ktor.client.darwin)
+                    }
+
+                    // Desktop/JVM engine for the "desktop" target.
+                    findByName("desktopMain")?.dependencies {
+                        implementation(libs.ktor.client.cio)
                     }
                 }
             }

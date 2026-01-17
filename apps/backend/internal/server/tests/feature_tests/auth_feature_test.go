@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"backend/ent/doctor"
+	"backend/ent/patient"
 	"backend/internal/auth"
 	"backend/internal/database"
 	"backend/internal/server"
@@ -84,6 +85,9 @@ func initAuthScenario(sc *godog.ScenarioContext, env *bddtest.Env) {
 		if _, err := env.DB.Ent().Doctor.Delete().Exec(cctx); err != nil {
 			return ctx, fmt.Errorf("clean doctors: %w", err)
 		}
+		if _, err := env.DB.Ent().Patient.Delete().Exec(cctx); err != nil {
+			return ctx, fmt.Errorf("clean patients: %w", err)
+		}
 		return ctx, nil
 	})
 
@@ -99,10 +103,14 @@ func initAuthScenario(sc *godog.ScenarioContext, env *bddtest.Env) {
 
 	sc.Step(`^I call GET "([^"]+)"$`, s.callGet)
 	sc.Step(`^I log out$`, s.logout)
+	sc.Step(`^I register a patient:$`, s.registerPatientTable)
+	sc.Step(`^I log in as patient with:$`, s.patientLoginTable)
+	sc.Step(`^I log out patient$`, s.patientLogout)
 
 	sc.Step(`^the response status should be (\d+)$`, s.statusShouldBe)
 	sc.Step(`^the response should be unauthorized$`, s.unauthorized)
 	sc.Step(`^the doctor with email "([^"]+)" exists in the database$`, s.doctorExists)
+	sc.Step(`^the patient with email "([^"]+)" exists in the database$`, s.patientExists)
 
 	sc.Step(`^the response JSON field "([^"]+)" should be "([^"]+)"$`, s.jsonFieldShouldBe)
 	sc.Step(`^the response field "([^"]+)" should be "([^"]+)"$`, s.jsonFieldShouldBe)
@@ -152,6 +160,25 @@ func (a *authFeature) loginArgs(email, password string) error {
 func (a *authFeature) callGet(path string) error { return a.client.Get(path) }
 func (a *authFeature) logout() error             { return a.client.PostJSON("/doctor/logout", nil) }
 
+func (a *authFeature) registerPatientTable(table *godog.Table) error {
+	data := bddtest.TableToMap(table)
+	return a.client.PostJSON("/patient/register", map[string]string{
+		"email":       data["email"],
+		"password":    data["password"],
+		"displayName": data["displayName"],
+	})
+}
+
+func (a *authFeature) patientLoginTable(table *godog.Table) error {
+	data := bddtest.TableToMap(table)
+	return a.client.PostJSON("/patient/login", map[string]string{
+		"email":    data["email"],
+		"password": data["password"],
+	})
+}
+
+func (a *authFeature) patientLogout() error { return a.client.PostJSON("/patient/logout", nil) }
+
 func (a *authFeature) statusShouldBe(code int) error { return a.client.RequireStatus(code) }
 
 func (a *authFeature) unauthorized() error {
@@ -171,6 +198,20 @@ func (a *authFeature) doctorExists(email string) error {
 		Only(ctx)
 	if err != nil {
 		return fmt.Errorf("doctor not found: %w", err)
+	}
+	return nil
+}
+
+func (a *authFeature) patientExists(email string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := a.env.DB.Ent().Patient.
+		Query().
+		Where(patient.EmailEQ(strings.ToLower(email))).
+		Only(ctx)
+	if err != nil {
+		return fmt.Errorf("patient not found: %w", err)
 	}
 	return nil
 }

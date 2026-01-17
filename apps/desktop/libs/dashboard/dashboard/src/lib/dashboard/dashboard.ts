@@ -1,6 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
+import {
+  lucideLayoutDashboard,
+  lucidePersonStanding,
+  lucideNotebookPen,
+  lucideBarChart,
+  lucideSettings,
+} from '@ng-icons/lucide';
 import {
   HlmSidebar,
   HlmSidebarContent,
@@ -27,6 +35,8 @@ import {
 } from '@spartan-ng/helm/table';
 import { AuthClientService } from '@org/auth-data-access';
 import { Logout } from '../logout/logout';
+import { HlmIcon } from '@spartan-ng/helm/icon';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'lib-dashboard',
@@ -36,8 +46,10 @@ import { Logout } from '../logout/logout';
     HlmSidebarHeader,
     HlmSidebarContent,
     HlmSidebarGroup,
+    CommonModule,
     RouterLink,
     RouterLinkActive,
+    RouterOutlet,
     HlmButton,
     HlmSidebarTrigger,
     HlmMenubar,
@@ -54,9 +66,19 @@ import { Logout } from '../logout/logout';
     HlmTBody,
     HlmTd,
     Logout,
+    HlmIcon,
+    NgIcon,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  providers: [
+    provideIcons({
+      lucideLayoutDashboard,
+      lucidePersonStanding,
+      lucideNotebookPen,
+      lucideBarChart,
+      lucideSettings,
+    }),
+  ],
 })
 export class Dashboard {
   readonly auth = inject(AuthClientService);

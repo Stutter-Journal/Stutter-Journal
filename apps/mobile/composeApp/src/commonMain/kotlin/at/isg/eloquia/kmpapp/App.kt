@@ -7,30 +7,44 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import at.isg.eloquia.kmpapp.presentation.detail.DetailScreen
+import at.isg.eloquia.features.auth.presentation.landing.AuthLandingScreen
 import at.isg.eloquia.kmpapp.presentation.main.MainScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
-object MainDestination
+data class MainDestination(
+    val showWelcomeSnackbar: Boolean = false,
+)
 
 @Serializable
-data class DetailDestination(val objectId: Int)
+object AuthLandingDestination
 
 @Composable
 fun App() {
     Surface {
         val navController: NavHostController = rememberNavController()
-        NavHost(navController = navController, startDestination = MainDestination) {
-            composable<MainDestination> {
-                MainScreen()
+
+        NavHost(navController = navController, startDestination = AuthLandingDestination) {
+            composable<AuthLandingDestination> {
+                AuthLandingScreen(
+                    onAuthenticated = {
+                        navController.navigate(MainDestination(showWelcomeSnackbar = true)) {
+                            popUpTo(AuthLandingDestination) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                )
             }
 
-            composable<DetailDestination> { backStackEntry ->
-                DetailScreen(
-                    objectId = backStackEntry.toRoute<DetailDestination>().objectId,
-                    navigateBack = {
-                        navController.popBackStack()
+            composable<MainDestination> { backStackEntry ->
+                val destination = backStackEntry.toRoute<MainDestination>()
+                MainScreen(
+                    showWelcomeSnackbar = destination.showWelcomeSnackbar,
+                    onLogout = {
+                        navController.navigate(AuthLandingDestination) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     },
                 )
             }

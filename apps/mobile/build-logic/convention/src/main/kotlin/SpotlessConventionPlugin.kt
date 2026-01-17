@@ -12,10 +12,12 @@ class SpotlessConventionPlugin : Plugin<Project> {
                 kotlin {
                     target("**/*.kt")
                     targetExclude("**/build/**/*.kt")
+                    targetExclude("generated/openapi/**/*.kt")
                     ktlint().editorConfigOverride(mapOf(
                         "ktlint_function_naming_ignore_when_annotated_with" to "Composable"
                     ))
                 }
+
                 kotlinGradle {
                     target("*.gradle.kts")
                     ktlint()

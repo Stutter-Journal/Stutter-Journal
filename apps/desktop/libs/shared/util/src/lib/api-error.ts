@@ -12,14 +12,25 @@ export interface ErrorResponse {
  */
 export function normalizeError(err: unknown): ErrorResponse {
   if (err instanceof HttpErrorResponse) {
-    const body = err.error as
-      | { message?: string; code?: string; details?: unknown }
-      | undefined;
+    const body = err.error as { error?: unknown; code?: unknown } | undefined;
+
+    const backendError =
+      body && typeof body === 'object' && typeof body.error === 'string'
+        ? body.error
+        : undefined;
+
+    const rawMessage =
+      typeof err.message === 'string' ? err.message : 'Request failed';
+    const isAngularGeneric = rawMessage.startsWith(
+      'Http failure response for ',
+    );
+
     return {
       status: err.status,
-      code: body?.code,
-      message: body?.message ?? err.message ?? 'Request failed',
-      details: body?.details ?? err.error,
+      code: typeof body?.code === 'string' ? body.code : undefined,
+      message:
+        backendError ?? (isAngularGeneric ? 'Request failed' : rawMessage),
+      details: err.error,
     };
   }
 

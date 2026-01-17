@@ -28,12 +28,16 @@ const (
 	FieldStatus = "status"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
+	FieldPasswordHash = "password_hash"
 	// FieldPatientCode holds the string denoting the patient_code field in the database.
 	FieldPatientCode = "patient_code"
 	// FieldLastEntryAt holds the string denoting the last_entry_at field in the database.
 	FieldLastEntryAt = "last_entry_at"
 	// EdgeDoctorLinks holds the string denoting the doctor_links edge name in mutations.
 	EdgeDoctorLinks = "doctor_links"
+	// EdgeConsumedPairingCodes holds the string denoting the consumed_pairing_codes edge name in mutations.
+	EdgeConsumedPairingCodes = "consumed_pairing_codes"
 	// EdgeEntries holds the string denoting the entries edge name in mutations.
 	EdgeEntries = "entries"
 	// EdgeAnalysisJobs holds the string denoting the analysis_jobs edge name in mutations.
@@ -49,6 +53,13 @@ const (
 	DoctorLinksInverseTable = "doctor_patient_links"
 	// DoctorLinksColumn is the table column denoting the doctor_links relation/edge.
 	DoctorLinksColumn = "patient_id"
+	// ConsumedPairingCodesTable is the table that holds the consumed_pairing_codes relation/edge.
+	ConsumedPairingCodesTable = "pairing_codes"
+	// ConsumedPairingCodesInverseTable is the table name for the PairingCode entity.
+	// It exists in this package in order to avoid circular dependency with the "pairingcode" package.
+	ConsumedPairingCodesInverseTable = "pairing_codes"
+	// ConsumedPairingCodesColumn is the table column denoting the consumed_pairing_codes relation/edge.
+	ConsumedPairingCodesColumn = "consumed_by_patient_id"
 	// EntriesTable is the table that holds the entries relation/edge.
 	EntriesTable = "entries"
 	// EntriesInverseTable is the table name for the Entry entity.
@@ -81,6 +92,7 @@ var Columns = []string{
 	FieldBirthDate,
 	FieldStatus,
 	FieldEmail,
+	FieldPasswordHash,
 	FieldPatientCode,
 	FieldLastEntryAt,
 }
@@ -174,6 +186,11 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
+// ByPasswordHash orders the results by the password_hash field.
+func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
+}
+
 // ByPatientCode orders the results by the patient_code field.
 func ByPatientCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPatientCode, opts...).ToFunc()
@@ -195,6 +212,20 @@ func ByDoctorLinksCount(opts ...sql.OrderTermOption) OrderOption {
 func ByDoctorLinks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newDoctorLinksStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByConsumedPairingCodesCount orders the results by consumed_pairing_codes count.
+func ByConsumedPairingCodesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newConsumedPairingCodesStep(), opts...)
+	}
+}
+
+// ByConsumedPairingCodes orders the results by consumed_pairing_codes terms.
+func ByConsumedPairingCodes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newConsumedPairingCodesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -244,6 +275,13 @@ func newDoctorLinksStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DoctorLinksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, DoctorLinksTable, DoctorLinksColumn),
+	)
+}
+func newConsumedPairingCodesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ConsumedPairingCodesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ConsumedPairingCodesTable, ConsumedPairingCodesColumn),
 	)
 }
 func newEntriesStep() *sqlgraph.Step {

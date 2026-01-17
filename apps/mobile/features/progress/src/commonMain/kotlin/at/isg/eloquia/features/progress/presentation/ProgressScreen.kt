@@ -252,11 +252,11 @@ private fun IntensityLineChart(
     modifier: Modifier = Modifier,
 ) {
     if (dataPoints.isEmpty()) return
-    
+
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
     val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
-    
+
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -283,7 +283,7 @@ private fun IntensityLineChart(
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
-                
+
                 val entriesWithData = dataPoints.count { it.intensity > 0 }
                 if (entriesWithData > 0) {
                     Text(
@@ -314,30 +314,30 @@ private fun IntensityLineChart(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(8.dp))
-                
+
                 // Chart canvas
                 Column(modifier = Modifier.weight(1f)) {
                     Canvas(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp)
+                            .height(220.dp),
                     ) {
                         val width = size.width
                         val height = size.height
                         val paddingTop = 8f
                         val paddingBottom = 8f
                         val paddingRight = 8f
-                        
+
                         val chartWidth = width - paddingRight
                         val chartHeight = height - paddingTop - paddingBottom
-                        
+
                         // Y-axis: Always 0 to 10
                         val minY = 0f
                         val maxY = 10f
                         val yRange = maxY - minY
-                        
+
                         // Draw horizontal grid lines (for Y-axis values 0, 2, 4, 6, 8, 10)
                         for (i in 0..5) {
                             val yValue = i * 2f
@@ -347,10 +347,10 @@ private fun IntensityLineChart(
                                 start = Offset(0f, y),
                                 end = Offset(chartWidth, y),
                                 strokeWidth = 1f,
-                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)),
                             )
                         }
-                        
+
                         // Calculate X positions for all data points
                         val singlePointX = chartWidth / 2f
                         val stepX = if (dataPoints.size > 1) {
@@ -358,7 +358,7 @@ private fun IntensityLineChart(
                         } else {
                             singlePointX
                         }
-                        
+
                         // Draw vertical grid lines for ALL data points (all ticks visible)
                         dataPoints.forEachIndexed { index, _ ->
                             val x = if (dataPoints.size > 1) {
@@ -371,10 +371,10 @@ private fun IntensityLineChart(
                                 start = Offset(x, paddingTop),
                                 end = Offset(x, height - paddingBottom),
                                 strokeWidth = 1f,
-                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f)),
                             )
                         }
-                        
+
                         // Draw line chart path
                         val path = Path()
                         dataPoints.forEachIndexed { index, point ->
@@ -387,14 +387,14 @@ private fun IntensityLineChart(
                             }
                             val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
                             val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
-                            
+
                             if (index == 0) {
                                 path.moveTo(x, y)
                             } else {
                                 path.lineTo(x, y)
                             }
                         }
-                        
+
                         // Draw the line (only if there are multiple points)
                         if (dataPoints.size > 1) {
                             drawPath(
@@ -402,11 +402,11 @@ private fun IntensityLineChart(
                                 color = primaryColor,
                                 style = Stroke(
                                     width = 3f,
-                                    cap = StrokeCap.Round
-                                )
+                                    cap = StrokeCap.Round,
+                                ),
                             )
                         }
-                        
+
                         // Draw data points
                         dataPoints.forEachIndexed { index, point ->
                             val hasValue = point.intensity > 0f
@@ -417,27 +417,27 @@ private fun IntensityLineChart(
                             }
                             val normalizedIntensity = (min(point.intensity, maxY) - minY) / yRange
                             val y = paddingTop + chartHeight - (normalizedIntensity * chartHeight)
-                            
+
                             // Respect toggle: draw only real data when hiding empty days
                             if (showEmptyDays || hasValue) {
                                 drawCircle(
                                     color = primaryColor,
                                     radius = 5f,
-                                    center = Offset(x, y)
+                                    center = Offset(x, y),
                                 )
                                 drawCircle(
                                     color = Color.White,
                                     radius = 2.5f,
-                                    center = Offset(x, y)
+                                    center = Offset(x, y),
                                 )
                             }
                         }
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             // Intensity scale indicator
             Text(
                 text = "Intensity: 0 (low) to 10 (high)",
@@ -455,14 +455,14 @@ private fun StatisticsCards(
     modifier: Modifier = Modifier,
 ) {
     val nonZeroPoints = dataPoints.filter { it.intensity > 0 }
-    
+
     if (nonZeroPoints.isEmpty()) return
-    
+
     val intensities = nonZeroPoints.map { it.intensity }
     val average = intensities.average().toFloat()
     val min = intensities.minOrNull() ?: 0f
     val max = intensities.maxOrNull() ?: 0f
-    
+
     val trend = if (nonZeroPoints.size >= 2) {
         val firstHalf = nonZeroPoints.take(nonZeroPoints.size / 2).map { it.intensity }.average()
         val secondHalf = nonZeroPoints.takeLast(nonZeroPoints.size / 2).map { it.intensity }.average()
@@ -567,17 +567,17 @@ private fun TrendCard(
         trend > TREND_THRESHOLD -> Triple(
             Icons.AutoMirrored.Filled.TrendingUp,
             MaterialTheme.colorScheme.error,
-            "Rising"
+            "Rising",
         )
         trend < -TREND_THRESHOLD -> Triple(
             Icons.AutoMirrored.Filled.TrendingDown,
             MaterialTheme.colorScheme.tertiary,
-            "Falling"
+            "Falling",
         )
         else -> Triple(
             Icons.Default.Info,
             MaterialTheme.colorScheme.onSurfaceVariant,
-            "Stable"
+            "Stable",
         )
     }
 
@@ -728,7 +728,7 @@ private fun FrequencyBarItem(
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = MaterialTheme.shapes.small,
-                )
+                ),
         ) {
             Box(
                 modifier = Modifier
@@ -737,7 +737,7 @@ private fun FrequencyBarItem(
                     .background(
                         color = color,
                         shape = MaterialTheme.shapes.small,
-                    )
+                    ),
             )
         }
     }

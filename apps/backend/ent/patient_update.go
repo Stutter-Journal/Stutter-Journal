@@ -7,6 +7,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"backend/ent/predicate"
 	"context"
@@ -107,6 +108,26 @@ func (_u *PatientUpdate) ClearEmail() *PatientUpdate {
 	return _u
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_u *PatientUpdate) SetPasswordHash(v string) *PatientUpdate {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *PatientUpdate) SetNillablePasswordHash(v *string) *PatientUpdate {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (_u *PatientUpdate) ClearPasswordHash() *PatientUpdate {
+	_u.mutation.ClearPasswordHash()
+	return _u
+}
+
 // SetPatientCode sets the "patient_code" field.
 func (_u *PatientUpdate) SetPatientCode(v string) *PatientUpdate {
 	_u.mutation.SetPatientCode(v)
@@ -152,6 +173,21 @@ func (_u *PatientUpdate) AddDoctorLinks(v ...*DoctorPatientLink) *PatientUpdate 
 		ids[i] = v[i].ID
 	}
 	return _u.AddDoctorLinkIDs(ids...)
+}
+
+// AddConsumedPairingCodeIDs adds the "consumed_pairing_codes" edge to the PairingCode entity by IDs.
+func (_u *PatientUpdate) AddConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientUpdate {
+	_u.mutation.AddConsumedPairingCodeIDs(ids...)
+	return _u
+}
+
+// AddConsumedPairingCodes adds the "consumed_pairing_codes" edges to the PairingCode entity.
+func (_u *PatientUpdate) AddConsumedPairingCodes(v ...*PairingCode) *PatientUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddConsumedPairingCodeIDs(ids...)
 }
 
 // AddEntryIDs adds the "entries" edge to the Entry entity by IDs.
@@ -223,6 +259,27 @@ func (_u *PatientUpdate) RemoveDoctorLinks(v ...*DoctorPatientLink) *PatientUpda
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDoctorLinkIDs(ids...)
+}
+
+// ClearConsumedPairingCodes clears all "consumed_pairing_codes" edges to the PairingCode entity.
+func (_u *PatientUpdate) ClearConsumedPairingCodes() *PatientUpdate {
+	_u.mutation.ClearConsumedPairingCodes()
+	return _u
+}
+
+// RemoveConsumedPairingCodeIDs removes the "consumed_pairing_codes" edge to PairingCode entities by IDs.
+func (_u *PatientUpdate) RemoveConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientUpdate {
+	_u.mutation.RemoveConsumedPairingCodeIDs(ids...)
+	return _u
+}
+
+// RemoveConsumedPairingCodes removes "consumed_pairing_codes" edges to PairingCode entities.
+func (_u *PatientUpdate) RemoveConsumedPairingCodes(v ...*PairingCode) *PatientUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveConsumedPairingCodeIDs(ids...)
 }
 
 // ClearEntries clears all "entries" edges to the Entry entity.
@@ -376,6 +433,12 @@ func (_u *PatientUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
 	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+	}
+	if _u.mutation.PasswordHashCleared() {
+		_spec.ClearField(patient.FieldPasswordHash, field.TypeString)
+	}
 	if value, ok := _u.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)
 	}
@@ -426,6 +489,51 @@ func (_u *PatientUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ConsumedPairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedConsumedPairingCodesIDs(); len(nodes) > 0 && !_u.mutation.ConsumedPairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ConsumedPairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -662,6 +770,26 @@ func (_u *PatientUpdateOne) ClearEmail() *PatientUpdateOne {
 	return _u
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_u *PatientUpdateOne) SetPasswordHash(v string) *PatientUpdateOne {
+	_u.mutation.SetPasswordHash(v)
+	return _u
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_u *PatientUpdateOne) SetNillablePasswordHash(v *string) *PatientUpdateOne {
+	if v != nil {
+		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (_u *PatientUpdateOne) ClearPasswordHash() *PatientUpdateOne {
+	_u.mutation.ClearPasswordHash()
+	return _u
+}
+
 // SetPatientCode sets the "patient_code" field.
 func (_u *PatientUpdateOne) SetPatientCode(v string) *PatientUpdateOne {
 	_u.mutation.SetPatientCode(v)
@@ -707,6 +835,21 @@ func (_u *PatientUpdateOne) AddDoctorLinks(v ...*DoctorPatientLink) *PatientUpda
 		ids[i] = v[i].ID
 	}
 	return _u.AddDoctorLinkIDs(ids...)
+}
+
+// AddConsumedPairingCodeIDs adds the "consumed_pairing_codes" edge to the PairingCode entity by IDs.
+func (_u *PatientUpdateOne) AddConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientUpdateOne {
+	_u.mutation.AddConsumedPairingCodeIDs(ids...)
+	return _u
+}
+
+// AddConsumedPairingCodes adds the "consumed_pairing_codes" edges to the PairingCode entity.
+func (_u *PatientUpdateOne) AddConsumedPairingCodes(v ...*PairingCode) *PatientUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddConsumedPairingCodeIDs(ids...)
 }
 
 // AddEntryIDs adds the "entries" edge to the Entry entity by IDs.
@@ -778,6 +921,27 @@ func (_u *PatientUpdateOne) RemoveDoctorLinks(v ...*DoctorPatientLink) *PatientU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveDoctorLinkIDs(ids...)
+}
+
+// ClearConsumedPairingCodes clears all "consumed_pairing_codes" edges to the PairingCode entity.
+func (_u *PatientUpdateOne) ClearConsumedPairingCodes() *PatientUpdateOne {
+	_u.mutation.ClearConsumedPairingCodes()
+	return _u
+}
+
+// RemoveConsumedPairingCodeIDs removes the "consumed_pairing_codes" edge to PairingCode entities by IDs.
+func (_u *PatientUpdateOne) RemoveConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientUpdateOne {
+	_u.mutation.RemoveConsumedPairingCodeIDs(ids...)
+	return _u
+}
+
+// RemoveConsumedPairingCodes removes "consumed_pairing_codes" edges to PairingCode entities.
+func (_u *PatientUpdateOne) RemoveConsumedPairingCodes(v ...*PairingCode) *PatientUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveConsumedPairingCodeIDs(ids...)
 }
 
 // ClearEntries clears all "entries" edges to the Entry entity.
@@ -961,6 +1125,12 @@ func (_u *PatientUpdateOne) sqlSave(ctx context.Context) (_node *Patient, err er
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
 	}
+	if value, ok := _u.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+	}
+	if _u.mutation.PasswordHashCleared() {
+		_spec.ClearField(patient.FieldPasswordHash, field.TypeString)
+	}
 	if value, ok := _u.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)
 	}
@@ -1011,6 +1181,51 @@ func (_u *PatientUpdateOne) sqlSave(ctx context.Context) (_node *Patient, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ConsumedPairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedConsumedPairingCodesIDs(); len(nodes) > 0 && !_u.mutation.ConsumedPairingCodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ConsumedPairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

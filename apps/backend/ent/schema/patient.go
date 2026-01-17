@@ -32,6 +32,9 @@ func (Patient) Fields() []ent.Field {
 		// optional patient-side identity fields if you need invite flows by email
 		field.String("email").Optional().Nillable(),
 
+		// optional until a patient registers (legacy/invited patients may not have credentials)
+		field.String("password_hash").Optional().Nillable().Sensitive().Comment("bcrypt hash of the patient's password"),
+
 		// optional code for "doctor code / patient code" flows
 		field.String("patient_code").Optional().Nillable(),
 
@@ -51,6 +54,7 @@ func (Patient) Indexes() []ent.Index {
 func (Patient) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("doctor_links", DoctorPatientLink.Type),
+		edge.To("consumed_pairing_codes", PairingCode.Type),
 		edge.To("entries", Entry.Type),
 		edge.To("analysis_jobs", AnalysisJob.Type),
 		edge.To("entry_shares", EntryShare.Type),

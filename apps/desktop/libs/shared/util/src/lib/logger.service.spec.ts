@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { LoggerService } from './logger.service';
 
+import { describe, beforeEach, it } from 'vitest';
+
 describe('LoggerService', () => {
   let service: LoggerService;
 

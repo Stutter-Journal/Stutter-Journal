@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod, schemas } from '@org/contracts';
 import { BffService } from './bff.service';
-import { serverAnalyticsResponseSchema } from './schemas';
 
 @Controller('patients/:id/analytics')
 export class AnalyticsController {
@@ -26,7 +26,13 @@ export class AnalyticsController {
       res,
       path,
       method: 'GET',
-      schema: serverAnalyticsResponseSchema,
+      schema: contractsZod.getPatientsIdAnalyticsResponse,
+      schemasByStatus: {
+        200: contractsZod.getPatientsIdAnalyticsResponse,
+        400: schemas.serverErrorResponseSchema,
+        401: schemas.serverErrorResponseSchema,
+        403: schemas.serverErrorResponseSchema,
+      },
     });
   }
 }

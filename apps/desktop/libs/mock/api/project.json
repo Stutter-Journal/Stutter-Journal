@@ -1,0 +1,16 @@
+{
+  "name": "api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/mock/api/src",
+  "prefix": "lib",
+  "tags": ["type:feature"],
+  "targets": {
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "tsConfig": "libs/mock/api/tsconfig.spec.json"
+      }
+    }
+  }
+}

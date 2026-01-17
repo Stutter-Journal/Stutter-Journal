@@ -45,6 +45,8 @@ type DoctorEdges struct {
 	Practice *Practice `json:"practice,omitempty"`
 	// PatientLinks holds the value of the patient_links edge.
 	PatientLinks []*DoctorPatientLink `json:"patient_links,omitempty"`
+	// PairingCodes holds the value of the pairing_codes edge.
+	PairingCodes []*PairingCode `json:"pairing_codes,omitempty"`
 	// ApprovedPatientLinks holds the value of the approved_patient_links edge.
 	ApprovedPatientLinks []*DoctorPatientLink `json:"approved_patient_links,omitempty"`
 	// EntryShares holds the value of the entry_shares edge.
@@ -55,7 +57,7 @@ type DoctorEdges struct {
 	CreatedAnalysisJobs []*AnalysisJob `json:"created_analysis_jobs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // PracticeOrErr returns the Practice value or an error if the edge
@@ -78,10 +80,19 @@ func (e DoctorEdges) PatientLinksOrErr() ([]*DoctorPatientLink, error) {
 	return nil, &NotLoadedError{edge: "patient_links"}
 }
 
+// PairingCodesOrErr returns the PairingCodes value or an error if the edge
+// was not loaded in eager-loading.
+func (e DoctorEdges) PairingCodesOrErr() ([]*PairingCode, error) {
+	if e.loadedTypes[2] {
+		return e.PairingCodes, nil
+	}
+	return nil, &NotLoadedError{edge: "pairing_codes"}
+}
+
 // ApprovedPatientLinksOrErr returns the ApprovedPatientLinks value or an error if the edge
 // was not loaded in eager-loading.
 func (e DoctorEdges) ApprovedPatientLinksOrErr() ([]*DoctorPatientLink, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.ApprovedPatientLinks, nil
 	}
 	return nil, &NotLoadedError{edge: "approved_patient_links"}
@@ -90,7 +101,7 @@ func (e DoctorEdges) ApprovedPatientLinksOrErr() ([]*DoctorPatientLink, error) {
 // EntrySharesOrErr returns the EntryShares value or an error if the edge
 // was not loaded in eager-loading.
 func (e DoctorEdges) EntrySharesOrErr() ([]*EntryShare, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.EntryShares, nil
 	}
 	return nil, &NotLoadedError{edge: "entry_shares"}
@@ -99,7 +110,7 @@ func (e DoctorEdges) EntrySharesOrErr() ([]*EntryShare, error) {
 // CommentsOrErr returns the Comments value or an error if the edge
 // was not loaded in eager-loading.
 func (e DoctorEdges) CommentsOrErr() ([]*Comment, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.Comments, nil
 	}
 	return nil, &NotLoadedError{edge: "comments"}
@@ -108,7 +119,7 @@ func (e DoctorEdges) CommentsOrErr() ([]*Comment, error) {
 // CreatedAnalysisJobsOrErr returns the CreatedAnalysisJobs value or an error if the edge
 // was not loaded in eager-loading.
 func (e DoctorEdges) CreatedAnalysisJobsOrErr() ([]*AnalysisJob, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.CreatedAnalysisJobs, nil
 	}
 	return nil, &NotLoadedError{edge: "created_analysis_jobs"}
@@ -212,6 +223,11 @@ func (_m *Doctor) QueryPractice() *PracticeQuery {
 // QueryPatientLinks queries the "patient_links" edge of the Doctor entity.
 func (_m *Doctor) QueryPatientLinks() *DoctorPatientLinkQuery {
 	return NewDoctorClient(_m.config).QueryPatientLinks(_m)
+}
+
+// QueryPairingCodes queries the "pairing_codes" edge of the Doctor entity.
+func (_m *Doctor) QueryPairingCodes() *PairingCodeQuery {
+	return NewDoctorClient(_m.config).QueryPairingCodes(_m)
 }
 
 // QueryApprovedPatientLinks queries the "approved_patient_links" edge of the Doctor entity.

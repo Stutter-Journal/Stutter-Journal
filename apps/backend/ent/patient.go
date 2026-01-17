@@ -30,6 +30,8 @@ type Patient struct {
 	Status patient.Status `json:"status,omitempty"`
 	// Email holds the value of the "email" field.
 	Email *string `json:"email,omitempty"`
+	// bcrypt hash of the patient's password
+	PasswordHash *string `json:"-"`
 	// PatientCode holds the value of the "patient_code" field.
 	PatientCode *string `json:"patient_code,omitempty"`
 	// LastEntryAt holds the value of the "last_entry_at" field.
@@ -44,6 +46,8 @@ type Patient struct {
 type PatientEdges struct {
 	// DoctorLinks holds the value of the doctor_links edge.
 	DoctorLinks []*DoctorPatientLink `json:"doctor_links,omitempty"`
+	// ConsumedPairingCodes holds the value of the consumed_pairing_codes edge.
+	ConsumedPairingCodes []*PairingCode `json:"consumed_pairing_codes,omitempty"`
 	// Entries holds the value of the entries edge.
 	Entries []*Entry `json:"entries,omitempty"`
 	// AnalysisJobs holds the value of the analysis_jobs edge.
@@ -52,7 +56,7 @@ type PatientEdges struct {
 	EntryShares []*EntryShare `json:"entry_shares,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // DoctorLinksOrErr returns the DoctorLinks value or an error if the edge
@@ -64,10 +68,19 @@ func (e PatientEdges) DoctorLinksOrErr() ([]*DoctorPatientLink, error) {
 	return nil, &NotLoadedError{edge: "doctor_links"}
 }
 
+// ConsumedPairingCodesOrErr returns the ConsumedPairingCodes value or an error if the edge
+// was not loaded in eager-loading.
+func (e PatientEdges) ConsumedPairingCodesOrErr() ([]*PairingCode, error) {
+	if e.loadedTypes[1] {
+		return e.ConsumedPairingCodes, nil
+	}
+	return nil, &NotLoadedError{edge: "consumed_pairing_codes"}
+}
+
 // EntriesOrErr returns the Entries value or an error if the edge
 // was not loaded in eager-loading.
 func (e PatientEdges) EntriesOrErr() ([]*Entry, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.Entries, nil
 	}
 	return nil, &NotLoadedError{edge: "entries"}
@@ -76,7 +89,7 @@ func (e PatientEdges) EntriesOrErr() ([]*Entry, error) {
 // AnalysisJobsOrErr returns the AnalysisJobs value or an error if the edge
 // was not loaded in eager-loading.
 func (e PatientEdges) AnalysisJobsOrErr() ([]*AnalysisJob, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.AnalysisJobs, nil
 	}
 	return nil, &NotLoadedError{edge: "analysis_jobs"}
@@ -85,7 +98,7 @@ func (e PatientEdges) AnalysisJobsOrErr() ([]*AnalysisJob, error) {
 // EntrySharesOrErr returns the EntryShares value or an error if the edge
 // was not loaded in eager-loading.
 func (e PatientEdges) EntrySharesOrErr() ([]*EntryShare, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.EntryShares, nil
 	}
 	return nil, &NotLoadedError{edge: "entry_shares"}
@@ -96,7 +109,7 @@ func (*Patient) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case patient.FieldDisplayName, patient.FieldStatus, patient.FieldEmail, patient.FieldPatientCode:
+		case patient.FieldDisplayName, patient.FieldStatus, patient.FieldEmail, patient.FieldPasswordHash, patient.FieldPatientCode:
 			values[i] = new(sql.NullString)
 		case patient.FieldCreatedAt, patient.FieldUpdatedAt, patient.FieldBirthDate, patient.FieldLastEntryAt:
 			values[i] = new(sql.NullTime)
@@ -161,6 +174,13 @@ func (_m *Patient) assignValues(columns []string, values []any) error {
 				_m.Email = new(string)
 				*_m.Email = value.String
 			}
+		case patient.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value.Valid {
+				_m.PasswordHash = new(string)
+				*_m.PasswordHash = value.String
+			}
 		case patient.FieldPatientCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field patient_code", values[i])
@@ -191,6 +211,11 @@ func (_m *Patient) Value(name string) (ent.Value, error) {
 // QueryDoctorLinks queries the "doctor_links" edge of the Patient entity.
 func (_m *Patient) QueryDoctorLinks() *DoctorPatientLinkQuery {
 	return NewPatientClient(_m.config).QueryDoctorLinks(_m)
+}
+
+// QueryConsumedPairingCodes queries the "consumed_pairing_codes" edge of the Patient entity.
+func (_m *Patient) QueryConsumedPairingCodes() *PairingCodeQuery {
+	return NewPatientClient(_m.config).QueryConsumedPairingCodes(_m)
 }
 
 // QueryEntries queries the "entries" edge of the Patient entity.
@@ -252,6 +277,8 @@ func (_m *Patient) String() string {
 		builder.WriteString("email=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")
 	if v := _m.PatientCode; v != nil {
 		builder.WriteString("patient_code=")

@@ -26,7 +26,14 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          allow: [
+            '^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$',
+            'xstate',
+            'xstate/*',
+            'rxjs',
+            'rxjs/*',
+            '@angular/core/rxjs-interop',
+          ],
           depConstraints: [
             {
               sourceTag: 'scope:shared',
@@ -60,6 +67,7 @@ export default [
                 'type:ui',
                 'type:util',
                 'type:model',
+                'npm:public',
               ],
             },
             {
@@ -73,6 +81,16 @@ export default [
             {
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: ['type:util', 'type:model'],
+            },
+            {
+              sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:data-access',
+                'type:ui',
+                'type:util',
+                'type:model',
+              ],
             },
           ],
         },

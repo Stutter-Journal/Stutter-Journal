@@ -11,6 +11,7 @@ import (
 
 	"backend/internal/database"
 	"backend/internal/server"
+	"backend/internal/server/docs"
 
 	"github.com/charmbracelet/lipgloss"
 	log "github.com/charmbracelet/log"
@@ -63,7 +64,7 @@ func main() {
 		PaddingTop(0).PaddingBottom(1).
 		Align(lipgloss.Center)
 
-	title := titleStyle.Render("My Awesome App")
+	title := titleStyle.Render("Eloquia Backend")
 	subtitle := subtitleStyle.Render("A tiny TUI powered by Lip Gloss")
 
 	fmt.Println(title)
@@ -80,6 +81,10 @@ func main() {
 	}
 
 	server := server.NewServer(dbClient)
+	// Configure Swagger metadata served at /docs.
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)

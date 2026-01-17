@@ -2,9 +2,12 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - '@parcel/watcher'
   - '@swc/core'
+  - core-js
+  - cypress
   - esbuild
   - less
   - lmdb
   - msgpackr-extract
+  - msw
   - nx
   - unrs-resolver

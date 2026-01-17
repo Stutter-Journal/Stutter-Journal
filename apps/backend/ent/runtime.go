@@ -9,6 +9,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"backend/ent/practice"
 	"backend/ent/schema"
@@ -175,6 +176,45 @@ func init() {
 	entryshareDescID := entryshareMixinFields0[0].Descriptor()
 	// entryshare.DefaultID holds the default value on creation for the id field.
 	entryshare.DefaultID = entryshareDescID.Default.(func() uuid.UUID)
+	pairingcodeMixin := schema.PairingCode{}.Mixin()
+	pairingcodeMixinFields0 := pairingcodeMixin[0].Fields()
+	_ = pairingcodeMixinFields0
+	pairingcodeMixinFields1 := pairingcodeMixin[1].Fields()
+	_ = pairingcodeMixinFields1
+	pairingcodeFields := schema.PairingCode{}.Fields()
+	_ = pairingcodeFields
+	// pairingcodeDescCreatedAt is the schema descriptor for created_at field.
+	pairingcodeDescCreatedAt := pairingcodeMixinFields1[0].Descriptor()
+	// pairingcode.DefaultCreatedAt holds the default value on creation for the created_at field.
+	pairingcode.DefaultCreatedAt = pairingcodeDescCreatedAt.Default.(func() time.Time)
+	// pairingcodeDescUpdatedAt is the schema descriptor for updated_at field.
+	pairingcodeDescUpdatedAt := pairingcodeMixinFields1[1].Descriptor()
+	// pairingcode.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	pairingcode.DefaultUpdatedAt = pairingcodeDescUpdatedAt.Default.(func() time.Time)
+	// pairingcode.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	pairingcode.UpdateDefaultUpdatedAt = pairingcodeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// pairingcodeDescCode is the schema descriptor for code field.
+	pairingcodeDescCode := pairingcodeFields[0].Descriptor()
+	// pairingcode.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	pairingcode.CodeValidator = func() func(string) error {
+		validators := pairingcodeDescCode.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(code string) error {
+			for _, fn := range fns {
+				if err := fn(code); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// pairingcodeDescID is the schema descriptor for id field.
+	pairingcodeDescID := pairingcodeMixinFields0[0].Descriptor()
+	// pairingcode.DefaultID holds the default value on creation for the id field.
+	pairingcode.DefaultID = pairingcodeDescID.Default.(func() uuid.UUID)
 	patientMixin := schema.Patient{}.Mixin()
 	patientMixinFields0 := patientMixin[0].Fields()
 	_ = patientMixinFields0
@@ -197,7 +237,7 @@ func init() {
 	// patient.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	patient.DisplayNameValidator = patientDescDisplayName.Validators[0].(func(string) error)
 	// patientDescLastEntryAt is the schema descriptor for last_entry_at field.
-	patientDescLastEntryAt := patientFields[5].Descriptor()
+	patientDescLastEntryAt := patientFields[6].Descriptor()
 	// patient.UpdateDefaultLastEntryAt holds the default value on update for the last_entry_at field.
 	patient.UpdateDefaultLastEntryAt = patientDescLastEntryAt.UpdateDefault.(func() time.Time)
 	// patientDescID is the schema descriptor for id field.

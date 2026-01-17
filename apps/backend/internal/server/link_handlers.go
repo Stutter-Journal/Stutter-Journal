@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"backend/ent"
 	"backend/ent/doctorpatientlink"
 	"backend/ent/patient"
+	internal_errors "backend/internal/server/errors"
 
 	"github.com/charmbracelet/log"
 	"github.com/google/uuid"
@@ -42,9 +44,13 @@ type patientDTO struct {
 	Code        *string `json:"patientCode,omitempty"`
 }
 
+type patientRowDTO struct {
+	Patient patientDTO `json:"patient"`
+	Link    linkDTO    `json:"link"`
+}
+
 type patientsListResponse struct {
-	Patients     []patientDTO `json:"patients"`
-	PendingLinks []linkDTO    `json:"pendingLinks"`
+	Rows []patientRowDTO `json:"rows"`
 }
 
 // inviteLinkHandler invites or creates a patient and establishes a pending link.
@@ -71,8 +77,14 @@ func (s *Server) inviteLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := s.resolveOrCreatePatient(r.Context(), req)
+	p, err := s.resolvePatient(r.Context(), req)
 	if err != nil {
+		// resolvePatient already returns user-safe errors in the right cases
+		if errors.Is(err, internal_errors.ErrPatientNotFound) {
+			s.writeError(w, http.StatusNotFound, err.Error())
+			return
+		}
+
 		s.writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -82,6 +94,7 @@ func (s *Server) inviteLinkHandler(w http.ResponseWriter, r *http.Request) {
 		SetDoctorID(doc.ID).
 		SetPatientID(p.ID).
 		Save(r.Context())
+
 	if ent.IsConstraintError(err) {
 		s.writeError(w, http.StatusConflict, "link already exists")
 		return
@@ -190,85 +203,124 @@ func (s *Server) listPatientsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
+	search := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("search")))
 
-	approvedLinks, err := s.Db.Ent().DoctorPatientLink.Query().
+	links, err := s.Db.Ent().DoctorPatientLink.
+		Query().
 		Where(
 			doctorpatientlink.DoctorIDEQ(doc.ID),
-			doctorpatientlink.StatusEQ(doctorpatientlink.StatusApproved),
+			// include revoked so the UI can show it
+			doctorpatientlink.StatusIn(
+				doctorpatientlink.StatusApproved,
+				doctorpatientlink.StatusPending,
+				doctorpatientlink.StatusRevoked,
+				// include denied if you want it visible:
+				// doctorpatientlink.StatusDenied,
+			),
 		).
 		WithPatient().
+		Order(ent.Desc(doctorpatientlink.FieldRequestedAt)).
 		All(ctx)
 	if err != nil {
-		log.Error("failed to list approved links", "err", err)
+		log.Error("failed to list doctor links", "err", err)
 		s.writeError(w, http.StatusInternalServerError, "could not list patients")
 		return
 	}
 
-	pendingLinks, err := s.Db.Ent().DoctorPatientLink.Query().
-		Where(
-			doctorpatientlink.DoctorIDEQ(doc.ID),
-			doctorpatientlink.StatusEQ(doctorpatientlink.StatusPending),
-		).
-		WithPatient().
-		All(ctx)
-	if err != nil {
-		log.Error("failed to list pending links", "err", err)
-		s.writeError(w, http.StatusInternalServerError, "could not list patients")
-		return
-	}
+	resp := patientsListResponse{Rows: make([]patientRowDTO, 0, len(links))}
 
-	resp := patientsListResponse{
-		Patients:     []patientDTO{},
-		PendingLinks: []linkDTO{},
-	}
+	for _, l := range links {
+		p := l.Edges.Patient
+		if p == nil {
+			continue
+		}
 
-	for _, l := range approvedLinks {
-		resp.Patients = append(resp.Patients, buildPatientDTO(l.Edges.Patient))
-	}
-	for _, l := range pendingLinks {
-		resp.PendingLinks = append(resp.PendingLinks, buildLinkDTO(l))
+		if search != "" && !patientMatchesSearch(p, search) {
+			continue
+		}
+
+		resp.Rows = append(resp.Rows, patientRowDTO{
+			Patient: buildPatientDTO(p),
+			Link:    buildLinkDTO(l),
+		})
 	}
 
 	s.writeJSON(w, http.StatusOK, resp)
 }
 
-func (s *Server) resolveOrCreatePatient(ctx context.Context, req linkInviteRequest) (*ent.Patient, error) {
+func patientMatchesSearch(p *ent.Patient, search string) bool {
+	if strings.Contains(strings.ToLower(strings.TrimSpace(p.DisplayName)), search) {
+		return true
+	}
+	if p.Email != nil && strings.Contains(strings.ToLower(strings.TrimSpace(*p.Email)), search) {
+		return true
+	}
+	if p.PatientCode != nil && strings.Contains(strings.ToLower(strings.TrimSpace(*p.PatientCode)), search) {
+		return true
+	}
+	return false
+}
+
+func (s *Server) resolvePatient(ctx context.Context, req linkInviteRequest) (*ent.Patient, error) {
 	q := s.Db.Ent().Patient.Query()
 
 	switch {
-	case req.PatientID != nil:
+	case req.PatientID != nil && strings.TrimSpace(*req.PatientID) != "":
 		id, err := uuid.Parse(strings.TrimSpace(*req.PatientID))
 		if err != nil {
-			return nil, err
+			return nil, errors.New("invalid patientId")
 		}
-		return s.Db.Ent().Patient.Get(ctx, id)
+		p, err := s.Db.Ent().Patient.Get(ctx, id)
+		if ent.IsNotFound(err) {
+			return nil, internal_errors.ErrPatientNotFound
+		}
+		return p, err
+
 	case req.PatientEmail != nil && strings.TrimSpace(*req.PatientEmail) != "":
 		email := strings.ToLower(strings.TrimSpace(*req.PatientEmail))
-		existing, err := q.Where(patient.EmailEQ(email)).Only(ctx)
-		if err == nil {
-			return existing, nil
+		p, err := q.Where(patient.EmailEQ(email)).Only(ctx)
+		if ent.IsNotFound(err) {
+			displayName := strings.TrimSpace(valOrDefault(req.DisplayName, ""))
+			if displayName == "" {
+				return nil, errors.New("displayName is required")
+			}
+
+			created, createErr := s.Db.Ent().Patient.
+				Create().
+				SetEmail(email).
+				SetDisplayName(displayName).
+				Save(ctx)
+			if ent.IsConstraintError(createErr) {
+				// Another request may have created it concurrently; fetch and continue.
+				return q.Where(patient.EmailEQ(email)).Only(ctx)
+			}
+			return created, createErr
 		}
-		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
-		return s.Db.Ent().Patient.Create().
-			SetEmail(email).
-			SetDisplayName(name).
-			Save(ctx)
+		return p, err
+
 	case req.PatientCode != nil && strings.TrimSpace(*req.PatientCode) != "":
 		code := strings.TrimSpace(*req.PatientCode)
-		existing, err := q.Where(patient.PatientCodeEQ(code)).Only(ctx)
-		if err == nil {
-			return existing, nil
+		p, err := q.Where(patient.PatientCodeEQ(code)).Only(ctx)
+		if ent.IsNotFound(err) {
+			displayName := strings.TrimSpace(valOrDefault(req.DisplayName, ""))
+			if displayName == "" {
+				return nil, errors.New("displayName is required")
+			}
+
+			created, createErr := s.Db.Ent().Patient.
+				Create().
+				SetPatientCode(code).
+				SetDisplayName(displayName).
+				Save(ctx)
+			if ent.IsConstraintError(createErr) {
+				return q.Where(patient.PatientCodeEQ(code)).Only(ctx)
+			}
+			return created, createErr
 		}
-		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
-		return s.Db.Ent().Patient.Create().
-			SetPatientCode(code).
-			SetDisplayName(name).
-			Save(ctx)
+		return p, err
+
 	default:
-		name := strings.TrimSpace(valOrDefault(req.DisplayName, "Patient"))
-		return s.Db.Ent().Patient.Create().
-			SetDisplayName(name).
-			Save(ctx)
+		return nil, errors.New("provide patientId, patientEmail, or patientCode")
 	}
 }
 

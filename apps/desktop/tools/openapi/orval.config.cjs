@@ -8,20 +8,31 @@ const input =
  */
 const path = require('path');
 
-const target = path.resolve(
-  __dirname,
-  '../..',
-  'libs/shared/api/contracts/src/generated/index.ts',
-);
-
 module.exports = {
   eloquia: {
     input,
     output: {
-      target,
+      target: path.resolve(
+        __dirname,
+        '../..',
+        'libs/shared/api/contracts/src/generated/index.ts',
+      ),
       client: 'fetch',
       baseUrl: process.env.ELOQUIA_API_BASE_URL || 'http://localhost:8080',
-      clean: true,
+      clean: false, // keep zod sidecar in same folder
+    },
+  },
+  eloquiaZod: {
+    input,
+    output: {
+      client: 'zod',
+      mode: 'single',
+      target: path.resolve(
+        __dirname,
+        '../..',
+        'libs/shared/api/contracts/src/generated/zod.ts',
+      ),
+      clean: false, // do not delete fetch client when generating zod
     },
   },
 };

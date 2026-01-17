@@ -7,6 +7,7 @@ import (
 	"backend/ent/doctorpatientlink"
 	"backend/ent/entry"
 	"backend/ent/entryshare"
+	"backend/ent/pairingcode"
 	"backend/ent/patient"
 	"context"
 	"errors"
@@ -101,6 +102,20 @@ func (_c *PatientCreate) SetNillableEmail(v *string) *PatientCreate {
 	return _c
 }
 
+// SetPasswordHash sets the "password_hash" field.
+func (_c *PatientCreate) SetPasswordHash(v string) *PatientCreate {
+	_c.mutation.SetPasswordHash(v)
+	return _c
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (_c *PatientCreate) SetNillablePasswordHash(v *string) *PatientCreate {
+	if v != nil {
+		_c.SetPasswordHash(*v)
+	}
+	return _c
+}
+
 // SetPatientCode sets the "patient_code" field.
 func (_c *PatientCreate) SetPatientCode(v string) *PatientCreate {
 	_c.mutation.SetPatientCode(v)
@@ -156,6 +171,21 @@ func (_c *PatientCreate) AddDoctorLinks(v ...*DoctorPatientLink) *PatientCreate 
 		ids[i] = v[i].ID
 	}
 	return _c.AddDoctorLinkIDs(ids...)
+}
+
+// AddConsumedPairingCodeIDs adds the "consumed_pairing_codes" edge to the PairingCode entity by IDs.
+func (_c *PatientCreate) AddConsumedPairingCodeIDs(ids ...uuid.UUID) *PatientCreate {
+	_c.mutation.AddConsumedPairingCodeIDs(ids...)
+	return _c
+}
+
+// AddConsumedPairingCodes adds the "consumed_pairing_codes" edges to the PairingCode entity.
+func (_c *PatientCreate) AddConsumedPairingCodes(v ...*PairingCode) *PatientCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddConsumedPairingCodeIDs(ids...)
 }
 
 // AddEntryIDs adds the "entries" edge to the Entry entity by IDs.
@@ -339,6 +369,10 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 		_spec.SetField(patient.FieldEmail, field.TypeString, value)
 		_node.Email = &value
 	}
+	if value, ok := _c.mutation.PasswordHash(); ok {
+		_spec.SetField(patient.FieldPasswordHash, field.TypeString, value)
+		_node.PasswordHash = &value
+	}
 	if value, ok := _c.mutation.PatientCode(); ok {
 		_spec.SetField(patient.FieldPatientCode, field.TypeString, value)
 		_node.PatientCode = &value
@@ -356,6 +390,22 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(doctorpatientlink.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ConsumedPairingCodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   patient.ConsumedPairingCodesTable,
+			Columns: []string{patient.ConsumedPairingCodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pairingcode.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

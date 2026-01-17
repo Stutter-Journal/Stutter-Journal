@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "KMP-App-Template"
+rootProject.name = "Eloquia"
 
 pluginManagement {
     includeBuild("build-logic")
@@ -27,6 +27,7 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
+        maven("https://maven.pkg.jetbrains.space/public/p/moko/moko")
         mavenCentral()
     }
 }
@@ -36,9 +37,13 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":composeApp")
 include(":core:data")
 include(":core:domain")
+include(":core:network:ktor")
+include(":core:network:api")
+include(":core:permissions")
 include(":core:theme")
+include(":features:auth")
+include(":tests:architecture")
 include(":features:entries")
 include(":features:progress")
 include(":features:support")
-include(":tests:architecture")
-
+include(":features:therapist")

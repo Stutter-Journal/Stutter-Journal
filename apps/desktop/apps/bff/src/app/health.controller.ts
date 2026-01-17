@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { contractsZod } from '@org/contracts';
 import { BffService } from './bff.service';
-import { serverStatusResponseSchema } from './schemas';
 
 @Controller()
 export class HealthController {
@@ -14,7 +14,10 @@ export class HealthController {
       res,
       path: '/health',
       method: 'GET',
-      schema: serverStatusResponseSchema,
+      schema: contractsZod.getHealthResponse,
+      schemasByStatus: {
+        200: contractsZod.getHealthResponse,
+      },
     });
   }
 
@@ -25,7 +28,11 @@ export class HealthController {
       res,
       path: '/ready',
       method: 'GET',
-      schema: serverStatusResponseSchema,
+      schema: contractsZod.getReadyResponse,
+      schemasByStatus: {
+        200: contractsZod.getReadyResponse,
+        503: contractsZod.getReadyResponse,
+      },
     });
   }
 }

@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -56,6 +59,8 @@ fun MainScaffoldWithModalWideNavigationRail(
     selectedTab: MainTab,
     onSelectTab: (MainTab) -> Unit,
     onAddConnection: () -> Unit,
+    onSync: () -> Unit = {},
+    isSyncing: Boolean = false,
     onLogout: () -> Unit,
     railState: WideNavigationRailState = rememberWideNavigationRailState(),
     snackbarHost: @Composable () -> Unit = {},
@@ -185,6 +190,61 @@ fun MainScaffoldWithModalWideNavigationRail(
                                     }
                                 },
                             )
+                        }
+
+                        Spacer(modifier = Modifier.padding(top = 8.dp))
+
+                        AnimatedContent(
+                            targetState = railExpanded,
+                            transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        ) { expanded ->
+                            if (expanded) {
+                                ExtendedFloatingActionButton(
+                                    modifier = Modifier.padding(start = 24.dp),
+                                    onClick = {
+                                        if (!isSyncing) {
+                                            onSync()
+                                            scope.launch { railState.collapse() }
+                                        }
+                                    },
+                                    icon = {
+                                        if (isSyncing) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                strokeWidth = 2.dp,
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Sync,
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    },
+                                    text = { Text(if (isSyncing) "Syncing…" else "Sync data") },
+                                )
+                            } else {
+                                FloatingActionButton(
+                                    modifier = Modifier.padding(start = 24.dp),
+                                    onClick = {
+                                        if (!isSyncing) {
+                                            onSync()
+                                            scope.launch { railState.collapse() }
+                                        }
+                                    },
+                                ) {
+                                    if (isSyncing) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp,
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Sync,
+                                            contentDescription = "Sync data",
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 

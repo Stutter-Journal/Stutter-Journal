@@ -1,1 +1,144 @@
-<p>FeatEntryList works!</p>
+<div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+  <!-- Header -->
+  <div
+    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div>
+      <div class="text-sm text-muted-foreground">Dashboard</div>
+      <div class="text-2xl font-semibold leading-tight">Entries</div>
+      <div class="mt-1 text-sm text-muted-foreground">
+        Shared notes across your connected patients
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="refresh()"
+        [disabled]="loading()"
+        hlmBtn
+        type="button"
+        variant="outline"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="rounded-lg border bg-card p-4">
+    <div
+      class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+    >
+      <div class="flex flex-1 flex-col gap-2 md:flex-row md:items-center">
+        <input
+          (input)="onQueryInput(($any($event.target)).value)"
+          [value]="query()"
+          class="w-full md:max-w-sm"
+          hlmInput
+          placeholder="Search by patient, notes, or tags..."
+          type="search"
+        />
+      </div>
+
+      <div class="text-sm text-muted-foreground">{{ totalItems() }} total</div>
+    </div>
+
+    @if (error()) {
+    <div class="mt-3 text-sm text-destructive">
+      {{ error()?.message }}
+    </div>
+    }
+
+    <!-- Table / Empty -->
+    <div class="mt-4">
+      @if (loading()) {
+      <div class="text-sm text-muted-foreground">Loading entries...</div>
+      } @else {
+      @if (totalItems() === 0) {
+      <div class="border bg-background/50" hlmEmpty>
+        <div hlmEmptyHeader>
+          <div hlmEmptyTitle>No entries yet</div>
+          <div hlmEmptyDescription>
+            Entries shared by connected patients will appear here.
+          </div>
+        </div>
+
+        <div hlmItemFooter>
+          <button (click)="refresh()" hlmBtn type="button" variant="outline">
+            Refresh
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div hlmTableContainer>
+        <table hlmTable>
+          <caption hlmCaption>
+            Entries
+          </caption>
+
+          <thead hlmTHead>
+            <tr hlmTr>
+              <th hlmTh>Patient</th>
+              <th class="w-[180px]" hlmTh>When</th>
+              <th hlmTh>Notes</th>
+              <th class="w-[180px]" hlmTh>Tags</th>
+              <th class="w-[120px] text-right" hlmTh>Stutter freq.</th>
+            </tr>
+          </thead>
+
+          <tbody hlmTBody>
+            @for (entry of pageRows(); track entry.id) {
+            <tr hlmTr>
+              <td class="font-medium" hlmTd>
+                {{ entry.patientName }}
+                <div class="text-xs text-muted-foreground">
+                  {{ entry.patientId }}
+                </div>
+              </td>
+
+              <td hlmTd>{{ fmtDateTime(entry.happenedAt) }}</td>
+
+              <td class="max-w-[360px] whitespace-normal text-sm" hlmTd>
+                {{ entry.notesPreview }}
+              </td>
+
+              <td hlmTd>
+                @if (entry.tags.length === 0) {
+                <span class="text-sm text-muted-foreground">-</span>
+                } @else {
+                <div class="flex flex-wrap gap-1">
+                  @for (tag of entry.tags.slice(0, 3); track tag) {
+                  <span hlmBadge variant="secondary">{{ tag }}</span>
+                  }
+                  @if (entry.tags.length > 3) {
+                  <span class="text-xs text-muted-foreground">
+                    +{{ entry.tags.length - 3 }}
+                  </span>
+                  }
+                </div>
+                }
+              </td>
+
+              <td class="text-right" hlmTd>
+                {{ fmtStutterFrequency(entry.stutterFrequency) }}
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex items-center justify-end">
+        <hlm-numbered-pagination
+          (currentPageChange)="page.set($event)"
+          (itemsPerPageChange)="pageSize.set($event); page.set(1)"
+          [currentPage]="page()"
+          [itemsPerPage]="pageSize()"
+          [totalItems]="totalItems()"
+        />
+      </div>
+      }
+      }
+    </div>
+  </div>
+</div>

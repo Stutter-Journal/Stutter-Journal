@@ -10,7 +10,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class EntriesClientService {
-  private readonly baseUrl = 'api';
+  private readonly baseUrl = '/api';
   private readonly http = inject(HttpClient);
 
   private readonly loadingSig = signal(false);

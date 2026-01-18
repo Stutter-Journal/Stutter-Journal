@@ -13,6 +13,11 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('@org/dashboard').then((m) => m.Dashboard),
     children: [
       {
+        path: 'entries',
+        loadComponent: () =>
+          import('@org/feat-entry-list').then((m) => m.FeatEntryList),
+      },
+      {
         path: 'patients',
         loadComponent: () =>
           import('@org/feat-patients-overview').then(

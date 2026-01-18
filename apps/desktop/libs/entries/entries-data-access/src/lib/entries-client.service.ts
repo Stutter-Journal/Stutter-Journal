@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { ErrorResponse, normalizeError } from '@org/util';
+import { ErrorResponse } from '@org/util';
 import {
+  execute,
   GetPatientsIdEntriesParams,
   ServerEntriesResponse,
   ServerEntryDTO,
@@ -10,6 +10,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class EntriesClientService {
+  private readonly baseUrl = 'api';
   private readonly http = inject(HttpClient);
 
   private readonly loadingSig = signal(false);
@@ -33,26 +34,12 @@ export class EntriesClientService {
       },
     });
 
-    const response = await this.execute(() =>
-      this.http.get<ServerEntriesResponse>(`/patients/${patientId}/entries`, {
+    const response = await execute(() =>
+      this.http.get<ServerEntriesResponse>(`${this.baseUrl}/patients/${patientId}/entries`, {
         params,
         withCredentials: true,
-      }),
+      }), this.loadingSig, this.errorSig
     );
     return response.entries ?? [];
-  }
-
-  private async execute<T>(request: () => Observable<T>): Promise<T> {
-    this.loadingSig.set(true);
-    this.errorSig.set(null);
-    try {
-      return await firstValueFrom(request());
-    } catch (err) {
-      const normalized = normalizeError(err);
-      this.errorSig.set(normalized);
-      throw normalized;
-    } finally {
-      this.loadingSig.set(false);
-    }
   }
 }

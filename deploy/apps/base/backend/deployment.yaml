@@ -29,7 +29,7 @@ spec:
                 name: backend-secrets
       containers:
         - name: backend
-          image: eloquia/backend:dev
+          image: ghcr.io/joyalissa13/eloquia-backend:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-backend"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

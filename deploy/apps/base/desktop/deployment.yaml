@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: portal
-          image: eloquia/desktop:dev
+          image: ghcr.io/joyalissa13/eloquia-desktop:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-desktop"}
           imagePullPolicy: IfNotPresent
           command:
             - /usr/local/bin/run-portal
@@ -37,7 +37,7 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 20
         - name: bff
-          image: eloquia/desktop:dev
+          image: ghcr.io/joyalissa13/eloquia-desktop:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-desktop"}
           imagePullPolicy: IfNotPresent
           command:
             - /usr/local/bin/run-bff

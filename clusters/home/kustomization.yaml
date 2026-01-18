@@ -4,6 +4,7 @@ resources:
 - flux-system
 - infrastructure.yaml
 - apps.yaml
+- image-automation.yaml
 - infrastructure-staging.yaml
 - apps-staging.yaml
 - infrastructure-production.yaml

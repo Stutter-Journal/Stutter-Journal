@@ -1,0 +1,44 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: eloquia-backend
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: eloquia-backend
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: eloquia-backend-migrate
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: eloquia-backend-migrate
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: eloquia-desktop
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: eloquia-desktop
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc

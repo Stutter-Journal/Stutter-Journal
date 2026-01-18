@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: atlas
-          image: eloquia/backend-migrate:dev
+          image: ghcr.io/joyalissa13/eloquia-backend-migrate:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-backend-migrate"}
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:

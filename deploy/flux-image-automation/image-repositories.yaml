@@ -1,0 +1,26 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: eloquia-backend
+  namespace: flux-system
+spec:
+  image: ghcr.io/joyalissa13/eloquia-backend
+  interval: 1m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: eloquia-backend-migrate
+  namespace: flux-system
+spec:
+  image: ghcr.io/joyalissa13/eloquia-backend-migrate
+  interval: 1m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: eloquia-desktop
+  namespace: flux-system
+spec:
+  image: ghcr.io/joyalissa13/eloquia-desktop
+  interval: 1m0s

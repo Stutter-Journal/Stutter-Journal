@@ -1,20 +1,31 @@
 # syntax=docker/dockerfile:1
 
-FROM node:25-bullseye-slim AS build
+FROM node:25-bookworm-slim AS build
 WORKDIR /workspace
 
-# Install pnpm explicitly (avoid relying on corepack availability)
+# Needed for node-gyp / native deps (lmdb, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install pnpm explicitly
 RUN npm i -g pnpm
 
+# Copy root workspace files (adjust if yours differ)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json tsconfig.base.json ./
+
+# Copy the rest of the workspace
 COPY . .
 
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build targets (keep as you have for now)
+# Build targets
 RUN pnpm nx build bff && pnpm nx build portal
 
-FROM node:25-alpine
+# ---- runtime ----
+# Use Debian runtime too (avoid glibc->musl issues from Alpine)
+FROM node:25-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production
 

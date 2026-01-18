@@ -25,7 +25,9 @@ spec:
           command:
             - sh
             - -c
-            - until pg_isready -d "$DATABASE_URL"; do echo 'waiting for postgres...'; sleep 2; done
+            - |
+              DSN="${DATABASE_URL%%\?*}"
+              until pg_isready -d "$DSN"; do echo 'waiting for postgres...'; sleep 2; done
           envFrom:
             - secretRef:
                 name: backend-secrets

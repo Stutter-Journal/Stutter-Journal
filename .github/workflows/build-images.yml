@@ -53,6 +53,6 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/joyalissa13/${{ matrix.image }}:main-${{ steps.vars.outputs.timestamp }}-${{ steps.vars.outputs.short_sha }}
+            ghcr.io/stutter-journal/${{ matrix.image }}:main-${{ steps.vars.outputs.timestamp }}-${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

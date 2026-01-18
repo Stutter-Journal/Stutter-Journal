@@ -323,6 +323,16 @@ backend, migrate, and desktop images to GHCR.
   that is a PAT with `write:packages` and `read:packages` (plus `repo` if the repo is private).
 - If GHCR packages are private, your cluster will need an `imagePullSecret` in each namespace,
   or you can make the packages public.
+ - Flux image automation also needs GHCR credentials when packages are private. Create a
+   docker-registry secret in `flux-system` and reference it as `ghcr-credentials`:
+
+```bash
+kubectl -n flux-system create secret docker-registry ghcr-credentials \
+  --docker-server=ghcr.io \
+  --docker-username=stutter-journal \
+  --docker-password=YOUR_PAT_WITH_read:packages \
+  --docker-email=you@example.com
+```
 
 ### Backend Setup Details
 

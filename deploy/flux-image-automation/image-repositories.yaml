@@ -6,6 +6,8 @@ metadata:
 spec:
   image: ghcr.io/stutter-journal/eloquia-backend
   interval: 1m0s
+  secretRef:
+    name: ghcr-credentials
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
@@ -15,6 +17,8 @@ metadata:
 spec:
   image: ghcr.io/stutter-journal/eloquia-backend-migrate
   interval: 1m0s
+  secretRef:
+    name: ghcr-credentials
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
@@ -24,3 +28,5 @@ metadata:
 spec:
   image: ghcr.io/stutter-journal/eloquia-desktop
   interval: 1m0s
+  secretRef:
+    name: ghcr-credentials

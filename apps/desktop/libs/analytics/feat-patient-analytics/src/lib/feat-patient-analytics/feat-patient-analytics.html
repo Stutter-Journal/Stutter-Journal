@@ -1,1 +1,628 @@
-<p>FeatPatientAnalytics works!</p>
+<div class="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
+  <!-- Header -->
+  <div
+    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div>
+      <div class="text-sm text-muted-foreground">Insights</div>
+      <div class="text-2xl font-semibold leading-tight">Analytics</div>
+      <div class="mt-1 text-sm text-muted-foreground">
+        Monitor trends across shared entries, intensity shifts, and outcomes.
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button hlmBtn type="button" variant="outline" (click)="saveView()">
+        Save view
+      </button>
+      <button hlmBtn type="button" (click)="exportReport()">Export</button>
+    </div>
+  </div>
+
+  <!-- KPI header -->
+  <section class="grid gap-4 md:grid-cols-3">
+    @if (loading()) {
+      @for (s of skeletonCards; track s) {
+        <div hlmCard>
+          <div hlmCardHeader>
+            <div hlmSkeleton class="h-4 w-28"></div>
+            <div hlmSkeleton class="mt-3 h-8 w-24"></div>
+          </div>
+          <div hlmCardContent>
+            <div hlmSkeleton class="h-4 w-36"></div>
+          </div>
+        </div>
+      }
+    } @else {
+      @for (kpi of kpis; track kpi.id) {
+        <div hlmCard>
+          <div hlmCardHeader class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm text-muted-foreground">{{ kpi.label }}</div>
+              <div class="mt-2 text-3xl font-semibold">{{ kpi.value }}</div>
+            </div>
+            <span [variant]="badgeVariant(kpi.deltaTone)" hlmBadge>
+              {{ kpi.delta }}
+            </span>
+          </div>
+          <div hlmCardContent class="text-xs text-muted-foreground">
+            {{ kpi.helper }}
+          </div>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- Filter bar -->
+  <section class="rounded-lg border bg-card p-4 space-y-4">
+    <div class="grid gap-4 lg:grid-cols-3">
+      <div class="space-y-2">
+        <div class="text-xs font-medium text-muted-foreground">Segment</div>
+        <brn-select [(ngModel)]="segment" class="w-full">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content>
+            @for (option of segments; track option) {
+              <hlm-option [value]="option">{{ option }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-xs font-medium text-muted-foreground">Environment</div>
+        <brn-select [(ngModel)]="environment" class="w-full">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content>
+            @for (option of environments; track option) {
+              <hlm-option [value]="option">{{ option }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-xs font-medium text-muted-foreground">Project</div>
+        <brn-select [(ngModel)]="project" class="w-full">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content>
+            @for (option of projects; track option) {
+              <hlm-option [value]="option">{{ option }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <input
+            hlmInput
+            type="date"
+            class="w-[160px]"
+            [value]="dateFrom"
+            (input)="dateFrom = ($any($event.target)).value"
+          />
+          <span class="text-muted-foreground">to</span>
+          <input
+            hlmInput
+            type="date"
+            class="w-[160px]"
+            [value]="dateTo"
+            (input)="dateTo = ($any($event.target)).value"
+          />
+        </div>
+
+        <div hlmButtonGroup>
+          <button
+            hlmBtn
+            size="sm"
+            type="button"
+            [variant]="preset() === '7d' ? 'default' : 'outline'"
+            (click)="applyPreset('7d')"
+          >
+            7d
+          </button>
+          <button
+            hlmBtn
+            size="sm"
+            type="button"
+            [variant]="preset() === '30d' ? 'default' : 'outline'"
+            (click)="applyPreset('30d')"
+          >
+            30d
+          </button>
+          <button
+            hlmBtn
+            size="sm"
+            type="button"
+            [variant]="preset() === 'ytd' ? 'default' : 'outline'"
+            (click)="applyPreset('ytd')"
+          >
+            YTD
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          [hlmDropdownMenuTrigger]="advancedMenu"
+          hlmBtn
+          type="button"
+          variant="outline"
+        >
+          Advanced filters
+        </button>
+
+        <ng-template #advancedMenu>
+          <hlm-dropdown-menu class="w-72">
+            @for (filter of advancedFilters(); track filter.id) {
+              <button
+                hlmDropdownMenuItem
+                type="button"
+                (click)="toggleAdvancedFilter(filter.id)"
+              >
+                <div class="flex flex-col items-start gap-1">
+                  <span class="text-sm font-medium">{{ filter.label }}</span>
+                  <span class="text-xs text-muted-foreground">
+                    {{ filter.hint }}
+                  </span>
+                </div>
+                <span class="ml-auto text-xs text-muted-foreground">
+                  {{ filter.enabled ? 'On' : 'Off' }}
+                </span>
+              </button>
+            }
+          </hlm-dropdown-menu>
+        </ng-template>
+
+        <div class="text-xs text-muted-foreground">
+          {{ activeFiltersCount() }} filters active
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <section hlmTabs [tab]="activeTab()" (tabActivated)="activeTab.set($event)">
+    <div hlmTabsList class="w-fit">
+      <button hlmTabsTrigger="overview" type="button">Overview</button>
+      <button hlmTabsTrigger="cohorts" type="button">Cohorts</button>
+      <button hlmTabsTrigger="events" type="button">Events</button>
+      <button hlmTabsTrigger="errors" type="button">Errors</button>
+    </div>
+
+    <div hlmTabsContent="overview">
+      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <div class="rounded-lg border bg-card p-4">
+          <div
+            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <div class="text-base font-semibold">Top activity</div>
+              <div class="text-sm text-muted-foreground">
+                Compare the most engaged pages and users.
+              </div>
+            </div>
+
+            <div hlmButtonGroup>
+              <button
+                hlmBtn
+                size="sm"
+                type="button"
+                [variant]="tableView() === 'pages' ? 'default' : 'outline'"
+                (click)="setTableView('pages')"
+              >
+                Top pages
+              </button>
+              <button
+                hlmBtn
+                size="sm"
+                type="button"
+                [variant]="tableView() === 'users' ? 'default' : 'outline'"
+                (click)="setTableView('users')"
+              >
+                Top users
+              </button>
+            </div>
+          </div>
+
+          <div
+            hlmTableContainer
+            class="mt-4 max-h-[360px] overflow-auto"
+          >
+            <table hlmTable>
+              <caption hlmCaption>
+                Activity ranking
+              </caption>
+
+              <thead hlmTHead>
+                <tr hlmTr>
+                  <th
+                    hlmTh
+                    class="sticky top-0 z-10 bg-card/95 backdrop-blur"
+                  >
+                    <button
+                      type="button"
+                      class="text-left"
+                      (click)="setSort('name')"
+                    >
+                      Name{{ sortIndicator('name') }}
+                    </button>
+                  </th>
+                  <th
+                    hlmTh
+                    class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
+                  >
+                    <button
+                      type="button"
+                      class="text-right"
+                      (click)="setSort('sessions')"
+                    >
+                      Sessions{{ sortIndicator('sessions') }}
+                    </button>
+                  </th>
+                  <th
+                    hlmTh
+                    class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
+                  >
+                    <button
+                      type="button"
+                      class="text-right"
+                      (click)="setSort('intensity')"
+                    >
+                      Avg intensity{{ sortIndicator('intensity') }}
+                    </button>
+                  </th>
+                  <th
+                    hlmTh
+                    class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
+                  >
+                    <button
+                      type="button"
+                      class="text-right"
+                      (click)="setSort('errors')"
+                    >
+                      Errors{{ sortIndicator('errors') }}
+                    </button>
+                  </th>
+                  <th
+                    hlmTh
+                    class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
+                  >
+                    Details
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody hlmTBody>
+                @if (loading()) {
+                  @for (s of skeletonCards; track s) {
+                    <tr hlmTr>
+                      <td hlmTd>
+                        <div hlmSkeleton class="h-4 w-32"></div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div hlmSkeleton class="ml-auto h-4 w-16"></div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div hlmSkeleton class="ml-auto h-4 w-12"></div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div hlmSkeleton class="ml-auto h-4 w-12"></div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div hlmSkeleton class="ml-auto h-8 w-20"></div>
+                      </td>
+                    </tr>
+                  }
+                } @else {
+                  @for (row of tableRows(); track row.id) {
+                    <tr hlmTr>
+                      <td hlmTd>
+                        <div class="font-medium">{{ row.name }}</div>
+                        <div class="text-xs text-muted-foreground">
+                          {{ row.subtitle }}
+                        </div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <span>{{ fmtNumber(row.sessions) }}</span>
+                          <span
+                            [variant]="badgeVariant(deltaTone(row.delta))"
+                            hlmBadge
+                          >
+                            {{ row.delta }}
+                          </span>
+                        </div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        {{ row.intensity.toFixed(1) }}
+                      </td>
+                      <td hlmTd class="text-right">{{ row.errors }}</td>
+                      <td hlmTd class="text-right">
+                        <hlm-sheet side="right">
+                          <button
+                            hlmBtn
+                            hlmSheetTrigger
+                            size="sm"
+                            type="button"
+                            variant="outline"
+                          >
+                            View
+                          </button>
+                          <hlm-sheet-content
+                            *brnSheetContent
+                            class="w-[360px] gap-4 p-6"
+                          >
+                            <div hlmSheetHeader>
+                              <div hlmSheetTitle>{{ row.name }}</div>
+                              <div hlmSheetDescription>
+                                {{ row.subtitle }}
+                              </div>
+                            </div>
+
+                            <div class="space-y-4">
+                              <div class="grid gap-3">
+                                <div
+                                  class="flex items-center justify-between text-sm"
+                                >
+                                  <span class="text-muted-foreground">
+                                    Sessions
+                                  </span>
+                                  <span class="font-medium">
+                                    {{ fmtNumber(row.sessions) }}
+                                  </span>
+                                </div>
+                                <div
+                                  class="flex items-center justify-between text-sm"
+                                >
+                                  <span class="text-muted-foreground">
+                                    Avg intensity
+                                  </span>
+                                  <span class="font-medium">
+                                    {{ row.intensity.toFixed(1) }}
+                                  </span>
+                                </div>
+                                <div
+                                  class="flex items-center justify-between text-sm"
+                                >
+                                  <span class="text-muted-foreground">
+                                    Error rate
+                                  </span>
+                                  <span class="font-medium">
+                                    {{ row.errors }}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div class="text-sm text-muted-foreground">
+                                {{ row.summary }}
+                              </div>
+
+                              <div class="flex flex-wrap gap-1">
+                                @for (tag of row.tags; track tag) {
+                                  <span hlmBadge variant="secondary">
+                                    {{ tag }}
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          </hlm-sheet-content>
+                        </hlm-sheet>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4 space-y-4">
+          <div>
+            <div class="text-base font-semibold">Signal health</div>
+            <div class="text-sm text-muted-foreground">
+              Breakdown of intensity and adherence patterns.
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Breathing routines used</span>
+                <span class="text-muted-foreground">68%</span>
+              </div>
+              <hlm-progress [value]="68">
+                <div hlmProgressIndicator></div>
+              </hlm-progress>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Confidence check-ins completed</span>
+                <span class="text-muted-foreground">52%</span>
+              </div>
+              <hlm-progress [value]="52">
+                <div hlmProgressIndicator></div>
+              </hlm-progress>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>High-intensity moments resolved</span>
+                <span class="text-muted-foreground">41%</span>
+              </div>
+              <hlm-progress [value]="41">
+                <div hlmProgressIndicator></div>
+              </hlm-progress>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div hlmTabsContent="cohorts">
+      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <div class="rounded-lg border bg-card p-4 space-y-4">
+          <div>
+            <div class="text-base font-semibold">Cohort momentum</div>
+            <div class="text-sm text-muted-foreground">
+              Average intensity by patient tenure.
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            @for (cohort of cohorts; track cohort.id) {
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="font-medium">{{ cohort.label }}</span>
+                  <span class="text-muted-foreground">
+                    {{ cohort.count }} patients
+                  </span>
+                </div>
+                <hlm-progress [value]="cohort.intensity" [max]="10">
+                  <div hlmProgressIndicator></div>
+                </hlm-progress>
+                <div class="text-xs text-muted-foreground">
+                  Avg intensity {{ cohort.intensity.toFixed(1) }} | {{
+                    cohort.change
+                  }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4 space-y-3">
+          <div class="text-base font-semibold">Cohort notes</div>
+          <div class="space-y-3 text-sm text-muted-foreground">
+            <div>
+              New patients show a spike in intensity during week two. Reinforce
+              grounding techniques early.
+            </div>
+            <div>
+              Long-term patients respond best to mixed routine prompts and
+              proactive session planning.
+            </div>
+            <div>
+              Maintenance cohorts benefit from monthly check-ins and positive
+              reinforcement.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div hlmTabsContent="events">
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div class="rounded-lg border bg-card p-4 space-y-4">
+          <div>
+            <div class="text-base font-semibold">Top triggers</div>
+            <div class="text-sm text-muted-foreground">
+              Events most often linked to higher intensity.
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-sm">
+              <span>Public speaking</span>
+              <span class="text-muted-foreground">32%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Family conversations</span>
+              <span class="text-muted-foreground">24%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Work meetings</span>
+              <span class="text-muted-foreground">18%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Unexpected changes</span>
+              <span class="text-muted-foreground">14%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4 space-y-4">
+          <div>
+            <div class="text-base font-semibold">Technique adoption</div>
+            <div class="text-sm text-muted-foreground">
+              What patients reach for during stressful moments.
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-sm">
+              <span>Breathing reset</span>
+              <span class="text-muted-foreground">44%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Pacing cues</span>
+              <span class="text-muted-foreground">26%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Preparation scripts</span>
+              <span class="text-muted-foreground">18%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span>Reflection prompts</span>
+              <span class="text-muted-foreground">12%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div hlmTabsContent="errors">
+      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <div class="rounded-lg border bg-card p-4 space-y-4">
+          <div>
+            <div class="text-base font-semibold">Data quality alerts</div>
+            <div class="text-sm text-muted-foreground">
+              Entries that need review or follow-up.
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex items-center justify-between">
+              <span>Missing intensity score</span>
+              <span class="text-muted-foreground">14 entries</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Incomplete technique tags</span>
+              <span class="text-muted-foreground">9 entries</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Unresolved high-frequency flags</span>
+              <span class="text-muted-foreground">5 entries</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4 space-y-3">
+          <div class="text-base font-semibold">Action checklist</div>
+          <div class="space-y-3 text-sm text-muted-foreground">
+            <div>
+              Follow up on high-frequency flags within 48 hours to capture
+              context.
+            </div>
+            <div>
+              Encourage patients to tag techniques after each session to
+              improve outcomes tracking.
+            </div>
+            <div>
+              Export weekly audits for compliance and longitudinal review.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

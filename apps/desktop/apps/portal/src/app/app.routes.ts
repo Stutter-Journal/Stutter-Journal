@@ -18,6 +18,13 @@ export const appRoutes: Route[] = [
           import('@org/feat-entry-list').then((m) => m.FeatEntryList),
       },
       {
+        path: 'analytics',
+        loadComponent: () =>
+          import('@org/feat-patient-analytics').then(
+            (m) => m.FeatPatientAnalytics,
+          ),
+      },
+      {
         path: 'patients',
         loadComponent: () =>
           import('@org/feat-patients-overview').then(

@@ -14,6 +14,8 @@ spec:
       labels:
         app: desktop
     spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
       containers:
         - name: portal
           image: ghcr.io/stutter-journal/eloquia-desktop:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-desktop"}

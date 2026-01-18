@@ -11,6 +11,8 @@ spec:
       labels:
         app: backend-migrate
     spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
       restartPolicy: Never
       containers:
         - name: atlas

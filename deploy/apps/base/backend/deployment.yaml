@@ -16,6 +16,8 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
       initContainers:
         - name: wait-for-db
           image: postgres:18

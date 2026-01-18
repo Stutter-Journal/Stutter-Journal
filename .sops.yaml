@@ -1,4 +1,4 @@
 creation_rules:
   - path_regex: deploy/apps/overlays/.*/secrets\.enc\.yaml
     encrypted_regex: '^(data|stringData)$'
-    age: ["AGE_RECIPIENT_HERE"] # <to be changed later if necessary>
+    age: ["age1ygxhg6wss8r0vm83cc557x9cxlx24m74ma4xh26lwspw7v0lgvzq5lddn0"] # <to be changed later if necessary>

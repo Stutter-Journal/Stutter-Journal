@@ -10,6 +10,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AnalyticsClientService {
   private readonly http = inject(HttpClient);
+  private readonly base = '/api';
 
   private readonly loadingSig = signal(false);
   private readonly errorSig = signal<ErrorResponse | null>(null);
@@ -30,7 +31,7 @@ export class AnalyticsClientService {
     });
     return this.execute(() =>
       this.http.get<ServerAnalyticsResponse>(
-        `/patients/${patientId}/analytics`,
+        `${this.base}/patients/${patientId}/analytics`,
         {
           params: httpParams,
           withCredentials: true,

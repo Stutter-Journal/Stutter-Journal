@@ -34,7 +34,7 @@
         </div>
       }
     } @else {
-      @for (kpi of kpis; track kpi.id) {
+      @for (kpi of kpis(); track kpi.id) {
         <div hlmCard>
           <div hlmCardHeader class="flex items-start justify-between gap-3">
             <div>
@@ -51,6 +51,56 @@
         </div>
       }
     }
+  </section>
+
+  <section class="space-y-2">
+    @if (error()) {
+      <div hlmAlert variant="destructive">
+        <div hlmAlertTitle>Unable to load analytics</div>
+        <div hlmAlertDescription>
+          {{ error()?.message }}
+        </div>
+      </div>
+    }
+
+    @if (warning()) {
+      <div hlmAlert>
+        <div hlmAlertTitle>Partial analytics loaded</div>
+        <div hlmAlertDescription>{{ warning() }}</div>
+      </div>
+    }
+
+    @if (!loading() && !hasData()) {
+      <div hlmAlert>
+        <div hlmAlertTitle>No analytics yet</div>
+        <div hlmAlertDescription>
+          Ask patients to sync entries to start seeing trends.
+        </div>
+      </div>
+    }
+
+    @if (rangeNotice()) {
+      <div hlmAlert>
+        <div hlmAlertTitle>Range notice</div>
+        <div hlmAlertDescription>{{ rangeNotice() }}</div>
+      </div>
+    }
+
+    <div hlmAlert>
+      <div hlmAlertTitle>Delta comparisons pending</div>
+      <div hlmAlertDescription>
+        Week-over-week deltas are placeholders until the API exposes comparison
+        windows.
+      </div>
+    </div>
+
+    <div hlmAlert>
+      <div hlmAlertTitle>Filters are placeholders</div>
+      <div hlmAlertDescription>
+        Segment, environment, and advanced filters are UI-only until the API
+        supports them.
+      </div>
+    </div>
   </section>
 
   <!-- Filter bar -->
@@ -107,7 +157,7 @@
             type="date"
             class="w-[160px]"
             [value]="dateFrom"
-            (input)="dateFrom = ($any($event.target)).value"
+            (input)="dateFrom = ($any($event.target)).value; onDateInputChange()"
           />
           <span class="text-muted-foreground">to</span>
           <input
@@ -115,7 +165,7 @@
             type="date"
             class="w-[160px]"
             [value]="dateTo"
-            (input)="dateTo = ($any($event.target)).value"
+            (input)="dateTo = ($any($event.target)).value; onDateInputChange()"
           />
         </div>
 
@@ -205,31 +255,10 @@
             class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <div class="text-base font-semibold">Top activity</div>
+              <div class="text-base font-semibold">Activity timeline</div>
               <div class="text-sm text-muted-foreground">
-                Compare the most engaged pages and users.
+                Daily entry volume and average stutter intensity.
               </div>
-            </div>
-
-            <div hlmButtonGroup>
-              <button
-                hlmBtn
-                size="sm"
-                type="button"
-                [variant]="tableView() === 'pages' ? 'default' : 'outline'"
-                (click)="setTableView('pages')"
-              >
-                Top pages
-              </button>
-              <button
-                hlmBtn
-                size="sm"
-                type="button"
-                [variant]="tableView() === 'users' ? 'default' : 'outline'"
-                (click)="setTableView('users')"
-              >
-                Top users
-              </button>
             </div>
           </div>
 
@@ -239,7 +268,7 @@
           >
             <table hlmTable>
               <caption hlmCaption>
-                Activity ranking
+                Daily activity
               </caption>
 
               <thead hlmTHead>
@@ -248,35 +277,23 @@
                     hlmTh
                     class="sticky top-0 z-10 bg-card/95 backdrop-blur"
                   >
-                    <button
-                      type="button"
-                      class="text-left"
-                      (click)="setSort('name')"
-                    >
-                      Name{{ sortIndicator('name') }}
+                    <button type="button" (click)="setSort('date')">
+                      Date{{ sortIndicator('date') }}
                     </button>
                   </th>
                   <th
                     hlmTh
                     class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
                   >
-                    <button
-                      type="button"
-                      class="text-right"
-                      (click)="setSort('sessions')"
-                    >
-                      Sessions{{ sortIndicator('sessions') }}
+                    <button type="button" (click)="setSort('entries')">
+                      Entries{{ sortIndicator('entries') }}
                     </button>
                   </th>
                   <th
                     hlmTh
                     class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
                   >
-                    <button
-                      type="button"
-                      class="text-right"
-                      (click)="setSort('intensity')"
-                    >
+                    <button type="button" (click)="setSort('intensity')">
                       Avg intensity{{ sortIndicator('intensity') }}
                     </button>
                   </th>
@@ -284,13 +301,7 @@
                     hlmTh
                     class="sticky top-0 z-10 bg-card/95 backdrop-blur text-right"
                   >
-                    <button
-                      type="button"
-                      class="text-right"
-                      (click)="setSort('errors')"
-                    >
-                      Errors{{ sortIndicator('errors') }}
-                    </button>
+                    Delta
                   </th>
                   <th
                     hlmTh
@@ -306,16 +317,16 @@
                   @for (s of skeletonCards; track s) {
                     <tr hlmTr>
                       <td hlmTd>
-                        <div hlmSkeleton class="h-4 w-32"></div>
-                      </td>
-                      <td hlmTd class="text-right">
-                        <div hlmSkeleton class="ml-auto h-4 w-16"></div>
+                        <div hlmSkeleton class="h-4 w-20"></div>
                       </td>
                       <td hlmTd class="text-right">
                         <div hlmSkeleton class="ml-auto h-4 w-12"></div>
                       </td>
                       <td hlmTd class="text-right">
                         <div hlmSkeleton class="ml-auto h-4 w-12"></div>
+                      </td>
+                      <td hlmTd class="text-right">
+                        <div hlmSkeleton class="ml-auto h-4 w-10"></div>
                       </td>
                       <td hlmTd class="text-right">
                         <div hlmSkeleton class="ml-auto h-8 w-20"></div>
@@ -323,101 +334,94 @@
                     </tr>
                   }
                 } @else {
-                  @for (row of tableRows(); track row.id) {
+                  @if (trendRows().length === 0) {
                     <tr hlmTr>
-                      <td hlmTd>
-                        <div class="font-medium">{{ row.name }}</div>
-                        <div class="text-xs text-muted-foreground">
-                          {{ row.subtitle }}
-                        </div>
-                      </td>
-                      <td hlmTd class="text-right">
-                        <div class="flex items-center justify-end gap-2">
-                          <span>{{ fmtNumber(row.sessions) }}</span>
-                          <span
-                            [variant]="badgeVariant(deltaTone(row.delta))"
-                            hlmBadge
-                          >
-                            {{ row.delta }}
-                          </span>
-                        </div>
-                      </td>
-                      <td hlmTd class="text-right">
-                        {{ row.intensity.toFixed(1) }}
-                      </td>
-                      <td hlmTd class="text-right">{{ row.errors }}</td>
-                      <td hlmTd class="text-right">
-                        <hlm-sheet side="right">
-                          <button
-                            hlmBtn
-                            hlmSheetTrigger
-                            size="sm"
-                            type="button"
-                            variant="outline"
-                          >
-                            View
-                          </button>
-                          <hlm-sheet-content
-                            *brnSheetContent
-                            class="w-[360px] gap-4 p-6"
-                          >
-                            <div hlmSheetHeader>
-                              <div hlmSheetTitle>{{ row.name }}</div>
-                              <div hlmSheetDescription>
-                                {{ row.subtitle }}
-                              </div>
-                            </div>
-
-                            <div class="space-y-4">
-                              <div class="grid gap-3">
-                                <div
-                                  class="flex items-center justify-between text-sm"
-                                >
-                                  <span class="text-muted-foreground">
-                                    Sessions
-                                  </span>
-                                  <span class="font-medium">
-                                    {{ fmtNumber(row.sessions) }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-sm"
-                                >
-                                  <span class="text-muted-foreground">
-                                    Avg intensity
-                                  </span>
-                                  <span class="font-medium">
-                                    {{ row.intensity.toFixed(1) }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-sm"
-                                >
-                                  <span class="text-muted-foreground">
-                                    Error rate
-                                  </span>
-                                  <span class="font-medium">
-                                    {{ row.errors }}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div class="text-sm text-muted-foreground">
-                                {{ row.summary }}
-                              </div>
-
-                              <div class="flex flex-wrap gap-1">
-                                @for (tag of row.tags; track tag) {
-                                  <span hlmBadge variant="secondary">
-                                    {{ tag }}
-                                  </span>
-                                }
-                              </div>
-                            </div>
-                          </hlm-sheet-content>
-                        </hlm-sheet>
+                      <td hlmTd colspan="5" class="text-center text-sm text-muted-foreground">
+                        No daily analytics available yet.
                       </td>
                     </tr>
+                  } @else {
+                    @for (row of trendRows(); track row.id) {
+                      <tr hlmTr>
+                        <td hlmTd>
+                          <div class="font-medium">{{ fmtDate(row.date) }}</div>
+                          <div class="text-xs text-muted-foreground">
+                            {{ row.date }}
+                          </div>
+                        </td>
+                        <td hlmTd class="text-right">
+                          {{ fmtNumber(row.entries) }}
+                        </td>
+                        <td hlmTd class="text-right">
+                          {{ row.avgIntensity.toFixed(1) }}
+                        </td>
+                        <td hlmTd class="text-right">{{ row.delta }}</td>
+                        <td hlmTd class="text-right">
+                          <hlm-sheet side="right">
+                            <button
+                              hlmBtn
+                              hlmSheetTrigger
+                              size="sm"
+                              type="button"
+                              variant="outline"
+                            >
+                              View
+                            </button>
+                            <hlm-sheet-content
+                              *brnSheetContent
+                              class="w-[360px] gap-4 p-6"
+                            >
+                              <div hlmSheetHeader>
+                                <div hlmSheetTitle>{{ row.date }}</div>
+                                <div hlmSheetDescription>
+                                  Daily analytics snapshot
+                                </div>
+                              </div>
+
+                              <div class="space-y-4">
+                                <div class="grid gap-3">
+                                  <div
+                                    class="flex items-center justify-between text-sm"
+                                  >
+                                    <span class="text-muted-foreground">
+                                      Entries
+                                    </span>
+                                    <span class="font-medium">
+                                      {{ fmtNumber(row.entries) }}
+                                    </span>
+                                  </div>
+                                  <div
+                                    class="flex items-center justify-between text-sm"
+                                  >
+                                    <span class="text-muted-foreground">
+                                      Avg intensity
+                                    </span>
+                                    <span class="font-medium">
+                                      {{ row.avgIntensity.toFixed(1) }}
+                                    </span>
+                                  </div>
+                                  <div
+                                    class="flex items-center justify-between text-sm"
+                                  >
+                                    <span class="text-muted-foreground">
+                                      Share of total
+                                    </span>
+                                    <span class="font-medium">
+                                      {{ row.sharePercent }}%
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div class="text-sm text-muted-foreground">
+                                  Keep an eye on spikes across consecutive days
+                                  to identify potential stress clusters.
+                                </div>
+                              </div>
+                            </hlm-sheet-content>
+                          </hlm-sheet>
+                        </td>
+                      </tr>
+                    }
                   }
                 }
               </tbody>
@@ -429,92 +433,50 @@
           <div>
             <div class="text-base font-semibold">Signal health</div>
             <div class="text-sm text-muted-foreground">
-              Breakdown of intensity and adherence patterns.
+              Most common emotions captured in the shared entries.
             </div>
           </div>
 
-          <div class="space-y-3">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-sm">
-                <span>Breathing routines used</span>
-                <span class="text-muted-foreground">68%</span>
+          @if (topEmotions().length === 0) {
+            <div hlmAlert>
+              <div hlmAlertTitle>This content is a placeholder</div>
+              <div hlmAlertDescription>
+                Emotion distributions have not been captured yet.
               </div>
-              <hlm-progress [value]="68">
-                <div hlmProgressIndicator></div>
-              </hlm-progress>
             </div>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-sm">
-                <span>Confidence check-ins completed</span>
-                <span class="text-muted-foreground">52%</span>
-              </div>
-              <hlm-progress [value]="52">
-                <div hlmProgressIndicator></div>
-              </hlm-progress>
+          } @else {
+            <div class="space-y-3">
+              @for (emotion of topEmotions(); track emotion.label) {
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between text-sm">
+                    <span>{{ emotion.label }}</span>
+                    <span class="text-muted-foreground">
+                      {{ emotion.percent }}%
+                    </span>
+                  </div>
+                  <hlm-progress [value]="emotion.percent">
+                    <div hlmProgressIndicator></div>
+                  </hlm-progress>
+                </div>
+              }
             </div>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-sm">
-                <span>High-intensity moments resolved</span>
-                <span class="text-muted-foreground">41%</span>
-              </div>
-              <hlm-progress [value]="41">
-                <div hlmProgressIndicator></div>
-              </hlm-progress>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </div>
 
     <div hlmTabsContent="cohorts">
-      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div class="rounded-lg border bg-card p-4 space-y-4">
-          <div>
-            <div class="text-base font-semibold">Cohort momentum</div>
-            <div class="text-sm text-muted-foreground">
-              Average intensity by patient tenure.
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            @for (cohort of cohorts; track cohort.id) {
-              <div class="space-y-2">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="font-medium">{{ cohort.label }}</span>
-                  <span class="text-muted-foreground">
-                    {{ cohort.count }} patients
-                  </span>
-                </div>
-                <hlm-progress [value]="cohort.intensity" [max]="10">
-                  <div hlmProgressIndicator></div>
-                </hlm-progress>
-                <div class="text-xs text-muted-foreground">
-                  Avg intensity {{ cohort.intensity.toFixed(1) }} | {{
-                    cohort.change
-                  }}
-                </div>
-              </div>
-            }
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div hlmAlert>
+          <div hlmAlertTitle>This content is a placeholder</div>
+          <div hlmAlertDescription>
+            Cohort analytics are not available from the current API response.
           </div>
         </div>
-
-        <div class="rounded-lg border bg-card p-4 space-y-3">
-          <div class="text-base font-semibold">Cohort notes</div>
-          <div class="space-y-3 text-sm text-muted-foreground">
-            <div>
-              New patients show a spike in intensity during week two. Reinforce
-              grounding techniques early.
-            </div>
-            <div>
-              Long-term patients respond best to mixed routine prompts and
-              proactive session planning.
-            </div>
-            <div>
-              Maintenance cohorts benefit from monthly check-ins and positive
-              reinforcement.
-            </div>
+        <div hlmAlert>
+          <div hlmAlertTitle>This content is a placeholder</div>
+          <div hlmAlertDescription>
+            Cohort notes will populate once patient tenure data is exposed.
           </div>
         </div>
       </div>
@@ -530,24 +492,30 @@
             </div>
           </div>
 
-          <div class="space-y-3">
-            <div class="flex items-center justify-between text-sm">
-              <span>Public speaking</span>
-              <span class="text-muted-foreground">32%</span>
+          @if (topTriggers().length === 0) {
+            <div hlmAlert>
+              <div hlmAlertTitle>This content is a placeholder</div>
+              <div hlmAlertDescription>
+                Trigger distributions have not been captured yet.
+              </div>
             </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Family conversations</span>
-              <span class="text-muted-foreground">24%</span>
+          } @else {
+            <div class="space-y-3">
+              @for (trigger of topTriggers(); track trigger.label) {
+                <div class="flex items-center justify-between text-sm">
+                  <div>
+                    <div class="font-medium">{{ trigger.label }}</div>
+                    <div class="text-xs text-muted-foreground">
+                      {{ fmtNumber(trigger.count) }} mentions
+                    </div>
+                  </div>
+                  <span class="text-muted-foreground">
+                    {{ trigger.percent }}%
+                  </span>
+                </div>
+              }
             </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Work meetings</span>
-              <span class="text-muted-foreground">18%</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Unexpected changes</span>
-              <span class="text-muted-foreground">14%</span>
-            </div>
-          </div>
+          }
         </div>
 
         <div class="rounded-lg border bg-card p-4 space-y-4">
@@ -558,68 +526,46 @@
             </div>
           </div>
 
-          <div class="space-y-3">
-            <div class="flex items-center justify-between text-sm">
-              <span>Breathing reset</span>
-              <span class="text-muted-foreground">44%</span>
+          @if (topTechniques().length === 0) {
+            <div hlmAlert>
+              <div hlmAlertTitle>This content is a placeholder</div>
+              <div hlmAlertDescription>
+                Technique distributions have not been captured yet.
+              </div>
             </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Pacing cues</span>
-              <span class="text-muted-foreground">26%</span>
+          } @else {
+            <div class="space-y-3">
+              @for (technique of topTechniques(); track technique.label) {
+                <div class="flex items-center justify-between text-sm">
+                  <div>
+                    <div class="font-medium">{{ technique.label }}</div>
+                    <div class="text-xs text-muted-foreground">
+                      {{ fmtNumber(technique.count) }} uses
+                    </div>
+                  </div>
+                  <span class="text-muted-foreground">
+                    {{ technique.percent }}%
+                  </span>
+                </div>
+              }
             </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Preparation scripts</span>
-              <span class="text-muted-foreground">18%</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span>Reflection prompts</span>
-              <span class="text-muted-foreground">12%</span>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </div>
 
     <div hlmTabsContent="errors">
-      <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div class="rounded-lg border bg-card p-4 space-y-4">
-          <div>
-            <div class="text-base font-semibold">Data quality alerts</div>
-            <div class="text-sm text-muted-foreground">
-              Entries that need review or follow-up.
-            </div>
-          </div>
-
-          <div class="space-y-3 text-sm">
-            <div class="flex items-center justify-between">
-              <span>Missing intensity score</span>
-              <span class="text-muted-foreground">14 entries</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span>Incomplete technique tags</span>
-              <span class="text-muted-foreground">9 entries</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span>Unresolved high-frequency flags</span>
-              <span class="text-muted-foreground">5 entries</span>
-            </div>
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div hlmAlert>
+          <div hlmAlertTitle>This content is a placeholder</div>
+          <div hlmAlertDescription>
+            Data quality alerts will appear once validation metrics are exposed.
           </div>
         </div>
-
-        <div class="rounded-lg border bg-card p-4 space-y-3">
-          <div class="text-base font-semibold">Action checklist</div>
-          <div class="space-y-3 text-sm text-muted-foreground">
-            <div>
-              Follow up on high-frequency flags within 48 hours to capture
-              context.
-            </div>
-            <div>
-              Encourage patients to tag techniques after each session to
-              improve outcomes tracking.
-            </div>
-            <div>
-              Export weekly audits for compliance and longitudinal review.
-            </div>
+        <div hlmAlert>
+          <div hlmAlertTitle>This content is a placeholder</div>
+          <div hlmAlertDescription>
+            Action checklists will populate when error categories are available.
           </div>
         </div>
       </div>

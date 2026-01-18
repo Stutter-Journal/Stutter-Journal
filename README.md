@@ -312,6 +312,18 @@ atlas migrate diff remove_logo_url --to "ent://ent/schema" --dev-url "postgres:/
 
 every single time, which is cumbersome. I have to think of something better, TODO for later me.
 
+### Container Images (GHCR)
+
+The GitHub Actions workflow `.github/workflows/build-images.yml` builds and pushes the
+backend, migrate, and desktop images to GHCR.
+
+**Permissions & secrets:**
+- The workflow uses `GITHUB_TOKEN` with `packages: write` (already configured).
+- If pushes fail (e.g. "installation does not exist"), add a repo secret `GHCR_TOKEN`
+  that is a PAT with `write:packages` and `read:packages` (plus `repo` if the repo is private).
+- If GHCR packages are private, your cluster will need an `imagePullSecret` in each namespace,
+  or you can make the packages public.
+
 ### Backend Setup Details
 
 The backend was bootstrapped using PyScaffold with the following command:

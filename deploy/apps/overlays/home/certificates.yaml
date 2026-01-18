@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: eloquia-api
+spec:
+  secretName: eloquia-api-tls
+  issuerRef:
+    name: bajaga-secrets # <to be changed later if necessary>
+    kind: ClusterIssuer
+  dnsNames:
+    - api.eloquia.test
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: eloquia-app
+spec:
+  secretName: eloquia-app-tls
+  issuerRef:
+    name: bajaga-secrets # <to be changed later if necessary>
+    kind: ClusterIssuer
+  dnsNames:
+    - app.eloquia.test

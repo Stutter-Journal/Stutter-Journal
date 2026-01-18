@@ -1,9 +1,9 @@
 - op: replace
   path: /spec/routes/0/match
-  value: Host(`app.eloquia.test`) && PathPrefix(`/api`)
+  value: Host(`portal.dev.eloquia.bajaga.net`) && PathPrefix(`/api`)
 - op: replace
   path: /spec/routes/1/match
-  value: Host(`app.eloquia.test`) && PathPrefix(`/`)
+  value: Host(`portal.dev.eloquia.bajaga.net`) && PathPrefix(`/`)
 - op: replace
   path: /spec/tls/secretName
-  value: eloquia-app-tls
+  value: eloquia-dev-portal-tls

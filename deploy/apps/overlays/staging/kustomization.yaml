@@ -6,7 +6,7 @@ resources:
   - ../../base/backend
   - ../../base/desktop
   - certificates.yaml
-  - external-secrets.yaml
+  - secrets.enc.yaml
 patches:
   - target:
       kind: IngressRoute

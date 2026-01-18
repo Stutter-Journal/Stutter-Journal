@@ -1,60 +1,36 @@
-# Secrets (out of git)
+# Secrets (SOPS)
 
-This repo does not commit Kubernetes Secret manifests. Secrets are sourced
-via ExternalSecrets by default, with a manual `kubectl create secret` fallback.
+This repo stores secrets encrypted with SOPS. Each environment has a single
+`secrets.enc.yaml` file that includes `postgres-auth` and `backend-secrets`.
 
-## ExternalSecrets (default)
+Files:
+- `deploy/apps/overlays/home/secrets.enc.yaml`
+- `deploy/apps/overlays/staging/secrets.enc.yaml`
+- `deploy/apps/overlays/production/secrets.enc.yaml`
 
-The overlays include `ExternalSecret` resources that expect a
-`ClusterSecretStore` named `bajaga-secrets` (change if needed).
+## Setup
 
-Expected keys in your external store:
-
-- Postgres:
-  - `eloquia/<env>/postgres/password`
-  - `eloquia/<env>/postgres/postgres-password`
-- Backend:
-  - `eloquia/<env>/backend/database_url`
-  - `eloquia/<env>/backend/auth_cookie_secret`
-
-Where `<env>` is `home`, `staging`, or `production`.
-
-## Manual fallback
-
-If you prefer to create secrets by hand, keep the names and keys below.
-
-### 1) Postgres password secret
-
-Name: `postgres-auth`
-
-Keys:
-- `password`: app password for the `eloquia` user
-- `postgres-password`: optional superuser password (unused by app, but kept for parity)
-
-Example (replace values):
+1) Generate an age key (if you don't have one already):
 
 ```bash
-kubectl -n <namespace> create secret generic postgres-auth \
-  --from-literal=password='REPLACE_ME' \
-  --from-literal=postgres-password='REPLACE_ME'
+age-keygen -o age.agekey
 ```
 
-### 2) Backend secret
+2) Put the public key into `.sops.yaml` (replace `AGE_RECIPIENT_HERE`).
 
-Name: `backend-secrets`
-
-Keys:
-- `DATABASE_URL`
-- `AUTH_COOKIE_SECRET`
-
-Example (replace values):
+3) Replace `REPLACE_ME` values in each `secrets.enc.yaml`, then encrypt:
 
 ```bash
-kubectl -n <namespace> create secret generic backend-secrets \
-  --from-literal=DATABASE_URL='postgres://eloquia:REPLACE_ME@postgres:5432/eloquia?sslmode=disable&search_path=public' \
-  --from-literal=AUTH_COOKIE_SECRET='REPLACE_ME'
+sops -e -i deploy/apps/overlays/<env>/secrets.enc.yaml
+```
+
+4) Create the Flux decryption secret (once per cluster):
+
+```bash
+kubectl -n flux-system create secret generic sops-age \
+  --from-file=age.agekey=./age.agekey
 ```
 
 Notes:
 - `AUTH_COOKIE_SECRET` should be >= 32 bytes.
-- If you use SOPS instead, keep the key names identical.
+- Flux apps Kustomizations are already configured to use `sops-age`.

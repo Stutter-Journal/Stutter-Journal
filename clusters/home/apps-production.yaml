@@ -8,6 +8,10 @@ spec:
   path: ./deploy/apps/overlays/production
   prune: true
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   dependsOn:
     - name: infrastructure-production
   sourceRef:

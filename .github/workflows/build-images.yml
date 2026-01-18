@@ -56,5 +56,6 @@ jobs:
                   push: true
                   tags: |
                       ghcr.io/stutter-journal/${{ matrix.image }}:main-${{ steps.vars.outputs.timestamp }}-${{ steps.vars.outputs.short_sha }}
+                      ghcr.io/stutter-journal/${{ matrix.image }}:latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max

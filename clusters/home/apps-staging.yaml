@@ -8,6 +8,7 @@ spec:
   path: ./deploy/apps/overlays/staging
   prune: true
   wait: true
+  force: true
   decryption:
     provider: sops
     secretRef:

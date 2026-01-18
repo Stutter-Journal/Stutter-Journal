@@ -1,0 +1,22 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: desktop
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`app.example.invalid`) && PathPrefix(`/api`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: desktop
+          port: 3000
+    - match: Host(`app.example.invalid`) && PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      services:
+        - name: desktop
+          port: 4000
+  tls:
+    secretName: app-tls-placeholder

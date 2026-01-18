@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: desktop
+  labels:
+    app: desktop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: desktop
+  template:
+    metadata:
+      labels:
+        app: desktop
+    spec:
+      containers:
+        - name: portal
+          image: eloquia/desktop:dev
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/local/bin/run-portal
+          env:
+            - name: PORT
+              value: "4000"
+          ports:
+            - name: portal
+              containerPort: 4000
+          readinessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+        - name: bff
+          image: eloquia/desktop:dev
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/local/bin/run-bff
+          env:
+            - name: PORT
+              value: "3000"
+            - name: ELOQUIA_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: desktop-config
+                  key: ELOQUIA_API_BASE_URL
+          ports:
+            - name: bff
+              containerPort: 3000
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20

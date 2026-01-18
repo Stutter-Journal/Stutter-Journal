@@ -1,0 +1,6 @@
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`api.staging.eloquia.bajaga.net`)
+- op: replace
+  path: /spec/tls/secretName
+  value: eloquia-staging-api-tls

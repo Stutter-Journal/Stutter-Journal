@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: desktop
+  labels:
+    app: desktop
+spec:
+  selector:
+    app: desktop
+  ports:
+    - name: portal
+      port: 4000
+      targetPort: 4000
+    - name: bff
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

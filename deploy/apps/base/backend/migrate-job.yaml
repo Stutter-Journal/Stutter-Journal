@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: backend-migrate
+  labels:
+    app: backend-migrate
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: backend-migrate
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: atlas
+          image: eloquia/backend-migrate:dev
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: backend-secrets

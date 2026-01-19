@@ -45,8 +45,8 @@ services:
 
   desktop-portal:
     build:
-      context: .
-      dockerfile: apps/desktop/Dockerfile
+      context: apps/desktop
+      dockerfile: Dockerfile
     image: eloquia-desktop:local
     pull_policy: never
     restart: unless-stopped
@@ -75,8 +75,8 @@ services:
 
   desktop-bff:
     build:
-      context: .
-      dockerfile: apps/desktop/Dockerfile
+      context: apps/desktop
+      dockerfile: Dockerfile
     image: eloquia-desktop:local
     pull_policy: never
     restart: unless-stopped

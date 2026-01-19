@@ -16,6 +16,7 @@ services:
       context: apps/backend
       dockerfile: apps/backend/Dockerfile
     image: eloquia-backend:local
+    pull_policy: never
     restart: unless-stopped
     depends_on:
       - postgres
@@ -47,6 +48,7 @@ services:
       context: apps/desktop
       dockerfile: apps/desktop/Dockerfile
     image: eloquia-desktop:local
+    pull_policy: never
     restart: unless-stopped
     depends_on:
       - backend
@@ -76,6 +78,7 @@ services:
       context: apps/desktop
       dockerfile: apps/desktop/Dockerfile
     image: eloquia-desktop:local
+    pull_policy: never
     restart: unless-stopped
     depends_on:
       - backend

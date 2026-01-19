@@ -185,22 +185,38 @@
               </thead>
 
               <tbody hlmTBody>
-                <!-- placeholder rows -->
+                @if (recentLoading()) {
                 <tr hlmTr>
-                  <td class="font-medium" hlmTd>—</td>
-                  <td hlmTd>—</td>
-                  <td hlmTd>—</td>
-                  <td class="text-right" hlmTd>—</td>
+                  <td class="font-medium" hlmTd colspan="4">Loading…</td>
                 </tr>
+                } @else if (recentError()) {
                 <tr hlmTr>
-                  <td class="font-medium" hlmTd>—</td>
-                  <td hlmTd>—</td>
-                  <td hlmTd>—</td>
-                  <td class="text-right" hlmTd>—</td>
+                  <td class="font-medium" hlmTd colspan="4">
+                    {{ recentError() }}
+                  </td>
                 </tr>
+                } @else if ((recentRows().length ?? 0) === 0) {
+                <tr hlmTr>
+                  <td class="font-medium" hlmTd colspan="4">
+                    No recent entries yet.
+                  </td>
+                </tr>
+                } @else {
+                @for (row of recentRows(); track row.id) {
+                <tr hlmTr>
+                  <td class="font-medium" hlmTd>{{ row.patient }}</td>
+                  <td hlmTd>{{ fmtDate(row.timestamp) }}</td>
+                  <td hlmTd>{{ row.tag }}</td>
+                  <td class="text-right" hlmTd>
+                    {{ row.stutterFreq ?? '—' }}
+                  </td>
+                </tr>
+                }
+                }
               </tbody>
             </table>
           </div>
+
         </div>
 
         <!-- Quick actions -->

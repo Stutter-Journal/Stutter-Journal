@@ -200,16 +200,19 @@ export class FeatPatientsOverview implements OnInit {
     };
   }
 
-  private toPatientStatus(s: LinkStatus): PatientStatus {
-    switch (s) {
-      case 'Approved':
+  private toPatientStatus(s: LinkStatus | string): PatientStatus {
+    const normalized = s?.toString().toLowerCase();
+    switch (normalized) {
+      case 'approved':
         return 'active';
-      case 'Pending':
+      case 'pending':
         return 'pending';
-      case 'Revoked':
+      case 'revoked':
         return 'revoked';
-      case 'Denied':
+      case 'denied':
         return 'denied';
+      default:
+        return 'pending';
     }
   }
 

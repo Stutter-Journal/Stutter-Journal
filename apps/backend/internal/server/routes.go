@@ -133,6 +133,7 @@ func (s *Server) registerLinkRoutes(r chi.Router) {
 		r.Post("/links/request", s.requestLinkHandler)
 		r.Post("/links/pairing-code", s.createPairingCodeHandler)
 		r.Post("/links/{id}/approve", s.approveLinkHandler)
+			r.Get("/entries/recent", s.recentEntriesHandler)
 		r.Get("/patients", s.listPatientsHandler)
 		r.Get("/patients/{id}/entries", s.patientEntriesHandler)
 		r.Get("/patients/{id}/analytics", s.analyticsHandler)

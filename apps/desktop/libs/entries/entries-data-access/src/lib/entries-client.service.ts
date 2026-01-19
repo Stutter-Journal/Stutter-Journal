@@ -6,7 +6,17 @@ import {
   GetPatientsIdEntriesParams,
   ServerEntriesResponse,
   ServerEntryDTO,
+  ServerPatientDTO,
 } from '@org/contracts';
+
+export interface RecentEntriesRow {
+  entry?: ServerEntryDTO;
+  patient?: ServerPatientDTO;
+}
+
+export interface RecentEntriesResponse {
+  rows?: RecentEntriesRow[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class EntriesClientService {
@@ -41,5 +51,18 @@ export class EntriesClientService {
       }), this.loadingSig, this.errorSig
     );
     return response.entries ?? [];
+  }
+
+  async getRecentEntries(limit = 5): Promise<RecentEntriesResponse> {
+    const query = `?limit=${encodeURIComponent(String(limit))}`;
+
+    return await execute(
+      () =>
+        this.http.get<RecentEntriesResponse>(`${this.baseUrl}/entries/recent${query}`, {
+          withCredentials: true,
+        }),
+      this.loadingSig,
+      this.errorSig,
+    );
   }
 }

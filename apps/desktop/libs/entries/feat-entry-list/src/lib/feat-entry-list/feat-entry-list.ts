@@ -201,7 +201,8 @@ export class FeatEntryList implements OnInit {
         const patient = row.patient;
         const link = row.link;
         if (!patient?.id) return null;
-        if ((link?.status as LinkStatus | undefined) !== 'Approved') {
+        const status = (link?.status ?? '').toString().toLowerCase();
+        if (status !== 'approved') {
           return null;
         }
 

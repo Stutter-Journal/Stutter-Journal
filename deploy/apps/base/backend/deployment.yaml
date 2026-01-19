@@ -38,6 +38,9 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          env:
+            - name: BLUEPRINT_DB_APPLY_MIGRATIONS
+              value: "false"
           envFrom:
             - configMapRef:
                 name: backend-config

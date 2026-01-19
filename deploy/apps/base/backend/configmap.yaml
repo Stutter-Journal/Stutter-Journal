@@ -6,4 +6,3 @@ data:
   PORT: "8080"
   ENVIRONMENT: "development"
   BLUEPRINT_ENV: "development"
-  BLUEPRINT_DB_APPLY_MIGRATIONS: "true"

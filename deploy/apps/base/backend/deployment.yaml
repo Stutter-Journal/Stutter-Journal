@@ -33,7 +33,7 @@ spec:
                 name: backend-secrets
       containers:
         - name: backend
-          image: ghcr.io/stutter-journal/eloquia-backend:main-00000000000000-0000000 # {"$imagepolicy": "flux-system:eloquia-backend"}
+          image: ghcr.io/stutter-journal/eloquia-backend:latest # {"$imagepolicy": "flux-system:eloquia-backend"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

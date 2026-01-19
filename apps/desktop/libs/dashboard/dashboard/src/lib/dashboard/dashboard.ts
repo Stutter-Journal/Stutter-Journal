@@ -37,6 +37,8 @@ import { AuthClientService } from '@org/auth-data-access';
 import { Logout } from '../logout/logout';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { AddPatient } from '@org/feat-patients-overview';
 
 @Component({
   selector: 'lib-dashboard',
@@ -82,4 +84,9 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 })
 export class Dashboard {
   readonly auth = inject(AuthClientService);
+  private readonly dialog = inject(HlmDialogService);
+
+  openAddPatient(): void {
+    this.dialog.open(AddPatient, { contentClass: 'sm:!max-w-lg' });
+  }
 }

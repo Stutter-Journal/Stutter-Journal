@@ -97,7 +97,7 @@
 
           <ng-template #actions>
             <hlm-dropdown-menu sideOffset="6">
-              <button hlmDropdownMenuItem routerLink="/app/patients/new">
+              <button hlmDropdownMenuItem type="button" (click)="openAddPatient()">
                 Add patient
               </button>
               <hlm-dropdown-menu-separator />
@@ -211,7 +211,7 @@
               <button
                 class="w-full"
                 hlmBtn
-                routerLink="/app/patients/new"
+                (click)="openAddPatient()"
                 type="button"
               >
                 Add patient

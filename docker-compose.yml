@@ -9,6 +9,26 @@ services:
       PGDATA: /var/lib/postgresql/18/docker
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - eloquia
+
+  backend-migrate:
+    build:
+      context: apps/backend
+      dockerfile: Dockerfile.migrate
+    image: eloquia-backend-migrate:local
+    pull_policy: never
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://eloquia:change-me@postgres:5432/eloquia?sslmode=disable&search_path=public}
     networks:
       - eloquia
 
@@ -20,13 +40,21 @@ services:
     pull_policy: never
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      backend-migrate:
+        condition: service_completed_successfully
     environment:
       PORT: "8080"
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DATABASE_URL: ${DATABASE_URL:-postgres://eloquia:change-me@postgres:5432/eloquia?sslmode=disable&search_path=public}
       AUTH_COOKIE_SECRET: ${AUTH_COOKIE_SECRET:-change-me-change-me-change-me-change-me}
       BLUEPRINT_DB_APPLY_MIGRATIONS: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.eloquia-backend.entrypoints=http"
@@ -52,8 +80,10 @@ services:
     pull_policy: never
     restart: unless-stopped
     depends_on:
-      - backend
-      - desktop-bff
+      backend:
+        condition: service_healthy
+      desktop-bff:
+        condition: service_started
     environment:
       PORT: "4000"
     command: ["/usr/local/bin/run-portal"]
@@ -82,7 +112,8 @@ services:
     pull_policy: never
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
       PORT: "3000"
       ELOQUIA_API_BASE_URL: ${ELOQUIA_API_BASE_URL:-http://backend:8080}

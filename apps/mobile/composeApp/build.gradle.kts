@@ -16,7 +16,7 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
 
-            buildConfigField("String", "BASE_URL", "\"http://api.eloquia.bajaga.net/\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.eloquia.bajaga.net/\"")
         }
     }
 }

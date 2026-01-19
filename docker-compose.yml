@@ -1,0 +1,111 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eloquia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-eloquia}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - eloquia
+
+  backend:
+    build:
+      context: apps/backend
+      dockerfile: apps/backend/Dockerfile
+    image: eloquia-backend:local
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PORT: "8080"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgres://eloquia:change-me@postgres:5432/eloquia?sslmode=disable&search_path=public}
+      AUTH_COOKIE_SECRET: ${AUTH_COOKIE_SECRET:-change-me-change-me-change-me-change-me}
+      BLUEPRINT_DB_APPLY_MIGRATIONS: "false"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eloquia-backend.entrypoints=http"
+      - "traefik.http.routers.eloquia-backend.rule=Host(`api.eloquia.bajaga.net`)"
+      - "traefik.http.middlewares.eloquia-backend-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.eloquia-backend.middlewares=eloquia-backend-https-redirect"
+      - "traefik.http.routers.eloquia-backend-secure.entrypoints=https"
+      - "traefik.http.routers.eloquia-backend-secure.rule=Host(`api.eloquia.bajaga.net`)"
+      - "traefik.http.routers.eloquia-backend-secure.tls=true"
+      - "traefik.http.routers.eloquia-backend-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.eloquia-backend-secure.service=eloquia-backend"
+      - "traefik.http.services.eloquia-backend.loadbalancer.server.port=8080"
+      - "traefik.docker.network=proxy"
+    networks:
+      - proxy
+      - eloquia
+
+  desktop-portal:
+    build:
+      context: apps/desktop
+      dockerfile: apps/desktop/Dockerfile
+    image: eloquia-desktop:local
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - desktop-bff
+    environment:
+      PORT: "4000"
+    command: ["/usr/local/bin/run-portal"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eloquia-portal.entrypoints=http"
+      - "traefik.http.routers.eloquia-portal.rule=Host(`portal.eloquia.bajaga.net`)"
+      - "traefik.http.middlewares.eloquia-portal-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.eloquia-portal.middlewares=eloquia-portal-https-redirect"
+      - "traefik.http.routers.eloquia-portal-secure.entrypoints=https"
+      - "traefik.http.routers.eloquia-portal-secure.rule=Host(`portal.eloquia.bajaga.net`) && PathPrefix(`/`)"
+      - "traefik.http.routers.eloquia-portal-secure.tls=true"
+      - "traefik.http.routers.eloquia-portal-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.eloquia-portal-secure.service=eloquia-portal"
+      - "traefik.http.services.eloquia-portal.loadbalancer.server.port=4000"
+      - "traefik.docker.network=proxy"
+    networks:
+      - proxy
+      - eloquia
+
+  desktop-bff:
+    build:
+      context: apps/desktop
+      dockerfile: apps/desktop/Dockerfile
+    image: eloquia-desktop:local
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      PORT: "3000"
+      ELOQUIA_API_BASE_URL: ${ELOQUIA_API_BASE_URL:-http://backend:8080}
+    command: ["/usr/local/bin/run-bff"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eloquia-bff.entrypoints=http"
+      - "traefik.http.routers.eloquia-bff.rule=Host(`portal.eloquia.bajaga.net`) && PathPrefix(`/api`)"
+      - "traefik.http.middlewares.eloquia-bff-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.eloquia-bff.middlewares=eloquia-bff-https-redirect"
+      - "traefik.http.routers.eloquia-bff-secure.entrypoints=https"
+      - "traefik.http.routers.eloquia-bff-secure.rule=Host(`portal.eloquia.bajaga.net`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.eloquia-bff-secure.tls=true"
+      - "traefik.http.routers.eloquia-bff-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.eloquia-bff-secure.service=eloquia-bff"
+      - "traefik.http.services.eloquia-bff.loadbalancer.server.port=3000"
+      - "traefik.http.routers.eloquia-bff-secure.priority=100"
+      - "traefik.docker.network=proxy"
+    networks:
+      - proxy
+      - eloquia
+
+volumes:
+  postgres_data: {}
+
+networks:
+  proxy:
+    external: true
+  eloquia:
+    driver: bridge

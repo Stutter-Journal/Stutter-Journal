@@ -14,7 +14,7 @@ services:
   backend:
     build:
       context: apps/backend
-      dockerfile: apps/backend/Dockerfile
+      dockerfile: Dockerfile
     image: eloquia-backend:local
     pull_policy: never
     restart: unless-stopped
@@ -45,7 +45,7 @@ services:
 
   desktop-portal:
     build:
-      context: apps/desktop
+      context: .
       dockerfile: apps/desktop/Dockerfile
     image: eloquia-desktop:local
     pull_policy: never
@@ -75,7 +75,7 @@ services:
 
   desktop-bff:
     build:
-      context: apps/desktop
+      context: .
       dockerfile: apps/desktop/Dockerfile
     image: eloquia-desktop:local
     pull_policy: never

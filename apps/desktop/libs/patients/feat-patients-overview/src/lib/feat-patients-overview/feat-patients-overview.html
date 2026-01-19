@@ -156,17 +156,6 @@
                     </button>
 
                     <button
-                      [disabled]="p.status !== 'active'"
-                      [queryParams]="{ patientId: p.patientId }"
-                      [routerLink]="['/app/entries/new']"
-                      hlmDropdownMenuItem
-                    >
-                      New entry
-                    </button>
-
-                    <hlm-dropdown-menu-separator />
-
-                    <button
                       [routerLink]="['/app/patients', p.patientId, 'edit']"
                       hlmDropdownMenuItem
                     >

@@ -38,3 +38,31 @@ export class EntriesController {
     });
   }
 }
+
+@Controller('entries')
+export class EntriesRecentController {
+  constructor(private readonly bff: BffService) {}
+
+  @Get('recent')
+  async recent(
+    @Query('limit') limit: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const search = new URLSearchParams();
+    if (limit) search.append('limit', limit);
+    const query = search.toString();
+    const path = query ? `/entries/recent?${query}` : '/entries/recent';
+
+    return this.bff.forward({
+      req,
+      res,
+      path,
+      method: 'GET',
+      schemasByStatus: {
+        401: schemas.serverErrorResponseSchema,
+        500: schemas.serverErrorResponseSchema,
+      },
+    });
+  }
+}

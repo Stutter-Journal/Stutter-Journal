@@ -92,16 +92,34 @@ export class Dashboard implements OnInit {
   private readonly entries = inject(EntriesClientService);
   private readonly patients = inject(PatientsClientService);
 
+  readonly patientsCount = signal<number | null>(null);
+  readonly entriesCountRecent = signal<number | null>(null);
+  readonly pendingLinksCount = signal<number | null>(null);
+
   readonly recentLoading = signal(false);
   readonly recentError = signal<string | null>(null);
   readonly recentRows = signal<RecentActivityRow[]>([]);
 
   async ngOnInit(): Promise<void> {
-    await this.loadRecentActivity();
+    await Promise.all([this.loadRecentActivity(), this.loadKpis()]);
   }
 
   openAddPatient(): void {
     this.dialog.open(AddPatient, { contentClass: 'sm:!max-w-lg' });
+  }
+
+  private async loadKpis(): Promise<void> {
+    try {
+      const patientsResp = await this.patients.getPatientsResponse();
+      const summary = this.summarizePatients(patientsResp.rows ?? []);
+
+      this.patientsCount.set(summary.approvedPatients.length);
+      this.pendingLinksCount.set(summary.pendingCount);
+    } catch (err) {
+      this.patientsCount.set(null);
+      this.pendingLinksCount.set(null);
+      this.entriesCountRecent.set(null);
+    }
   }
 
   private async loadRecentActivity(): Promise<void> {
@@ -119,6 +137,7 @@ export class Dashboard implements OnInit {
         await this.loadRecentFallback();
       } else {
         this.recentRows.set(rows);
+        this.entriesCountRecent.set(rows.length);
       }
     } catch (err) {
       await this.loadRecentFallback();
@@ -137,9 +156,11 @@ export class Dashboard implements OnInit {
   private async loadRecentFallback(): Promise<void> {
     try {
       const patientsResp = await this.patients.getPatientsResponse();
-      const patients = this.buildApprovedPatients(patientsResp.rows ?? []);
+      const summary = this.summarizePatients(patientsResp.rows ?? []);
+      const patients = summary.approvedPatients;
       if (patients.length === 0) {
         this.recentRows.set([]);
+        this.entriesCountRecent.set(0);
         return;
       }
 
@@ -163,7 +184,9 @@ export class Dashboard implements OnInit {
       });
 
       entries.sort((a, b) => b.timestamp - a.timestamp);
-      this.recentRows.set(entries.slice(0, 5));
+      const recent = entries.slice(0, 5);
+      this.recentRows.set(recent);
+      this.entriesCountRecent.set(recent.length);
 
       if (failures.length > 0 && this.recentRows().length === 0) {
         const normalized = this.toErrorResponse(failures[0]);
@@ -219,25 +242,30 @@ export class Dashboard implements OnInit {
     return this.toRecentRow(entry, { id: patient.id, name }, index);
   }
 
-  private buildApprovedPatients(rows: ServerPatientRowDTO[]): PatientRef[] {
-    return rows
-      .map((row, index) => {
-        const patient = row.patient;
-        const link = row.link;
-        if (!patient?.id) return null;
+  private summarizePatients(rows: ServerPatientRowDTO[]): PatientSummary {
+    const approvedPatients: PatientRef[] = [];
+    let pendingCount = 0;
 
-        const status = (link?.status ?? '').toString().toLowerCase();
-        if (status !== 'approved') return null;
+    rows.forEach((row, index) => {
+      const patient = row.patient;
+      const status = (row.link?.status ?? '').toString().toLowerCase();
 
-        const name =
-          patient.displayName?.trim() ||
-          patient.email?.trim() ||
-          patient.id ||
-          `Patient ${index + 1}`;
+      if (status === 'pending') {
+        pendingCount += 1;
+      }
 
-        return { id: patient.id, name };
-      })
-      .filter((row): row is PatientRef => row !== null);
+      if (!patient?.id || status !== 'approved') return;
+
+      const name =
+        patient.displayName?.trim() ||
+        patient.email?.trim() ||
+        patient.id ||
+        `Patient ${index + 1}`;
+
+      approvedPatients.push({ id: patient.id, name });
+    });
+
+    return { approvedPatients, pendingCount };
   }
 
   private entryTimestamp(iso?: string | null): number {
@@ -273,4 +301,9 @@ interface RecentActivityRow {
 interface PatientRef {
   id: string;
   name: string;
+}
+
+interface PatientSummary {
+  approvedPatients: PatientRef[];
+  pendingCount: number;
 }

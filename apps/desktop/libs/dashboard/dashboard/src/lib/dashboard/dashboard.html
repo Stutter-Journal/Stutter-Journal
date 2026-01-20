@@ -126,23 +126,29 @@
       <section class="grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border bg-card p-4">
           <div class="text-sm text-muted-foreground">Patients</div>
-          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="mt-2 text-3xl font-semibold">
+            {{ patientsCount() ?? '—' }}
+          </div>
           <div class="mt-1 text-xs text-muted-foreground">
             Connected and active
           </div>
         </div>
 
         <div class="rounded-lg border bg-card p-4">
-          <div class="text-sm text-muted-foreground">Entries (7 days)</div>
-          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="text-sm text-muted-foreground">Recent entries</div>
+          <div class="mt-2 text-3xl font-semibold">
+            {{ entriesCountRecent() ?? '—' }}
+          </div>
           <div class="mt-1 text-xs text-muted-foreground">
-            Recent therapy notes
+            Recent patient notes
           </div>
         </div>
 
         <div class="rounded-lg border bg-card p-4">
           <div class="text-sm text-muted-foreground">Pending links</div>
-          <div class="mt-2 text-3xl font-semibold">—</div>
+          <div class="mt-2 text-3xl font-semibold">
+            {{ pendingLinksCount() ?? '—' }}
+          </div>
           <div class="mt-1 text-xs text-muted-foreground">
             Patients awaiting approval
           </div>

@@ -36,8 +36,10 @@
     <li><a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#desktop-web-setup-portal--bff">Desktop Web Setup (Portal + BFF)</a></li>
+        <li><a href="#backend-api-setup-go">Backend API Setup (Go)</a></li>
+        <li><a href="#analyzer-setup-python">Analyzer Setup (Python)</a></li>
         <li><a href="#mobile-app-setup">Mobile App Setup</a></li>
-        <li><a href="#backend-setup">Backend Setup</a></li>
       </ul>
     </li>
     <li><a href="#development-notes">Development Notes</a></li>
@@ -48,13 +50,19 @@
 
 ## About The Project
 
-**Eloquia - Stutter Journal** is a comprehensive journaling application designed to help individuals track, manage, and understand their stuttering patterns. The project consists of a cross-platform mobile application built with Kotlin Multiplatform and Jetpack Compose, paired with a Python backend for data processing and analysis.
+**Eloquia - Stutter Journal** is a multi-platform journaling system that helps individuals track, manage, and understand stuttering patterns. The project includes:
+
+- A **Kotlin Multiplatform** mobile app for Android and iOS.
+- A **web portal** (Angular + Nx) for clinicians and admins.
+- A **BFF service** (NestJS) that powers the web portal.
+- A **Go backend API** with PostgreSQL for data storage.
+- A **Python analyzer** for data processing workflows.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Built With
 
-### Mobile Frontend
+### Mobile App
 
 - [![Kotlin][Kotlin]][Kotlin-url]
 - [![Compose Multiplatform][Compose]][Compose-url]
@@ -63,30 +71,48 @@
 
 **Key Technologies:**
 
-- **Kotlin Multiplatform** (2.2.21) - Shared business logic across platforms
-- **Compose Multiplatform** (1.9.3) - Declarative UI framework
-- **Jetpack Compose** - Modern Android UI toolkit
-- **Ktor** (3.3.2) - Networking client
-- **Koin** (4.1.1) - Dependency injection
-- **Coil** (3.3.0) - Image loading
-- **Material 3** - Material Design components
-- **Navigation Compose** - Type-safe navigation
+- **Kotlin Multiplatform** - Shared business logic across platforms
+- **Compose Multiplatform** - Declarative UI framework
+- **Ktor** - Networking client
+- **Koin** - Dependency injection
+- **Coil** - Image loading
 - **Kotlinx Serialization** - JSON serialization
 
-### Backend
+### Desktop Web (Portal + BFF)
+
+- [![Angular][Angular]][Angular-url]
+- [![Nx][Nx]][Nx-url]
+- [![Node][Node]][Node-url]
+
+**Key Technologies:**
+
+- **Angular** - Web application framework
+- **Nx** - Monorepo tooling
+- **NestJS** - BFF service framework
+- **Tailwind CSS** - UI styling utilities
+
+### Backend API
+
+- [![Go][Go]][Go-url]
+- [![Postgres][Postgres]][Postgres-url]
+
+**Key Technologies:**
+
+- **Go** - API service runtime
+- **PostgreSQL** - Primary database
+- **Ent** - ORM and schema tooling
+- **Atlas** - Database migrations
+
+### Analyzer
 
 - [![Python][Python]][Python-url]
 - [![pytest][pytest]][pytest-url]
 
 **Key Technologies:**
 
-- **Python** (3.13.2+) - Modern Python with latest features
-- **pytest** (9.0.0+) - Testing framework
-- **PyScaffold** (4.5) - Project structure and tooling
-- **setuptools-scm** - Version management from git tags
-- **pre-commit** - Git hooks for code quality
-- **Ruff** - Fast Python linter and formatter
-- **GitHub Actions & Cirrus CI** - Continuous integration
+- **Python** - Data analysis workflows
+- **pytest** - Testing framework
+- **Ruff** - Linting and formatting
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -95,24 +121,21 @@
 ```
 Stutter-Journal/
 ├── apps/
-│   ├── mobile/              # Kotlin Multiplatform Mobile App
-│   │   ├── composeApp/      # Main application module
-│   │   │   └── src/
-│   │   │       ├── androidMain/   # Android-specific code
-│   │   │       ├── commonMain/    # Shared business logic
-│   │   │       └── iosMain/       # iOS-specific code
-│   │   ├── core/
-│   │   │   └── theme/       # Shared theming and design system
-│   │   └── iosApp/          # iOS app wrapper
-│   │
-│   └── backend/             # Python Backend
-│       ├── src/
-│       │   └── eloquia/
-│       │       └── backend/
-│       ├── tests/
-│       └── docs/
-│
-└── LICENSE                  # Apache 2.0 License
+│   ├── mobile/               # Kotlin Multiplatform mobile app
+│   │   ├── composeApp/        # Shared UI + business logic
+│   │   └── iosApp/            # iOS wrapper
+│   ├── desktop/              # Nx workspace (Angular + NestJS)
+│   │   ├── apps/portal        # Web portal (Angular SSR)
+│   │   ├── apps/bff           # BFF service (NestJS)
+│   │   └── libs/              # Shared UI + feature libs
+│   ├── backend/              # Go API service
+│   │   ├── cmd/api            # API entrypoint
+│   │   ├── ent/               # Ent schemas & migrations
+│   │   └── internal/          # Core services
+│   └── analyzer/             # Python analysis tooling
+│       ├── src/              # Analyzer package
+│       └── tests/            # Test suite
+└── LICENSE                   # Apache 2.0 License
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -123,100 +146,97 @@ Follow these instructions to set up the project locally for development.
 
 ### Prerequisites
 
-#### For Mobile Development
+- **Node.js** 20+ and **pnpm** 10 (desktop web)
+- **Go** 1.25+ (backend API)
+- **Docker Desktop** (PostgreSQL for backend)
+- **Python** 3.13+ and **uv** (analyzer)
+- **Android Studio** and **Xcode** (mobile app)
 
-- **Java Development Kit (JDK)**: JDK 23 or higher
-- **Android Studio**: Latest stable version (for Android development)
-- **Xcode**: 15.0+ (for iOS development, macOS only)
-- **Gradle**: 8.14.3+ (usually bundled with Android Studio)
+### Desktop Web Setup (Portal + BFF)
 
-#### For Backend Development
+1. **Install dependencies**
 
-- **Python**: 3.13.2 or higher
-- **uv**: Modern Python package installer
+  ```sh
+  cd apps/desktop
+  pnpm install --config.confirmModulesPurge=false
+  ```
 
-    ```sh
-    # macOS/Linux
-    brew install uv
+2. **Run the portal (starts the BFF automatically)**
 
-    # Windows
-    winget install astral-sh.uv
-    ```
+  ```sh
+  pnpm nx serve portal
+  ```
 
-- **pre-commit**: Git hooks framework
+3. **Open the portal**
 
-    ```sh
-    # macOS/Linux
-    brew install pre-commit
+  ```sh
+  http://localhost:4200
+  ```
 
-    # Windows
-    winget install pre-commit
-    ```
+**Optional:** Run the BFF alone
+
+```sh
+pnpm nx serve bff
+```
+
+### Backend API Setup (Go)
+
+1. **Review environment variables**
+
+  The backend expects database settings in `apps/backend/.env`.
+
+2. **Start the database**
+
+  ```sh
+  cd apps/backend
+  make db-up
+  ```
+
+3. **Run migrations**
+
+  ```sh
+  make migrate
+  ```
+
+4. **Run the API**
+
+  ```sh
+  make run
+  ```
+
+  The API starts on `http://localhost:8080` with health endpoints at `/health` and `/ready`.
+
+### Analyzer Setup (Python)
+
+1. **Create and sync the environment**
+
+  ```sh
+  cd apps/analyzer
+  uv venv
+  uv sync
+  ```
+
+2. **Run tests**
+
+  ```sh
+  uv run pytest
+  ```
 
 ### Mobile App Setup
 
 > [!IMPORTANT]
-> The first-time setup will download a large number of dependencies for Kotlin Multiplatform, Android, and iOS. This process can take significant time depending on your internet connection.
+> First-time setup downloads a large number of Kotlin, Android, and iOS dependencies.
 
-1. **Clone the repository**
+1. **Open the project**
 
-    ```sh
-    git clone https://github.com/joyalissa13/Stutter-Journal.git
-    cd Stutter-Journal/apps/mobile
-    ```
+  - Android Studio → Open → `apps/mobile`
+  - Wait for Gradle sync to complete
 
-2. **Set ANDROID_HOME (if needed)**
+2. **Run the app**
 
-    IntelliJ IDEA usually detects this automatically, but if needed:
+  **Android:** select a device/emulator and run.
 
-    ```sh
-    # macOS/Linux
-    export ANDROID_HOME=$HOME/Library/Android/sdk
-
-    # Windows
-    set ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk
-    ```
-
-3. **Open the project in Android Studio or IntelliJ IDEA**
-    - File → Open → Select `apps/mobile` directory
-    - Wait for Gradle sync to complete (this will take a while the first time)
-
-4. **Run the app**
-
-    **For Android:**
-    - Select an Android device/emulator from the device dropdown
-    - Click the Run button or press `Shift + F10`
-
-    **For iOS (macOS only):**
-    - Open `apps/mobile/iosApp/iosApp.xcodeproj` in Xcode
-    - Select a simulator or connected device
-    - Click Run or press `Cmd + R`
-
-### Backend Setup
-
-1. **Navigate to the backend directory**
-
-    ```sh
-    cd apps/backend
-    ```
-
-2. **Install pre-commit hooks**
-
-    ```sh
-    pre-commit install
-    ```
-
-3. **Update pre-commit to latest versions (recommended)**
-
-    ```sh
-    pre-commit autoupdate
-    ```
-
-4. **Create a virtual environment**
-
-    ```sh
-    uv venv
-    ```
+  **iOS (macOS only):** open `apps/mobile/iosApp/iosApp.xcodeproj` in Xcode and run.
 
 5. **Activate the virtual environment**
 
@@ -345,15 +365,19 @@ kubectl -n flux-system annotate secret ghcr-credentials \
   reflector.v1.k8s.emberstack.com/reflection-auto-namespaces="eloquia-.*"
 ```
 
-### Backend Setup Details
+### Backend Migrations (Atlas)
 
-The backend was bootstrapped using PyScaffold with the following command:
+Generating new migrations uses Atlas with Ent schemas. Example:
 
-```sh
-putup --pre-commit --github-actions --cirrus --license=MIT --namespace eloquia backend --force
+```bash
+atlas migrate diff add_new_feature --to "ent://ent/schema" --dev-url "postgres://melkey:password1234@localhost:5432/blueprint?sslmode=disable" --dir "file://ent/migrate/migrations"
 ```
 
-The license was later changed from MIT to **Apache 2.0** to match the frontend.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contributing
+
+Contributions are welcome. Please open an issue or submit a pull request with a clear description of the change.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -402,3 +426,13 @@ Copyright [2025] [Group 3 developing the Stutter-Journal]
 [Python-url]: https://www.python.org/
 [pytest]: https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white
 [pytest-url]: https://pytest.org/
+[Angular]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
+[Angular-url]: https://angular.dev/
+[Nx]: https://img.shields.io/badge/Nx-143055?style=for-the-badge&logo=nx&logoColor=white
+[Nx-url]: https://nx.dev/
+[Node]: https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white
+[Node-url]: https://nodejs.org/
+[Go]: https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white
+[Go-url]: https://go.dev/
+[Postgres]: https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[Postgres-url]: https://www.postgresql.org/

@@ -1,223 +1,46 @@
-# Nx Angular Repository
+# Eloquia Desktop (Portal + BFF)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+This workspace hosts the **web portal** (Angular SSR) and a **BFF service** (NestJS) used by the Stutter Journal platform.
 
-✨ A repository showcasing key [Nx](https://nx.dev) features for Angular monorepos ✨
+## Apps
 
-## 📦 Project Overview
+- **portal**: Angular SSR web app
+- **bff**: NestJS BFF service for the portal
+- **storybook-host**: UI library storybook
+- **portal-e2e**: Playwright E2E tests
 
-This repository demonstrates a production-ready Angular monorepo with:
-
-- **2 Applications**
-
-  - `shop` - Angular e-commerce application with product listings and detail views
-  - `api` - Backend API with Docker support serving product data
-
-- **6 Libraries**
-
-  - `@org/feature-products` - Product listing feature (Angular)
-  - `@org/feature-product-detail` - Product detail feature (Angular)
-  - `@org/data` - Data access layer for shop features
-  - `@org/shared-ui` - Shared UI components
-  - `@org/models` - Shared data models
-  - `@org/products` - API product service library
-
-- **E2E Testing**
-  - `shop-e2e` - Playwright tests for the shop application
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone <your-fork-url>
-cd <your-repository-name>
+cd apps/desktop
+pnpm install --config.confirmModulesPurge=false
 
-# Install dependencies
-# (Note: You may need --legacy-peer-deps)
-npm install
-
-# Serve the Angular shop application (this will simultaneously serve the API backend)
-npx nx serve shop
-
-# ...or you can serve the API separately
-npx nx serve api
-
-# Build all projects
-npx nx run-many -t build
-
-# Run tests
-npx nx run-many -t test
-
-# Lint all projects
-npx nx run-many -t lint
-
-# Run e2e tests
-npx nx e2e shop-e2e
-
-# Run tasks in parallel
-
-npx nx run-many -t lint test build e2e --parallel=3
-
-# Visualize the project graph
-npx nx graph
+# Run the portal (starts the BFF automatically)
+pnpm nx serve portal
 ```
 
-## ⭐ Featured Nx Capabilities
+The portal is available at `http://localhost:4200`. The BFF runs on `http://localhost:3000`.
 
-This repository showcases several powerful Nx features:
-
-### 1. 🔒 Module Boundaries
-
-Enforces architectural constraints using tags. Each project has specific dependencies it can use:
-
-- `scope:shared` - Can be used by all projects
-- `scope:shop` - Shop-specific libraries
-- `scope:api` - API-specific libraries
-- `type:feature` - Feature libraries
-- `type:data` - Data access libraries
-- `type:ui` - UI component libraries
-
-**Try it out:**
+## Useful Commands
 
 ```bash
-# See the current project graph and boundaries
-npx nx graph
+# Run only the BFF
+pnpm nx serve bff
 
-# View a specific project's details
-npx nx show project shop --web
+# Storybook
+pnpm nx storybook storybook-host
+
+# Lint / Test / Build
+pnpm nx run-many -t lint test build
+
+# Generate API contracts
+pnpm generate:contracts
 ```
 
-[Learn more about module boundaries →](https://nx.dev/features/enforce-module-boundaries)
+## Notes
 
-### 2. 🐳 Docker Integration
-
-The API project includes Docker support with automated targets and release management:
-
-```bash
-# Build Docker image
-npx nx docker:build api
-
-# Run Docker container
-npx nx docker:run api
-
-# Release with automatic Docker image versioning
-npx nx release
-```
-
-**Nx Release for Docker:** The repository is configured to use Nx Release for managing Docker image versioning and publishing. When running `nx release`, Docker images for the API project are automatically versioned and published based on the release configuration in `nx.json`. This integrates seamlessly with semantic versioning and changelog generation.
-
-[Learn more about Docker integration →](https://nx.dev/recipes/nx-release/release-docker-images)
-
-### 3. 🎭 Playwright E2E Testing
-
-End-to-end testing with Playwright is pre-configured:
-
-```bash
-# Run e2e tests
-npx nx e2e shop-e2e
-
-# Run e2e tests in CI mode
-npx nx e2e-ci shop-e2e
-```
-
-[Learn more about E2E testing →](https://nx.dev/technologies/test-tools/playwright/introduction#e2e-testing)
-
-### 4. ⚡ Vitest for Unit Testing
-
-Fast unit testing with Vite for Angular libraries:
-
-```bash
-# Test a specific library
-npx nx test data
-
-# Test all projects
-npx nx run-many -t test
-```
-
-[Learn more about Vite testing →](https://nx.dev/recipes/vite)
-
-### 5. 🔧 Self-Healing CI
-
-The CI pipeline includes `nx fix-ci` which automatically identifies and suggests fixes for common issues:
-
-```bash
-# In CI, this command provides automated fixes
-npx nx fix-ci
-```
-
-This feature helps maintain a healthy CI pipeline by automatically detecting and suggesting solutions for:
-
-- Missing dependencies
-- Incorrect task configurations
-- Cache invalidation issues
-- Common build failures
-
-[Learn more about self-healing CI →](https://nx.dev/ci/features/self-healing-ci)
-
-## 📁 Project Structure
-
-```
-├── apps/
-│   ├── shop/           [scope:shop]    - Angular e-commerce app
-│   ├── shop-e2e/                       - E2E tests for shop
-│   └── api/            [scope:api]     - Backend API with Docker
-├── libs/
-│   ├── shop/
-│   │   ├── feature-products/        [scope:shop,type:feature] - Product listing
-│   │   ├── feature-product-detail/  [scope:shop,type:feature] - Product details
-│   │   ├── data/                    [scope:shop,type:data]    - Data access
-│   │   └── shared-ui/               [scope:shop,type:ui]      - UI components
-│   ├── api/
-│   │   └── products/    [scope:api]    - Product service
-│   └── shared/
-│       └── models/      [scope:shared,type:data] - Shared models
-├── nx.json             - Nx configuration
-├── tsconfig.json       - TypeScript configuration
-└── eslint.config.mjs   - ESLint with module boundary rules
-```
-
-## 🏷️ Understanding Tags
-
-This repository uses tags to enforce module boundaries:
-
-| Project            | Tags                         | Can Import From              |
-| ------------------ | ---------------------------- | ---------------------------- |
-| `shop`             | `scope:shop`                 | `scope:shop`, `scope:shared` |
-| `api`              | `scope:api`                  | `scope:api`, `scope:shared`  |
-| `feature-products` | `scope:shop`, `type:feature` | `scope:shop`, `scope:shared` |
-| `data`             | `scope:shop`, `type:data`    | `scope:shared`               |
-| `models`           | `scope:shared`, `type:data`  | Nothing (base library)       |
-
-## 📚 Useful Commands
-
-```bash
-# Project exploration
-npx nx graph                                    # Interactive dependency graph
-npx nx list                                     # List installed plugins
-npx nx show project shop --web                 # View project details
-
-# Development
-npx nx serve shop                              # Serve Angular app
-npx nx serve api                               # Serve backend API
-npx nx build shop                              # Build Angular app
-npx nx test data                               # Test a specific library
-npx nx lint feature-products                   # Lint a specific library
-
-# Running multiple tasks
-npx nx run-many -t build                       # Build all projects
-npx nx run-many -t test --parallel=3          # Test in parallel
-npx nx run-many -t lint test build            # Run multiple targets
-
-# Affected commands (great for CI)
-npx nx affected -t build                       # Build only affected projects
-npx nx affected -t test                        # Test only affected projects
-
-# Docker operations
-npx nx docker:build api                        # Build Docker image
-npx nx docker:run api                          # Run Docker container
-```
-
-## 🎯 Adding New Features
+- The portal dev server proxies API requests via `apps/portal/proxy.conf.json`.
+- Portal `serve` depends on `bff:serve`, so running `pnpm nx serve portal` is usually enough for local dev.
 
 ### Generate a new Angular application:
 

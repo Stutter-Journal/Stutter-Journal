@@ -1,27 +1,33 @@
-# Kotlin Multiplatform app template
+# Eloquia Mobile App
 
-[![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+The Eloquia mobile app is a Kotlin Multiplatform application for tracking and managing stuttering patterns. It ships a shared Compose UI and common business logic, with Android and iOS targets.
 
-This is a basic Kotlin Multiplatform app template for Android and iOS. It includes shared business logic and data handling, and a shared UI implementation using Compose Multiplatform.
+## Tech Stack
 
-> The template is also available [with native UI written in Jetpack Compose and SwiftUI](https://github.com/kotlin/KMP-App-Template-Native).
->
-> The [`amper` branch](https://github.com/Kotlin/KMP-App-Template/tree/amper) showcases the same project configured with [Amper](https://github.com/JetBrains/amper).
+- **Kotlin Multiplatform**
+- **Compose Multiplatform**
+- **Ktor** (networking)
+- **Koin** (DI)
+- **Coil** (image loading)
+- **Kotlinx Serialization** (JSON)
 
-![Screenshots of the app](images/screenshots.png)
+## Setup
 
-### Technologies
+> [!IMPORTANT]
+> First-time Gradle syncs can take a while due to Kotlin/Android/iOS dependencies.
 
-The data displayed by the app is from [The Metropolitan Museum of Art Collection API](https://metmuseum.github.io/).
+1. **Open the project**
 
-The app uses the following multiplatform dependencies in its implementation:
+	- Android Studio → Open → `apps/mobile`
+	- Wait for Gradle sync to finish
 
-- [Compose Multiplatform](https://jb.gg/compose) for UI
-- [Compose Navigation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-navigation-routing.html)
-- [Ktor](https://ktor.io/) for networking
-- [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) for JSON handling
-- [Coil](https://github.com/coil-kt/coil) for image loading
-- [Koin](https://github.com/InsertKoinIO/koin) for dependency injection
+2. **Run on Android**
 
-> These are just some of the possible libraries to use for these tasks with Kotlin Multiplatform, and their usage here isn't a strong recommendation for these specific libraries over the available alternatives. You can find a wide variety of curated multiplatform libraries in the [kmp-awesome](https://github.com/terrakok/kmp-awesome) repository.
+	- Select a device/emulator
+	- Click Run (or press `Shift + F10`)
+
+3. **Run on iOS (macOS only)**
+
+	- Open `apps/mobile/iosApp/iosApp.xcodeproj` in Xcode
+	- Choose a simulator/device
+	- Click Run (or press `Cmd + R`)

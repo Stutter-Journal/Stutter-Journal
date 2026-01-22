@@ -152,6 +152,17 @@ Follow these instructions to set up the project locally for development.
 - **Python** 3.13+ and **uv** (analyzer)
 - **Android Studio** and **Xcode** (mobile app)
 
+Install helpers:
+
+```sh
+corepack enable
+corepack prepare pnpm@10.28.0 --activate
+```
+
+```sh
+brew install uv
+```
+
 ### Desktop Web Setup (Portal + BFF)
 
 1. **Install dependencies**

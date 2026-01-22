@@ -1,68 +1,54 @@
-# Project backend
+# Eloquia Backend API
 
-One Paragraph of project description goes here
+Go-based API service for the Stutter Journal platform. Uses PostgreSQL with Ent schemas and Atlas migrations.
 
-## Getting Started
+## Prerequisites
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+- Go 1.25+
+- Docker Desktop (for PostgreSQL)
 
-## MakeFile
+## Quick Start
 
-Run build make command with tests
+1. **Review environment variables**
+
+	The backend reads database settings from `apps/backend/.env`.
+
+2. **Start PostgreSQL**
+
 ```bash
-make all
+make db-up
 ```
 
-Build the application
+3. **Run migrations**
+
 ```bash
-make build
+make migrate
 ```
 
-Run the application
+4. **Run the API**
+
 ```bash
 make run
 ```
 
-Database migrations (uses Atlas):
-```bash
-make migrate
-```
-Set `BLUEPRINT_DB_APPLY_MIGRATIONS=true` in non-production environments if you want migrations to run automatically on startup. The helper script expects the `BLUEPRINT_DB_*` variables or `BLUEPRINT_DATABASE_URL` to be set.
+The API starts on `http://localhost:8080`.
 
 Health endpoints:
+
 - `GET /health` basic liveness check
 - `GET /ready` pings the database connection
-Create DB container
-```bash
-make docker-run
-```
 
-Shutdown DB Container
-```bash
-make docker-down
-```
+## Common Make Targets
 
-DB Integrations Test:
 ```bash
-make itest
-```
-
-Live reload the application:
-```bash
-make watch
-```
-
-Run the test suite:
-```bash
-make test
-```
-
-BDD-style integration tests (Docker required):
-```bash
-make bdd
-```
-
-Clean up binary from the last build:
-```bash
-make clean
+make all        # build + test
+make build      # build binary
+make run        # run API
+make dev        # start db + run API
+make migrate    # run Atlas migrations
+make watch      # live reload (uses air)
+make test       # unit tests
+make itest      # integration tests
+make bdd        # BDD tests (Docker required)
+make clean      # remove build artifacts
 ```
